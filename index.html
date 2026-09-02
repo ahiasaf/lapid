@@ -323,19 +323,8 @@
   }
   .lt-chairs{display:flex;flex-direction:column;gap:5px;justify-content:center;padding:0 2px}
 
-  /* alcove + entrance side */
-  .side-col{display:flex;flex-direction:column;gap:14px;align-self:stretch}
-  .alcove{
-    border:2px dashed var(--map-ink-soft);border-radius:10px;
-    padding:8px 10px 10px;background:rgba(255,255,255,.4);
-  }
-  .alcove-head{
-    display:flex;align-items:center;gap:6px;justify-content:center;direction:rtl;
-    font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:13.5px;margin-bottom:6px;
-  }
-  .alcove-head .cseats{font-family:'Heebo';font-weight:400;font-size:11px;color:var(--map-ink-soft)}
-  .alcove-row{display:flex;gap:8px;align-items:flex-start;justify-content:center}
-  .alcove-bottom{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:8px}
+  /* רצף ספסלים מאונכים — יושבים זה לצד זה, כמו במציאות */
+  .side-run{display:flex;gap:8px;align-items:flex-start;justify-content:center;align-self:center}
   /* כניסות — פתח בקיר עם חץ פנימה, ממוקם מול הבימה */
   .door{
     position:absolute;z-index:4;display:flex;align-items:center;justify-content:center;
@@ -481,7 +470,7 @@
       "החלת X כיסאות על כל הקטע" משנה את כל הספסלים ברצף בבת אחת — הבימה מפרידה בין קטעים.<br>
       בחירת כיתה למעלה מפעילה <b>מצב צביעה</b>.<br>
       לחיצה על הריבוע הצבעוני במקרא — החלפת צבע הכיתה.<br>
-      אפשר לפצל ספסל לשתי כיתות מתוך חלון העריכה.<br>
+      אפשר לפצל ספסל לשתי כיתות, ולהפוך כל ספסל ל<b>מאונך</b>, מתוך חלון העריכה.<br>
       <b>הדפסה</b> ו־<b>PDF</b> מתאימים את המפה אוטומטית לדף A4 לרוחב, כולל כותרת ומקרא.<br>
       <b>קישור לשיתוף</b> מייצר קישור שמכיל את המפה — מי שיפתח אותו יראה בדיוק את מה שאתם רואים.
     </div>
@@ -570,7 +559,8 @@ function zStyle(id){
 }
 
 /* ---------- state ---------- */
-const mkBench = chairs => ({ id:rid(), type:"bench", chairs, zone:"", zoneB:"", split:false });
+const mkBench = (chairs, facing) =>
+  ({ id:rid(), type:"bench", chairs, zone:"", zoneB:"", split:false, facing: facing || "front" });
 const many = (n, f) => Array.from({length:n}, f);
 
 function defaultState(){
@@ -578,24 +568,22 @@ function defaultState(){
     rev: rid(),
     title: "מפת בית המדרש",
     columns: [
-      { id:rid(), name:"טור 1 (שמאל)", items: many(13, () => mkBench(6)) },
-      { id:rid(), name:"טור 2",        items: many(13, () => mkBench(6)) },
-      { id:rid(), name:"טור הבימה",    items: [
+      { id:rid(), items: many(13, () => mkBench(6)) },
+      { id:rid(), items: many(13, () => mkBench(6)) },
+      { id:rid(), items: many(13, () => mkBench(6)) },
+      { id:rid(), items: [                       /* טור הבימה */
           ...many(6, () => mkBench(6)),
           { id:rid(), type:"bima" },
           ...many(5, () => mkBench(6)),
         ] },
-      { id:rid(), name:"טור הכניסה",   items: [
-          ...many(6, () => mkBench(6)),
+      { id:rid(), items: [                       /* הצד הימני — מקדימה לאחור */
+          ...many(7, () => mkBench(6, "side")),  /* צמודים לקיר, פנים לארון */
+          ...many(4, () => mkBench(6)),
+          ...many(3, () => mkBench(6, "side")),
+          ...many(2, () => mkBench(4)),
           { id:rid(), type:"table", chairs:20, zone:"" },
         ] },
     ],
-    alcove: { name:"המובלעת", benches: [
-      { id:rid(), chairs:6, zone:"", facing:"center" },
-      { id:rid(), chairs:6, zone:"", facing:"center" },
-      { id:rid(), chairs:6, zone:"", facing:"center" },
-      { id:rid(), chairs:6, zone:"", facing:"front"  },
-    ]},
     zoneColors: {},
   };
 }
@@ -606,7 +594,7 @@ function normalize(d){
   const out = {
     rev: typeof d.rev === "string" ? d.rev : rid(),
     title: typeof d.title === "string" && d.title.trim() ? d.title : base.title,
-    columns: [], alcove: { name:"המובלעת", benches: [] },
+    columns: [],
     zoneColors: {},
   };
   if (d.zoneColors && typeof d.zoneColors === "object")
@@ -620,6 +608,8 @@ function normalize(d){
       chairs: clampInt(it.chairs, 1, 12, 6),
       zone: validZone(it.zone), split,
       zoneB: split ? validZone(it.zoneB) : "",
+      /* "center" הוא האיות הישן של ספסל מאונך */
+      facing: (it.facing === "side" || it.facing === "center") ? "side" : "front",
     };
   };
   if (Array.isArray(d.columns)) for (const c of d.columns){
@@ -635,14 +625,15 @@ function normalize(d){
     out.columns.push(col);
   }
   if (!out.columns.length) out.columns = base.columns;
+  /* מפות ישנות: "המובלעת" הופכת לטור רגיל בקצה */
   const a = d.alcove;
-  if (a && typeof a === "object"){
-    out.alcove.name = String(a.name || "המובלעת");
-    if (Array.isArray(a.benches)) for (const b of a.benches){
+  if (a && typeof a === "object" && Array.isArray(a.benches) && a.benches.length){
+    const items = [];
+    for (const b of a.benches){
       if (!b || typeof b !== "object") continue;
-      out.alcove.benches.push({ id: b.id || rid(), ...benchFields(b),
-        facing: b.facing === "front" ? "front" : "center" });
+      items.push({ id: b.id || rid(), type:"bench", ...benchFields(b) });
     }
+    if (items.length) out.columns.push({ id: rid(), items });
   }
   return out;
 }
@@ -665,8 +656,6 @@ function findItem(id){
     const idx = items.findIndex(it => it.id === id);
     if (idx >= 0) return { where:"col", list:items, idx, item:items[idx], col:state.columns[ci] };
   }
-  const idx = state.alcove.benches.findIndex(b => b.id === id);
-  if (idx >= 0) return { where:"alcove", list:state.alcove.benches, idx, item:state.alcove.benches[idx] };
   return null;
 }
 const itemSeats = it => (it.type === "bench" || it.type === "table") ? it.chairs : 0;
@@ -676,7 +665,6 @@ function totals(){
     seats += itemSeats(it);
     if (it.type === "bench") benches++;
   }
-  for (const b of state.alcove.benches){ seats += b.chairs; benches++; }
   return { seats, benches };
 }
 function zoneAgg(){
@@ -695,7 +683,6 @@ function zoneAgg(){
     } else add(it.zone, it.chairs, 1);
   };
   for (const c of state.columns) for (const it of c.items) if (it.type !== "bima") addItem(it);
-  for (const b of state.alcove.benches) addItem(b);
   return agg;
 }
 const fmtHalf = n => Number.isInteger(n) ? String(n) : (Math.floor(n) ? Math.floor(n) + "½" : "½");
@@ -859,6 +846,29 @@ function miniBtn(txt, fn, danger){
   return b;
 }
 
+const isSide = it => it.type === "bench" && it.facing === "side";
+
+/* פריטי טור: ספסלים רגילים מוערמים; רצף ספסלים מאונכים מוצג זה לצד זה */
+function renderColumnItems(colEl, items){
+  const nodeFor = it => it.type === "bima" ? bimaEl(it)
+    : it.type === "table" ? tableEl(it)
+    : benchEl(it, isSide(it));
+  let i = 0;
+  while (i < items.length){
+    if (isSide(items[i])){
+      const run = [];
+      while (i < items.length && isSide(items[i])) run.push(items[i++]);
+      const box = el("div", "side-run");
+      appendGrouped(box, run.map(it => ({ item: it, node: nodeFor(it) })), true);
+      colEl.appendChild(box);
+    } else {
+      const run = [];
+      while (i < items.length && !isSide(items[i])) run.push(items[i++]);
+      appendGrouped(colEl, run.map(it => ({ item: it, node: nodeFor(it) })), false);
+    }
+  }
+}
+
 function renderMap(){
   const map = $("#map");
   map.innerHTML = "";
@@ -876,7 +886,7 @@ function renderMap(){
     const b = el("button", "add-col", "+ טור");
     b.title = "הוספת טור " + (pos === 0 ? "בקצה השמאלי" : "בקצה הימני");
     b.addEventListener("click", () => mutate(s => {
-      const col = { id:rid(), name:"טור חדש", items: many(4, () => mkBench(6)) };
+      const col = { id:rid(), items: many(4, () => mkBench(6)) };
       if (pos === 0) s.columns.unshift(col); else s.columns.push(col);
     }));
     return b;
@@ -887,12 +897,7 @@ function renderMap(){
     const colEl = el("div", "column");
     const colSeats = c.items.reduce((a, it) => a + itemSeats(it), 0);
     colEl.appendChild(el("div", "col-count", colSeats + " מקומות"));
-    appendGrouped(colEl, c.items.map(it => ({
-      item: it,
-      node: it.type === "bima" ? bimaEl(it)
-          : it.type === "table" ? tableEl(it)
-          : benchEl(it, false),
-    })), false);
+    renderColumnItems(colEl, c.items);
 
     const tools = el("div", "col-tools");
     tools.appendChild(miniBtn("+ ספסל", () => mutate(s => s.columns[ci].items.push(mkBench(6)))));
@@ -912,32 +917,6 @@ function renderMap(){
     colEl.appendChild(tools);
     hall.appendChild(colEl);
   });
-
-  /* side: alcove (front) + entrance (back) */
-  const side = el("div", "side-col");
-  const alc = el("div", "alcove");
-  const aSeats = state.alcove.benches.reduce((a, b) => a + b.chairs, 0);
-  const ah = el("div", "alcove-head");
-  ah.appendChild(el("span", "col-count", aSeats + " מקומות"));
-  alc.appendChild(ah);
-  const arow = el("div", "alcove-row");
-  const abot = el("div", "alcove-bottom");
-  const centerB = state.alcove.benches.filter(b => b.facing !== "front");
-  const frontB = state.alcove.benches.filter(b => b.facing === "front");
-  appendGrouped(arow, centerB.map(b => ({ item: { ...b, type:"bench" }, node: benchEl(b, true) })), true);
-  appendGrouped(abot, frontB.map(b => ({ item: { ...b, type:"bench" }, node: benchEl(b, false) })), false);
-  if (arow.children.length) alc.appendChild(arow);
-  if (abot.children.length) alc.appendChild(abot);
-  const atools = el("div", "col-tools");
-  atools.style.justifyContent = "center";
-  atools.style.display = "flex";
-  atools.style.marginTop = "8px";
-  atools.appendChild(miniBtn("+ ספסל", () => mutate(s =>
-    s.alcove.benches.push({ id:rid(), chairs:6, zone:"", facing:"center" }))));
-  alc.appendChild(atools);
-  side.appendChild(alc);
-
-  hall.appendChild(side);
 
   hall.appendChild(addColBtn(1));
   room.appendChild(hall);
@@ -1140,7 +1119,7 @@ function openPop(id, refreshOnly){
 
   const kind = it.type === "bima" ? "הבימה"
              : it.type === "table" ? "שולחן"
-             : f.where === "alcove" ? "ספסל במובלעת" : "ספסל";
+             : isSide(it) ? "ספסל מאונך" : "ספסל";
   pop.appendChild(el("h3", "", kind));
 
   if (it.type !== "bima"){
@@ -1153,24 +1132,21 @@ function openPop(id, refreshOnly){
     if (it.type === "bench"){
       const secBtn = el("button", "btn", `החלת ${it.chairs} כיסאות על כל הקטע`);
       secBtn.style.width = "100%";
-      secBtn.title = "כל הספסלים ברצף הזה (עד הבימה / השולחן / קצה הטור) יקבלו אותו מספר כיסאות";
+      secBtn.title = "כל הספסלים ברצף הזה — באותו כיוון, עד הבימה / השולחן / קצה הטור";
       secBtn.addEventListener("click", () => mutate(() => {
         const g = findItem(id);
         if (!g) return;
-        const n = g.item.chairs;
-        if (g.where === "alcove"){
-          for (const b of g.list) if (b.facing === g.item.facing) b.chairs = n;
-          return;
-        }
+        const n = g.item.chairs, dir = g.item.facing;
+        const same = x => x.type === "bench" && x.facing === dir;
         let lo = g.idx, hiI = g.idx;
-        while (lo > 0 && g.list[lo-1].type === "bench") lo--;
-        while (hiI < g.list.length - 1 && g.list[hiI+1].type === "bench") hiI++;
+        while (lo > 0 && same(g.list[lo-1])) lo--;
+        while (hiI < g.list.length - 1 && same(g.list[hiI+1])) hiI++;
         for (let i = lo; i <= hiI; i++) g.list[i].chairs = n;
       }));
       pop.appendChild(secBtn);
     }
     if (it.type === "bench" && it.split){
-      const vert = f.where === "alcove" && it.facing !== "front";
+      const vert = isSide(it);
       const hs = halfSeats(it);
       pop.appendChild(el("div", "rl", `${vert ? "חצי קדמי" : "חצי ימני"} (${hs.a} מק׳)`));
       pop.appendChild(zoneGrid(it.zone, z =>
@@ -1197,22 +1173,22 @@ function openPop(id, refreshOnly){
     }
   }
 
-  if (f.where === "alcove"){
+  if (it.type === "bench"){
     const row = el("div", "row");
     row.appendChild(el("span", "rl", "כיוון"));
     const seg = el("div", "seg");
-    const b1 = el("button", it.facing === "center" ? "on" : "", "פנים למרכז");
-    const b2 = el("button", it.facing === "front" ? "on" : "", "פנים לארון");
-    b1.addEventListener("click", () => mutate(() => { findItem(id).item.facing = "center"; }));
-    b2.addEventListener("click", () => mutate(() => { findItem(id).item.facing = "front"; }));
+    const b1 = el("button", it.facing !== "side" ? "on" : "", "פנים קדימה");
+    const b2 = el("button", it.facing === "side" ? "on" : "", "מאונך");
+    b1.addEventListener("click", () => mutate(() => { const g = findItem(id); if (g) g.item.facing = "front"; }));
+    b2.addEventListener("click", () => mutate(() => { const g = findItem(id); if (g) g.item.facing = "side"; }));
     seg.append(b1, b2);
     row.appendChild(seg);
     pop.appendChild(row);
   }
 
   const btns = el("div", "btns");
-  const fwdLbl = f.where === "alcove" ? "→ הזזה" : "↑ קדימה";
-  const bckLbl = f.where === "alcove" ? "← הזזה" : "↓ אחורה";
+  const fwdLbl = isSide(it) ? "→ הזזה" : "↑ קדימה";
+  const bckLbl = isSide(it) ? "← הזזה" : "↓ אחורה";
   btns.appendChild(popBtn(fwdLbl, () => mutate(() => {
     const g = findItem(id);
     if (g.idx > 0) [g.list[g.idx-1], g.list[g.idx]] = [g.list[g.idx], g.list[g.idx-1]];
@@ -1223,10 +1199,10 @@ function openPop(id, refreshOnly){
   })));
   if (f.where === "col"){
     btns.appendChild(popBtn("+ ספסל לפני", () => mutate(() => {
-      const g = findItem(id); g.list.splice(g.idx, 0, mkBench(6));
+      const g = findItem(id); g.list.splice(g.idx, 0, mkBench(g.item.chairs || 6, g.item.facing));
     })));
     btns.appendChild(popBtn("+ ספסל אחרי", () => mutate(() => {
-      const g = findItem(id); g.list.splice(g.idx + 1, 0, mkBench(6));
+      const g = findItem(id); g.list.splice(g.idx + 1, 0, mkBench(g.item.chairs || 6, g.item.facing));
     })));
   }
   if (it.type === "bench"){
