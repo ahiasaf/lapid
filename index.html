@@ -174,17 +174,25 @@
   }
   .map{
     direction:ltr; /* geometry: index 0 = הטור השמאלי בפועל */
+    background:#FCFAF4;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:14px 18px 12px;
+    color:var(--map-ink);
+    box-shadow:var(--shadow);
+    min-width:max-content;
+    display:flex;flex-direction:column;
+  }
+  /* חלל בית המדרש עצמו — הקירות והרצפה */
+  .room{
+    position:relative;flex:1;display:flex;flex-direction:column;
     background:
       repeating-linear-gradient(0deg,transparent 0 39px,var(--floor-line) 39px 40px),
       repeating-linear-gradient(90deg,transparent 0 39px,var(--floor-line) 39px 40px),
       var(--floor);
     border:3px solid var(--wood-dark);
-    border-radius:6px;
-    padding:18px 26px 14px;
-    color:var(--map-ink);
-    box-shadow:var(--shadow);
-    min-width:max-content;
-    display:flex;flex-direction:column;
+    border-radius:5px;
+    padding:16px 22px 12px;
   }
   .front-wall{
     display:flex;justify-content:center;align-items:flex-end;gap:18px;
@@ -328,16 +336,21 @@
   .alcove-head .cseats{font-family:'Heebo';font-weight:400;font-size:11px;color:var(--map-ink-soft)}
   .alcove-row{display:flex;gap:8px;align-items:flex-start;justify-content:center}
   .alcove-bottom{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:8px}
-  .entrance{
-    margin-top:auto;text-align:center;color:var(--map-ink-soft);direction:rtl;
-    font-size:12px;padding:10px 6px 2px;
+  /* כניסות — פתח בקיר עם חץ פנימה, ממוקם מול הבימה */
+  .door{
+    position:absolute;z-index:4;display:flex;align-items:center;justify-content:center;
+    direction:rtl;color:var(--wood-dark);font-family:'Frank Ruhl Libre',serif;
+    font-weight:700;font-size:12px;white-space:nowrap;
   }
-  .entrance .door{
-    width:58px;height:26px;margin:0 auto 4px;
-    border:2px solid var(--map-ink-soft);border-top:none;border-radius:0 0 50px 50px;
-    position:relative;
+  .door .opening{
+    background:var(--floor);border:3px solid var(--wood-dark);
+    display:flex;align-items:center;justify-content:center;
   }
-  .entrance .door::after{content:"↓";position:absolute;top:-4px;left:50%;transform:translateX(-50%);font-size:15px}
+  .door.right{right:-3px;flex-direction:row;gap:6px}
+  .door.right .opening{width:15px;height:76px;border-right-color:transparent;border-radius:8px 0 0 8px}
+  .door.bottom{bottom:-3px;flex-direction:column;gap:5px}
+  .door.bottom .opening{height:15px;width:92px;border-bottom-color:transparent;border-radius:0 0 8px 8px}
+  .door .arrow{font-size:15px;line-height:1;color:var(--wood-dark)}
 
   /* ---------- popover ---------- */
   .pop{
@@ -388,7 +401,7 @@
   /* כותרת מודפסת בתוך המפה */
   .map-title{
     display:none;align-items:baseline;gap:12px;direction:rtl;
-    margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--wood-dark);
+    margin-bottom:9px;padding-bottom:7px;border-bottom:2px solid var(--wood-dark);
   }
   .map-title h2{
     font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:20px;margin:0;
@@ -400,7 +413,7 @@
   /* מקרא קומפקטי שמודפס בתוך המפה עצמה */
   .map-legend{
     display:none;flex-wrap:wrap;gap:6px 10px;align-items:center;direction:rtl;
-    margin-top:12px;padding-top:9px;border-top:2px dashed var(--map-ink-soft);
+    margin-top:10px;padding-top:8px;
     font-size:12px;color:var(--map-ink);
   }
   .map-legend .mchip{
@@ -850,11 +863,12 @@ function renderMap(){
   const map = $("#map");
   map.innerHTML = "";
 
+  const room = el("div", "room");
   const front = el("div", "front-wall");
   const aron = el("div", "aron", "ארון הקודש");
   aron.appendChild(el("small", "", "חזית בית המדרש"));
   front.appendChild(aron);
-  map.appendChild(front);
+  room.appendChild(front);
 
   const hall = el("div", "hall");
 
@@ -923,14 +937,11 @@ function renderMap(){
   alc.appendChild(atools);
   side.appendChild(alc);
 
-  const ent = el("div", "entrance");
-  ent.appendChild(el("div", "door"));
-  ent.appendChild(document.createTextNode("הכניסה"));
-  side.appendChild(ent);
   hall.appendChild(side);
 
   hall.appendChild(addColBtn(1));
-  map.appendChild(hall);
+  room.appendChild(hall);
+  map.appendChild(room);
 
   /* כותרת ומקרא מודפסים בתוך המפה */
   const mt = el("div", "map-title");
@@ -954,7 +965,37 @@ function renderMap(){
   ml.appendChild(el("span", "mtotal", `סה״כ ${t.seats} מקומות · ${t.benches} ספסלים`));
   map.appendChild(ml);
 
+  placeDoors(room);
   fitPage(map);
+}
+
+/* שתי הכניסות: אחת בקיר הימני ואחת בקיר התחתון — שתיהן מול הבימה */
+function placeDoors(room){
+  const mk = (cls, label) => {
+    const d = el("div", "door " + cls);
+    const op = el("div", "opening");
+    op.appendChild(el("span", "arrow", cls === "right" ? "←" : "↑"));
+    d.append(op, el("span", "", label));
+    return d;
+  };
+  const right = mk("right", "כניסה");
+  const bottom = mk("bottom", "כניסה");
+  room.append(right, bottom);
+  positionDoors();
+}
+
+/* מיקום הכניסות מול הבימה — מחושב מחדש בכל שינוי פריסה */
+function positionDoors(){
+  const room = document.querySelector("#map .room");
+  if (!room) return;
+  const right = room.querySelector(".door.right");
+  const bottom = room.querySelector(".door.bottom");
+  if (!right || !bottom) return;
+  const bima = room.querySelector(".bima");
+  const cy = bima ? bima.offsetTop + bima.offsetHeight / 2 : room.offsetHeight / 2;
+  const cx = bima ? bima.offsetLeft + bima.offsetWidth / 2 : room.offsetWidth / 2;
+  right.style.top = Math.max(6, cy - 38) + "px";
+  bottom.style.left = Math.max(6, cx - 46) + "px";
 }
 
 /* שומר על יחס דף A3/A4 לרוחב (√2) — משלים רוחב או גובה לפי הצורך */
@@ -965,6 +1006,7 @@ function fitPage(map){
   if (!w || !h) return;
   if (w / h > R) map.style.minHeight = Math.ceil(w / R) + "px";
   else map.style.minWidth = Math.ceil(h * R) + "px";
+  positionDoors();
 }
 
 function renderLegend(t){
@@ -1290,7 +1332,15 @@ function unfitPrint(){
 }
 window.addEventListener("beforeprint", fitForPrint);
 window.addEventListener("afterprint", unfitPrint);
-$("#printBtn").addEventListener("click", () => { closePop(); window.print(); });
+$("#printBtn").addEventListener("click", () => {
+  closePop();
+  try{ window.print(); } finally { unfitPrint(); }
+  setTimeout(unfitPrint, 1200);   /* רשת ביטחון לדפדפנים שלא מפעילים afterprint */
+});
+/* אם משום מה נשארנו במצב הדפסה — כל נגיעה במפה מחזירה אותה למצב רגיל */
+document.addEventListener("pointerdown", () => {
+  if (document.body.classList.contains("printing")) unfitPrint();
+}, true);
 $("#zoom").addEventListener("input", e => {
   closePop();
   $("#mapFrame").style.transform = `scale(${e.target.value / 100})`;
@@ -1435,7 +1485,8 @@ async function exportPdf(){
     const prevTransform = frame.style.transform;
     document.body.classList.add("printing");
     frame.style.transform = "none";
-    await new Promise(r => setTimeout(r, 60));
+    fitPage(map);            /* יחס דף ומיקום הכניסות אחרי הסתרת כלי העריכה */
+    await new Promise(r => setTimeout(r, 80));
 
     const canvas = await window.html2canvas(map, {
       scale: 2, backgroundColor: "#FFFFFF", logging: false, useCORS: true,
