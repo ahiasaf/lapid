@@ -151,7 +151,11 @@
     margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line);
   }
   .legend-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px}
-  .legend-row .dot{width:14px;height:14px;border-radius:4px;border:1.5px solid rgba(0,0,0,.35);flex:none}
+  .legend-row .dot{width:15px;height:15px;border-radius:4px;border:1.5px solid rgba(0,0,0,.35);flex:none;cursor:pointer;padding:0}
+  .legend-row .dot:hover{outline:2px solid var(--accent);outline-offset:1px}
+  .swatches{display:grid;grid-template-columns:repeat(8,26px);gap:6px;justify-content:center;margin-top:6px}
+  .swatch{width:24px;height:24px;border-radius:7px;border:2px solid;cursor:pointer;padding:0}
+  .swatch:hover,.swatch.sel{outline:2px solid var(--accent);outline-offset:1px}
   .legend-row .zname{font-weight:700}
   .legend-row .zcount{margin-inline-start:auto;color:var(--ink-soft);font-variant-numeric:tabular-nums}
   .legend-empty{color:var(--ink-soft);font-size:12.5px;line-height:1.6}
@@ -225,33 +229,34 @@
   /* bench */
   .bench{
     position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;
-    padding:5px 7px 8px;border-radius:8px;cursor:pointer;
+    padding:5px 7px;border-radius:8px;cursor:pointer;
     border:2px solid transparent;
   }
   .bench:hover{border-color:var(--map-ink-soft)}
   .bench-bar{height:11px;border-radius:3px;align-self:stretch;
     background:linear-gradient(180deg,var(--wood-light),var(--wood) 60%,var(--wood-dark));
     border:1px solid var(--wood-dark);
+    box-shadow:0 1.5px 2px rgba(43,33,23,.25);
   }
-  .chair-row{display:flex;gap:5px}
-  /* כיסא פלסטיק במבט־על: מושב עם ברק עדין, משענת בולטת בצד המרוחק מהשולחן */
+  .chair-row{display:flex;gap:4px}
+  /* כיסא במבט־על בסגנון תוכנית אדריכלית: מושב מעוגל + משענת קשתית (סמל SVG משותף) */
   .chair{
-    width:22px;height:20px;position:relative;
-    background:linear-gradient(160deg,var(--plastic-hi) 8%,var(--plastic) 55%,var(--plastic-lo));
-    border:1px solid var(--plastic-edge);
-    border-radius:6px 6px 9px 9px;
-    box-shadow:0 1.5px 2px rgba(43,33,23,.22);
+    width:22px;height:22px;flex:none;
+    filter:drop-shadow(0 1.2px 1px rgba(43,33,23,.28));
   }
-  .chair::before{ /* ברק על המושב */
-    content:"";position:absolute;inset:2px 3px 8px 3px;border-radius:5px;
-    background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,0));
-    pointer-events:none;
+  .chair.r-left{transform:rotate(90deg)}
+  .chair.r-right{transform:rotate(-90deg)}
+  .col-count{
+    font-size:11px;font-weight:700;color:var(--map-ink-soft);direction:rtl;
+    font-variant-numeric:tabular-nums;margin-bottom:2px;
   }
-  .chair::after{ /* משענת */
-    content:"";position:absolute;left:2px;right:2px;bottom:-3px;height:6px;
-    background:linear-gradient(180deg,var(--plastic-back),var(--plastic-edge));
-    border:1px solid var(--plastic-edge);border-radius:4px 4px 5px 5px;
-    box-shadow:0 1px 1.5px rgba(43,33,23,.28);
+  .bench.split::after{
+    content:"";position:absolute;left:50%;top:6px;bottom:6px;width:0;
+    border-left:1.5px dashed rgba(0,0,0,.35);
+  }
+  .bench.vertical.split::after{
+    left:6px;right:6px;top:50%;bottom:auto;width:auto;height:0;
+    border-left:none;border-top:1.5px dashed rgba(0,0,0,.35);
   }
   .ztag{
     position:absolute;top:-10px;right:-8px;z-index:2;
@@ -259,6 +264,8 @@
     border:1.5px solid rgba(0,0,0,.4);direction:rtl;line-height:16px;
     color:#241A10;background:#fff;box-shadow:0 1px 2px rgba(43,33,23,.2);
   }
+  .ztag.at-left{left:-8px;right:auto}
+  .ztag.at-bottom{top:auto;bottom:-10px}
 
   /* מסגרת אזור לכיתה — עוטפת רצף ספסלים של אותה כיתה */
   .zgroup{
@@ -268,18 +275,11 @@
   .zgroup.h{flex-direction:row;gap:8px}
 
   /* vertical bench (המובלעת — פנים למרכז) */
-  .bench.vertical{flex-direction:row;align-items:center;padding:6px 9px 6px 6px;gap:3px}
+  .bench.vertical{flex-direction:row;align-items:center;padding:7px 6px;gap:3px}
   .bench.vertical .bench-bar{width:11px;height:auto;align-self:stretch;
     background:linear-gradient(90deg,var(--wood-light),var(--wood) 60%,var(--wood-dark));
   }
-  .bench.vertical .chair-row{flex-direction:column;gap:5px}
-  .bench.vertical .chair{width:20px;height:22px;border-radius:6px 9px 9px 6px}
-  .bench.vertical .chair::before{inset:2px 8px 2px 3px}
-  .bench.vertical .chair::after{
-    left:auto;right:-3px;top:2px;bottom:2px;width:6px;height:auto;
-    background:linear-gradient(90deg,var(--plastic-back),var(--plastic-edge));
-    border-radius:4px 5px 5px 4px;
-  }
+  .bench.vertical .chair-row{flex-direction:column;gap:4px}
 
   /* bima */
   .bima{
@@ -313,22 +313,7 @@
     color:#FFF7EA;font-family:'Frank Ruhl Libre',serif;
     font-weight:700;font-size:11px;direction:rtl;white-space:nowrap;
   }
-  .lt-chairs{display:flex;flex-direction:column;gap:6px;justify-content:center;padding:0 3px}
-  .lt-chairs .chair{width:20px;height:22px}
-  .lt-chairs.left .chair{border-radius:9px 6px 6px 9px}
-  .lt-chairs.left .chair::before{inset:2px 3px 2px 8px}
-  .lt-chairs.left .chair::after{
-    left:-3px;right:auto;top:2px;bottom:2px;width:6px;height:auto;
-    background:linear-gradient(270deg,var(--plastic-back),var(--plastic-edge));
-    border-radius:5px 4px 4px 5px;
-  }
-  .lt-chairs.right .chair{border-radius:6px 9px 9px 6px}
-  .lt-chairs.right .chair::before{inset:2px 8px 2px 3px}
-  .lt-chairs.right .chair::after{
-    left:auto;right:-3px;top:2px;bottom:2px;width:6px;height:auto;
-    background:linear-gradient(90deg,var(--plastic-back),var(--plastic-edge));
-    border-radius:4px 5px 5px 4px;
-  }
+  .lt-chairs{display:flex;flex-direction:column;gap:5px;justify-content:center;padding:0 2px}
 
   /* alcove + entrance side */
   .side-col{display:flex;flex-direction:column;gap:14px;align-self:stretch}
@@ -439,6 +424,27 @@
 </div>
 </div>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="seatG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#DCE6EC"/>
+      <stop offset="1" stop-color="#A2B8C6"/>
+    </linearGradient>
+    <linearGradient id="backG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8FA8B8"/>
+      <stop offset="1" stop-color="#6E8B9D"/>
+    </linearGradient>
+    <symbol id="chairTop" viewBox="0 0 24 24">
+      <path d="M3.2 15.2 Q12 19.6 20.8 15.2 L20.8 19.4 Q12 23.8 3.2 19.4 Z"
+            fill="url(#backG)" stroke="#48626F" stroke-width="1"/>
+      <rect x="4" y="1.8" width="16" height="15.2" rx="4.4"
+            fill="url(#seatG)" stroke="#54707E" stroke-width="1.1"/>
+      <path d="M7.2 5.4 Q12 3.8 16.8 5.4" fill="none" stroke="#F1F6F9"
+            stroke-width="1.4" stroke-linecap="round" opacity="0.9"/>
+    </symbol>
+  </defs>
+</svg>
+
 <main dir="rtl">
   <aside class="legend">
     <h2>מקרא כיתות</h2>
@@ -449,6 +455,8 @@
       לחיצה על ספסל / בימה / שולחן פותחת עריכה: מספר כיסאות, שיוך כיתה, הוספה, הזזה ומחיקה.<br>
       "החלת X כיסאות על כל הקטע" משנה את כל הספסלים ברצף בבת אחת — הבימה מפרידה בין קטעים.<br>
       בחירת כיתה למעלה מפעילה <b>מצב צביעה</b>.<br>
+      לחיצה על הריבוע הצבעוני במקרא — החלפת צבע הכיתה.<br>
+      אפשר לפצל ספסל לשתי כיתות מתוך חלון העריכה.<br>
       לפני הדפסה כוונו את הזום כך שהמפה נכנסת בעמוד.
     </div>
   </aside>
@@ -500,18 +508,43 @@ const el = (tag, cls, txt) => {
 
 /* ---------- zones (כיתות) ---------- */
 const GRADES = ["ז","ח"], NUMS = [1,2,3,4,5,6,7];
-const HUES = [8,36,62,105,160,205,262];
 const ZONES = [];
 for (const g of GRADES) for (const n of NUMS) ZONES.push(g + n);
 const zLabel = id => id[0] + "׳" + id.slice(1);
+
+/* פלטת צבעים — עמוקים וגבריים כברירת מחדל; ורוד/סגול קיימים רק כבחירה מפורשת */
+const PRESETS = [
+  { f:"hsl(210 55% 78%)", b:"hsl(210 55% 34%)" },  /* 0 כחול   */
+  { f:"hsl(198 60% 74%)", b:"hsl(198 65% 30%)" },  /* 1 תכלת   */
+  { f:"hsl(184 50% 72%)", b:"hsl(184 60% 26%)" },  /* 2 טורקיז */
+  { f:"hsl(160 45% 72%)", b:"hsl(160 55% 26%)" },  /* 3 אמרלד  */
+  { f:"hsl(135 45% 74%)", b:"hsl(135 45% 28%)" },  /* 4 ירוק   */
+  { f:"hsl(90 45% 72%)",  b:"hsl(90 45% 27%)"  },  /* 5 זית    */
+  { f:"hsl(52 65% 70%)",  b:"hsl(46 70% 30%)"  },  /* 6 צהוב   */
+  { f:"hsl(38 75% 74%)",  b:"hsl(35 75% 33%)"  },  /* 7 ענבר   */
+  { f:"hsl(24 75% 76%)",  b:"hsl(22 70% 36%)"  },  /* 8 כתום   */
+  { f:"hsl(10 60% 78%)",  b:"hsl(8 60% 36%)"   },  /* 9 אדום   */
+  { f:"hsl(20 38% 74%)",  b:"hsl(20 40% 30%)"  },  /* 10 חום   */
+  { f:"hsl(232 45% 81%)", b:"hsl(232 45% 36%)" },  /* 11 אינדיגו */
+  { f:"hsl(210 14% 79%)", b:"hsl(210 12% 34%)" },  /* 12 אפור כחלחל */
+  { f:"hsl(40 10% 78%)",  b:"hsl(40 10% 32%)"  },  /* 13 אפור חם */
+  { f:"hsl(262 38% 81%)", b:"hsl(262 40% 38%)" },  /* 14 סגול (בחירה בלבד) */
+  { f:"hsl(330 45% 82%)", b:"hsl(330 50% 38%)" },  /* 15 ורוד (בחירה בלבד) */
+];
+const DEFAULT_IDX = {
+  "ז1":0, "ז2":2, "ז3":4, "ז4":8, "ז5":9, "ז6":6, "ז7":10,
+  "ח1":1, "ח2":3, "ח3":5, "ח4":7, "ח5":11, "ח6":12, "ח7":13,
+};
 function zStyle(id){
-  const n = +id.slice(1), h = HUES[n-1];
-  if (id[0] === "ז") return { fill:`hsl(${h} 64% 84%)`, border:`hsl(${h} 50% 40%)` };
-  return { fill:`hsl(${h} 58% 70%)`, border:`hsl(${h} 62% 28%)` };
+  const custom = state.zoneColors && state.zoneColors[id];
+  const idx = Number.isInteger(custom) && custom >= 0 && custom < PRESETS.length
+    ? custom : (DEFAULT_IDX[id] ?? 0);
+  const p = PRESETS[idx];
+  return { fill: p.f, border: p.b, idx };
 }
 
 /* ---------- state ---------- */
-const mkBench = chairs => ({ id:rid(), type:"bench", chairs, zone:"" });
+const mkBench = chairs => ({ id:rid(), type:"bench", chairs, zone:"", zoneB:"", split:false });
 const many = (n, f) => Array.from({length:n}, f);
 
 function defaultState(){
@@ -537,6 +570,7 @@ function defaultState(){
       { id:rid(), chairs:6, zone:"", facing:"center" },
       { id:rid(), chairs:6, zone:"", facing:"front"  },
     ]},
+    zoneColors: {},
   };
 }
 
@@ -547,6 +581,20 @@ function normalize(d){
     rev: typeof d.rev === "string" ? d.rev : rid(),
     title: typeof d.title === "string" && d.title.trim() ? d.title : base.title,
     columns: [], alcove: { name:"המובלעת", benches: [] },
+    zoneColors: {},
+  };
+  if (d.zoneColors && typeof d.zoneColors === "object")
+    for (const z of ZONES){
+      const v = d.zoneColors[z];
+      if (Number.isInteger(v) && v >= 0 && v < PRESETS.length) out.zoneColors[z] = v;
+    }
+  const benchFields = it => {
+    const split = !!it.split;
+    return {
+      chairs: clampInt(it.chairs, 1, 12, 6),
+      zone: validZone(it.zone), split,
+      zoneB: split ? validZone(it.zoneB) : "",
+    };
   };
   if (Array.isArray(d.columns)) for (const c of d.columns){
     if (!c || typeof c !== "object") continue;
@@ -556,8 +604,7 @@ function normalize(d){
       if (it.type === "bima") col.items.push({ id: it.id || rid(), type:"bima" });
       else if (it.type === "table") col.items.push({ id: it.id || rid(), type:"table",
         chairs: clampInt(it.chairs, 1, 40, 20), zone: validZone(it.zone) });
-      else col.items.push({ id: it.id || rid(), type:"bench",
-        chairs: clampInt(it.chairs, 1, 12, 6), zone: validZone(it.zone) });
+      else col.items.push({ id: it.id || rid(), type:"bench", ...benchFields(it) });
     }
     out.columns.push(col);
   }
@@ -567,8 +614,7 @@ function normalize(d){
     out.alcove.name = String(a.name || "המובלעת");
     if (Array.isArray(a.benches)) for (const b of a.benches){
       if (!b || typeof b !== "object") continue;
-      out.alcove.benches.push({ id: b.id || rid(),
-        chairs: clampInt(b.chairs, 1, 12, 6), zone: validZone(b.zone),
+      out.alcove.benches.push({ id: b.id || rid(), ...benchFields(b),
         facing: b.facing === "front" ? "front" : "center" });
     }
   }
@@ -641,16 +687,49 @@ function renderAll(){
   renderLegend(t);
   renderChips();
   if (popTarget) openPop(popTarget, true);
+  else if (popMode === "color") closePop();
 }
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+function chairEl(rot){
+  const s = document.createElementNS(SVG_NS, "svg");
+  s.setAttribute("viewBox", "0 0 24 24");
+  s.setAttribute("class", "chair" + (rot ? " " + rot : ""));
+  const u = document.createElementNS(SVG_NS, "use");
+  u.setAttribute("href", "#chairTop");
+  s.appendChild(u);
+  return s;
+}
+
+function halfSeats(b){ return { a: Math.ceil(b.chairs / 2), b: Math.floor(b.chairs / 2) }; }
 
 function benchEl(b, vertical){
   const d = el("div", "bench" + (vertical ? " vertical" : ""));
   d.dataset.id = b.id;
+  if (b.split){
+    d.classList.add("split");
+    const zsA = b.zone ? zStyle(b.zone) : null;
+    const zsB = b.zoneB ? zStyle(b.zoneB) : null;
+    const dir = vertical ? "to bottom" : "to left"; /* חצי א׳ = ימני/קדמי */
+    d.style.background = `linear-gradient(${dir}, ${zsA ? zsA.fill : "transparent"} 0 50%, ${zsB ? zsB.fill : "transparent"} 50% 100%)`;
+    d.style.borderColor = (zsA || zsB) ? (zsA || zsB).border : "transparent";
+    const hs = halfSeats(b);
+    if (zsA){
+      const t = el("span", "ztag", `${zLabel(b.zone)}·${hs.a}`);
+      t.style.background = zsA.fill; t.style.borderColor = zsA.border;
+      d.appendChild(t);
+    }
+    if (zsB){
+      const t = el("span", "ztag " + (vertical ? "at-bottom" : "at-left"), `${zLabel(b.zoneB)}·${hs.b}`);
+      t.style.background = zsB.fill; t.style.borderColor = zsB.border;
+      d.appendChild(t);
+    }
+  }
   d.appendChild(el("div", "bench-bar"));
   const row = el("div", "chair-row");
-  for (let i = 0; i < b.chairs; i++) row.appendChild(el("div", "chair"));
+  for (let i = 0; i < b.chairs; i++) row.appendChild(chairEl(vertical ? "r-right" : ""));
   d.appendChild(row);
-  d.title = `ספסל · ${b.chairs} כיסאות` + (b.zone ? ` · ${zLabel(b.zone)}` : "");
+  d.title = `ספסל · ${b.chairs} כיסאות` + (b.zone && !b.split ? ` · ${zLabel(b.zone)}` : "");
   return d;
 }
 
@@ -668,28 +747,14 @@ function tableEl(it){
   const left = el("div", "lt-chairs left");
   const right = el("div", "lt-chairs right");
   const half = Math.ceil(it.chairs / 2);
-  for (let i = 0; i < half; i++) left.appendChild(el("div", "chair"));
-  for (let i = 0; i < it.chairs - half; i++) right.appendChild(el("div", "chair"));
+  for (let i = 0; i < half; i++) left.appendChild(chairEl("r-left"));
+  for (let i = 0; i < it.chairs - half; i++) right.appendChild(chairEl("r-right"));
   const surf = el("div", "lt-surface");
   const lbl = el("span", "", "שולחן");
   surf.appendChild(lbl);
   d.append(left, surf, right);
   d.title = `שולחן · ${it.chairs} מקומות` + (it.zone ? ` · ${zLabel(it.zone)}` : "");
   return d;
-}
-
-function editableName(txt, onCommit, cls){
-  const s = el("span", cls || "cname", txt);
-  s.contentEditable = "true";
-  s.spellcheck = false;
-  s.addEventListener("click", e => e.stopPropagation());
-  s.addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); s.blur(); } });
-  s.addEventListener("blur", () => {
-    const v = s.textContent.trim();
-    if (v && v !== txt) onCommit(v);
-    else s.textContent = txt;
-  });
-  return s;
 }
 
 function zgroupEl(zone, horizontal){
@@ -704,22 +769,30 @@ function zgroupEl(zone, horizontal){
   return g;
 }
 
-/* מוסיף פריטים למכל תוך איחוד רצפים של אותה כיתה למסגרת אחת */
+/* מוסיף פריטים למכל תוך איחוד רצפים של אותה כיתה למסגרת אחת עם ספירת מקומות */
 function appendGrouped(container, entries, horizontal){
-  let run = null; // {zone, wrap}
+  let run = null; // {zone, wrap, tag, seats}
+  const flush = () => {
+    if (run) run.tag.textContent = `${zLabel(run.zone)} · ${run.seats}`;
+    run = null;
+  };
   for (const { item, node } of entries){
-    const z = (item.type !== "bima" && item.zone) ? item.zone : null;
+    const z = (item.type !== "bima" && !item.split && item.zone) ? item.zone : null;
     if (z){
       if (!run || run.zone !== z){
-        run = { zone: z, wrap: zgroupEl(z, horizontal) };
-        container.appendChild(run.wrap);
+        flush();
+        const wrap = zgroupEl(z, horizontal);
+        container.appendChild(wrap);
+        run = { zone: z, wrap, tag: wrap.querySelector(".ztag"), seats: 0 };
       }
       run.wrap.appendChild(node);
+      run.seats += item.chairs || 0;
     } else {
-      run = null;
+      flush();
       container.appendChild(node);
     }
   }
+  flush();
 }
 
 function miniBtn(txt, fn, danger){
@@ -754,6 +827,8 @@ function renderMap(){
 
   state.columns.forEach((c, ci) => {
     const colEl = el("div", "column");
+    const colSeats = c.items.reduce((a, it) => a + itemSeats(it), 0);
+    colEl.appendChild(el("div", "col-count", colSeats + " מקומות"));
     appendGrouped(colEl, c.items.map(it => ({
       item: it,
       node: it.type === "bima" ? bimaEl(it)
@@ -766,6 +841,12 @@ function renderMap(){
     if (!c.items.some(it => it.type === "bima"))
       tools.appendChild(miniBtn("+ בימה", () => mutate(s => s.columns[ci].items.push({ id:rid(), type:"bima" }))));
     tools.appendChild(miniBtn("+ שולחן", () => mutate(s => s.columns[ci].items.push({ id:rid(), type:"table", chairs:20, zone:"" }))));
+    tools.appendChild(miniBtn("שכפול טור", () => mutate(s => {
+      const cc = clone(s.columns[ci]);
+      cc.id = rid();
+      for (const it of cc.items) it.id = rid();
+      s.columns.splice(ci + 1, 0, cc);
+    })));
     tools.appendChild(miniBtn("מחיקת טור", b => {
       if (b.dataset.arm){ mutate(s => s.columns.splice(ci, 1)); }
       else { b.dataset.arm = "1"; b.textContent = "בטוח? לחצו שוב"; setTimeout(() => { delete b.dataset.arm; b.textContent = "מחיקת טור"; }, 2500); }
@@ -777,10 +858,9 @@ function renderMap(){
   /* side: alcove (front) + entrance (back) */
   const side = el("div", "side-col");
   const alc = el("div", "alcove");
-  const ah = el("div", "alcove-head");
-  ah.appendChild(editableName(state.alcove.name, v => mutate(s => { s.alcove.name = v; })));
   const aSeats = state.alcove.benches.reduce((a, b) => a + b.chairs, 0);
-  ah.appendChild(el("span", "cseats", aSeats + " מק׳"));
+  const ah = el("div", "alcove-head");
+  ah.appendChild(el("span", "col-count", aSeats + " מקומות"));
   alc.appendChild(ah);
   const arow = el("div", "alcove-row");
   const abot = el("div", "alcove-bottom");
@@ -823,28 +903,38 @@ function fitPage(map){
 function renderLegend(t){
   const body = $("#legendBody");
   body.innerHTML = "";
-  const agg = {}; // zone -> {benches, seats}
-  const add = it => {
-    if (!it.zone) return;
-    (agg[it.zone] = agg[it.zone] || { benches:0, seats:0 });
-    agg[it.zone].benches++;
-    agg[it.zone].seats += it.chairs;
+  const agg = {}; // zone -> {benches (חצאים = 0.5), seats}
+  const add = (zone, seats, benchShare) => {
+    if (!zone) return;
+    (agg[zone] = agg[zone] || { benches:0, seats:0 });
+    agg[zone].benches += benchShare;
+    agg[zone].seats += seats;
   };
-  for (const c of state.columns) for (const it of c.items) if (it.type !== "bima") add(it);
-  for (const b of state.alcove.benches) add(b);
+  const addItem = it => {
+    if (it.split){
+      const hs = halfSeats(it);
+      add(it.zone, hs.a, 0.5);
+      add(it.zoneB, hs.b, 0.5);
+    } else add(it.zone, it.chairs, 1);
+  };
+  for (const c of state.columns) for (const it of c.items) if (it.type !== "bima") addItem(it);
+  for (const b of state.alcove.benches) addItem(b);
+  const fmtHalf = n => Number.isInteger(n) ? String(n) : (Math.floor(n) ? Math.floor(n) + "½" : "½");
   const used = ZONES.filter(z => agg[z]);
   if (!used.length){
     body.appendChild(el("div", "legend-empty",
       "עוד לא שויכו כיתות. בחרו כיתה בסרגל למעלה ולחצו על ספסלים כדי לצבוע אותם."));
   } else for (const z of used){
     const row = el("div", "legend-row");
-    const dot = el("span", "dot");
+    const dot = el("button", "dot");
     const zs = zStyle(z);
     dot.style.background = zs.fill;
     dot.style.borderColor = zs.border;
+    dot.title = "החלפת צבע";
+    dot.addEventListener("click", e => { e.stopPropagation(); openColorPop(z, dot); });
     row.appendChild(dot);
     row.appendChild(el("span", "zname", "כיתה " + zLabel(z)));
-    row.appendChild(el("span", "zcount", `${agg[z].seats} מק׳ · ${agg[z].benches} ספ׳`));
+    row.appendChild(el("span", "zcount", `${agg[z].seats} מק׳ · ${fmtHalf(agg[z].benches)} ספ׳`));
     body.appendChild(row);
   }
   $("#legendTotal").textContent = t.seats;
@@ -877,7 +967,41 @@ function setPaint(z){
 /* ---------- popover ---------- */
 const pop = $("#pop");
 pop.addEventListener("click", e => e.stopPropagation());
-function closePop(){ pop.hidden = true; popTarget = null; }
+let popMode = null;
+function closePop(){ pop.hidden = true; popTarget = null; popMode = null; }
+
+function placeNear(r){
+  const pw = pop.offsetWidth, ph = pop.offsetHeight;
+  let left = r.left + r.width / 2 - pw / 2;
+  left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
+  let top = r.bottom + 8;
+  if (top + ph > window.innerHeight - 8) top = r.top - ph - 8;
+  top = Math.max(8, top);
+  pop.style.left = left + "px";
+  pop.style.top = top + "px";
+}
+
+function openColorPop(zone, anchor){
+  closePop();
+  popMode = "color";
+  pop.innerHTML = "";
+  pop.appendChild(el("h3", "", "צבע לכיתה " + zLabel(zone)));
+  const cur = zStyle(zone).idx;
+  const g = el("div", "swatches");
+  PRESETS.forEach((p, i) => {
+    const b = el("button", "swatch" + (i === cur ? " sel" : ""));
+    b.style.background = p.f;
+    b.style.borderColor = p.b;
+    b.addEventListener("click", () => {
+      mutate(s => { s.zoneColors = s.zoneColors || {}; s.zoneColors[zone] = i; });
+      closePop();
+    });
+    g.appendChild(b);
+  });
+  pop.appendChild(g);
+  pop.hidden = false;
+  placeNear(anchor.getBoundingClientRect());
+}
 
 function stepper(val, lo, hi, onChange){
   const w = el("div", "stepper");
@@ -952,9 +1076,32 @@ function openPop(id, refreshOnly){
       }));
       pop.appendChild(secBtn);
     }
-    pop.appendChild(el("div", "rl", "שיוך כיתה"));
-    pop.appendChild(zoneGrid(it.zone, z =>
-      mutate(() => { findItem(id).item.zone = z; })));
+    if (it.type === "bench" && it.split){
+      const vert = f.where === "alcove" && it.facing !== "front";
+      const hs = halfSeats(it);
+      pop.appendChild(el("div", "rl", `${vert ? "חצי קדמי" : "חצי ימני"} (${hs.a} מק׳)`));
+      pop.appendChild(zoneGrid(it.zone, z =>
+        mutate(() => { const g = findItem(id); if (g) g.item.zone = z; })));
+      pop.appendChild(el("div", "rl", `${vert ? "חצי אחורי" : "חצי שמאלי"} (${hs.b} מק׳)`));
+      pop.appendChild(zoneGrid(it.zoneB, z =>
+        mutate(() => { const g = findItem(id); if (g) g.item.zoneB = z; })));
+    } else {
+      pop.appendChild(el("div", "rl", "שיוך כיתה"));
+      pop.appendChild(zoneGrid(it.zone, z =>
+        mutate(() => { const g = findItem(id); if (g) g.item.zone = z; })));
+    }
+    if (it.type === "bench"){
+      const tgl = el("button", "btn", it.split ? "ביטול פיצול — כיתה אחת לספסל" : "פיצול הספסל לשתי כיתות");
+      tgl.style.width = "100%";
+      tgl.style.marginTop = "4px";
+      tgl.addEventListener("click", () => mutate(() => {
+        const g = findItem(id);
+        if (!g) return;
+        g.item.split = !g.item.split;
+        if (!g.item.split) g.item.zoneB = "";
+      }));
+      pop.appendChild(tgl);
+    }
   }
 
   if (f.where === "alcove"){
@@ -1007,15 +1154,7 @@ function openPop(id, refreshOnly){
 function positionPop(id){
   const anchor = document.querySelector(`#map [data-id="${id}"]`);
   if (!anchor){ closePop(); return; }
-  const r = anchor.getBoundingClientRect();
-  const pw = pop.offsetWidth, ph = pop.offsetHeight;
-  let left = r.left + r.width / 2 - pw / 2;
-  left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
-  let top = r.bottom + 8;
-  if (top + ph > window.innerHeight - 8) top = r.top - ph - 8;
-  top = Math.max(8, top);
-  pop.style.left = left + "px";
-  pop.style.top = top + "px";
+  placeNear(anchor.getBoundingClientRect());
 }
 
 /* ---------- interactions ---------- */
@@ -1027,8 +1166,13 @@ $("#map").addEventListener("click", e => {
   if (!f) return;
   if (paintZone !== null){
     if (f.item.type === "bima") return;
-    const nz = (f.item.zone === paintZone) ? "" : paintZone;
-    mutate(() => { findItem(t.dataset.id).item.zone = nz; });
+    const nz = (!f.item.split && f.item.zone === paintZone) ? "" : paintZone;
+    mutate(() => {
+      const g = findItem(t.dataset.id);
+      if (!g) return;
+      g.item.zone = nz;
+      if (g.item.type === "bench"){ g.item.split = false; g.item.zoneB = ""; }
+    });
     return;
   }
   if (popTarget === t.dataset.id){ closePop(); return; }
