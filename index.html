@@ -1,0 +1,1083 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="margin:0">
+<title>מפת בית המדרש</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@400;500;700&display=swap">
+<style>
+  :root{
+    --bg:#F7F4EC;
+    --panel:#FFFFFF;
+    --panel-2:#F1EDE3;
+    --ink:#2B2117;
+    --ink-soft:#75685A;
+    --line:#E2DACB;
+    --accent:#1F4E5F;
+    --accent-soft:#DDE9EC;
+    --accent-ink:#FFFFFF;
+    --danger:#A6402E;
+    --ok:#3E7A4E;
+    --shadow:0 8px 28px rgba(43,33,23,.14);
+    /* המפה עצמה היא תוכנית מודפסת — מראה בהיר קבוע בשני המצבים */
+    --floor:#F1ECE1;
+    --floor-line:#E2D9C7;
+    --wood:#8A5A33;
+    --wood-dark:#5F3D20;
+    --wood-light:#A9744A;
+    --chair:#CFA274;
+    --chair-back:#7A4E28;
+    --map-ink:#2B2117;
+    --map-ink-soft:#8A7C6B;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#211C15;
+      --panel:#2C261E;
+      --panel-2:#352E24;
+      --ink:#EFE8DC;
+      --ink-soft:#BFB2A2;
+      --line:#463D30;
+      --accent:#7FB6C6;
+      --accent-soft:#2E4249;
+      --accent-ink:#14262B;
+      --danger:#E08A78;
+      --ok:#8FC49C;
+      --shadow:0 8px 28px rgba(0,0,0,.45);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#211C15;
+    --panel:#2C261E;
+    --panel-2:#352E24;
+    --ink:#EFE8DC;
+    --ink-soft:#BFB2A2;
+    --line:#463D30;
+    --accent:#7FB6C6;
+    --accent-soft:#2E4249;
+    --accent-ink:#14262B;
+    --danger:#E08A78;
+    --ok:#8FC49C;
+    --shadow:0 8px 28px rgba(0,0,0,.45);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Heebo',system-ui,-apple-system,sans-serif;
+    font-size:14px;
+    margin:0;
+  }
+  button{font-family:inherit}
+
+  /* ---------- header ---------- */
+  .topbar{position:sticky;top:0;z-index:40}
+  header.app{
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    padding:10px 18px;
+    background:var(--panel);
+    border-bottom:1px solid var(--line);
+  }
+  .title-wrap{display:flex;align-items:baseline;gap:12px;min-width:0}
+  h1{
+    font-family:'Frank Ruhl Libre',serif;font-weight:900;
+    font-size:22px;margin:0;line-height:1.2;
+    text-wrap:balance;cursor:text;border-radius:6px;padding:0 4px;
+  }
+  h1:focus{outline:2px solid var(--accent);outline-offset:2px}
+  .stats{color:var(--ink-soft);font-size:13px;white-space:nowrap}
+  .stats b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .spacer{flex:1}
+  .actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .btn{
+    border:1px solid var(--line);background:var(--panel);color:var(--ink);
+    border-radius:9px;padding:6px 12px;font-size:13px;font-weight:500;
+    cursor:pointer;transition:background .12s,border-color .12s;
+  }
+  .btn:hover{background:var(--panel-2)}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .btn.danger{color:var(--danger);border-color:var(--danger)}
+  .save-badge{
+    font-size:12px;padding:4px 10px;border-radius:99px;
+    background:var(--panel-2);color:var(--ink-soft);white-space:nowrap;
+  }
+  .save-badge.saved{color:var(--ok)}
+  .save-badge.saving{color:var(--accent)}
+  .save-badge.local{color:var(--danger)}
+  .zoom-wrap{display:flex;align-items:center;gap:6px;color:var(--ink-soft);font-size:12px}
+  .zoom-wrap input{accent-color:var(--accent);width:90px}
+
+  /* ---------- zone toolbar ---------- */
+  .toolbar{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:8px 18px;
+    background:var(--panel);
+    border-bottom:1px solid var(--line);
+  }
+  .toolbar .lbl{font-size:12px;color:var(--ink-soft);font-weight:700;letter-spacing:.04em}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;
+    border:1.5px solid var(--line);border-radius:99px;
+    padding:3px 10px;font-size:13px;font-weight:700;cursor:pointer;
+    background:var(--panel);color:var(--ink);
+  }
+  .chip .dot{width:12px;height:12px;border-radius:50%;border:1.5px solid rgba(0,0,0,.35)}
+  .chip:hover{background:var(--panel-2)}
+  .chip.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+  .chip.eraser{color:var(--ink-soft)}
+  .paint-hint{font-size:12px;color:var(--accent);font-weight:500;display:none}
+  body.painting .paint-hint{display:inline}
+  body.painting .map-scroll{cursor:crosshair}
+
+  /* ---------- layout ---------- */
+  main{display:flex;align-items:flex-start;gap:0}
+  .map-scroll{flex:1;overflow:auto;padding:22px;min-width:0}
+  aside.legend{
+    width:225px;flex:none;position:sticky;top:112px;
+    margin:22px 0 22px 18px;margin-inline-start:0;margin-inline-end:18px;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:14px 16px;
+  }
+  aside.legend h2{
+    font-family:'Frank Ruhl Libre',serif;font-size:16px;font-weight:700;
+    margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line);
+  }
+  .legend-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px}
+  .legend-row .dot{width:14px;height:14px;border-radius:4px;border:1.5px solid rgba(0,0,0,.35);flex:none}
+  .legend-row .zname{font-weight:700}
+  .legend-row .zcount{margin-inline-start:auto;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+  .legend-empty{color:var(--ink-soft);font-size:12.5px;line-height:1.6}
+  .legend-total{
+    margin-top:10px;padding-top:8px;border-top:1px solid var(--line);
+    font-size:13px;display:flex;justify-content:space-between;
+  }
+  .legend-total b{font-variant-numeric:tabular-nums}
+  .help{margin-top:12px;font-size:12px;color:var(--ink-soft);line-height:1.7}
+  .help b{color:var(--ink)}
+
+  /* ---------- the map ---------- */
+  .map-frame{
+    display:inline-block;
+    transform-origin:top right;
+  }
+  .map{
+    direction:ltr; /* geometry: index 0 = הטור השמאלי בפועל */
+    background:
+      repeating-linear-gradient(0deg,transparent 0 39px,var(--floor-line) 39px 40px),
+      repeating-linear-gradient(90deg,transparent 0 39px,var(--floor-line) 39px 40px),
+      var(--floor);
+    border:3px solid var(--wood-dark);
+    border-radius:6px;
+    padding:18px 26px 8px;
+    color:var(--map-ink);
+    box-shadow:var(--shadow);
+    min-width:max-content;
+  }
+  .front-wall{
+    display:flex;justify-content:center;align-items:flex-end;gap:18px;
+    padding-bottom:14px;margin-bottom:10px;
+    border-bottom:2px dashed var(--map-ink-soft);
+  }
+  .aron{
+    background:linear-gradient(180deg,var(--wood-light),var(--wood));
+    border:2px solid var(--wood-dark);border-radius:8px 8px 3px 3px;
+    padding:7px 26px 9px;text-align:center;color:#FFF7EA;
+    font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:15px;
+    position:relative;
+  }
+  .aron::before{
+    content:"";position:absolute;inset:4px 8px auto 8px;height:5px;
+    border-radius:3px;background:#3E5C8A;
+  }
+  .aron small{display:block;font-family:'Heebo';font-weight:400;font-size:10px;opacity:.85}
+  .hall{display:flex;align-items:flex-start;gap:30px}
+  .column{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:120px}
+  .col-head{
+    display:flex;align-items:center;gap:6px;margin-bottom:4px;
+    font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:13.5px;
+    color:var(--map-ink);direction:rtl;
+  }
+  .col-head .cname{cursor:text;border-radius:5px;padding:0 4px}
+  .col-head .cname:focus{outline:2px solid var(--accent)}
+  .col-head .cseats{font-family:'Heebo';font-weight:400;font-size:11px;color:var(--map-ink-soft);font-variant-numeric:tabular-nums}
+  .col-tools{display:flex;gap:4px;margin-top:2px}
+  .mini{
+    border:1px dashed var(--map-ink-soft);background:transparent;color:var(--map-ink-soft);
+    border-radius:7px;font-size:11px;padding:2px 8px;cursor:pointer;direction:rtl;
+  }
+  .mini:hover{color:var(--map-ink);border-color:var(--map-ink)}
+  .add-col{
+    align-self:center;border:1.5px dashed var(--map-ink-soft);background:transparent;
+    color:var(--map-ink-soft);border-radius:10px;padding:14px 6px;cursor:pointer;
+    writing-mode:vertical-rl;font-size:12px;letter-spacing:.1em;
+  }
+  .add-col:hover{color:var(--map-ink);border-color:var(--map-ink)}
+
+  /* bench */
+  .bench{
+    position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:5px 7px 4px;border-radius:8px;cursor:pointer;
+    border:2px solid transparent;
+  }
+  .bench:hover{border-color:var(--map-ink-soft)}
+  .bench.zoned{border-style:solid}
+  .bench-bar{height:11px;border-radius:3px;align-self:stretch;
+    background:linear-gradient(180deg,var(--wood-light),var(--wood) 60%,var(--wood-dark));
+    border:1px solid var(--wood-dark);
+  }
+  .chair-row{display:flex;gap:4px}
+  .chair{
+    width:21px;height:19px;border-radius:5px 5px 6px 6px;
+    background:var(--chair);border:1px solid var(--chair-back);
+    position:relative;
+  }
+  .chair::after{ /* משענת — בצד המרוחק מהשולחן */
+    content:"";position:absolute;left:1px;right:1px;bottom:1px;height:4px;
+    border-radius:3px;background:var(--chair-back);
+  }
+  .ztag{
+    position:absolute;top:-7px;right:-6px;z-index:2;
+    font-size:10.5px;font-weight:700;padding:0 6px;border-radius:99px;
+    border:1.5px solid rgba(0,0,0,.4);direction:rtl;line-height:15px;
+    color:#241A10;background:#fff;
+  }
+
+  /* vertical bench (המובלעת — פנים למרכז) */
+  .bench.vertical{flex-direction:row;align-items:center}
+  .bench.vertical .bench-bar{width:11px;height:auto;align-self:stretch;
+    background:linear-gradient(90deg,var(--wood-light),var(--wood) 60%,var(--wood-dark));
+  }
+  .bench.vertical .chair-row{flex-direction:column}
+  .bench.vertical .chair{width:19px;height:21px}
+  .bench.vertical .chair::after{left:auto;top:1px;bottom:1px;right:1px;width:4px;height:auto}
+
+  /* bima */
+  .bima{
+    position:relative;margin:8px 0;padding:16px 12px;cursor:pointer;
+    background:
+      repeating-linear-gradient(90deg,transparent 0 9px,rgba(95,61,32,.25) 9px 10px),
+      linear-gradient(180deg,var(--wood-light),var(--wood));
+    border:3px double var(--wood-dark);border-radius:10px;
+    min-width:118px;text-align:center;color:#FFF7EA;
+    font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:15px;
+    box-shadow:0 3px 0 var(--wood-dark);
+  }
+  .bima small{display:block;font-family:'Heebo';font-weight:400;font-size:10px;opacity:.85}
+  .bima:hover{outline:2px solid var(--map-ink-soft);outline-offset:2px}
+
+  /* long table (lengthwise) */
+  .longtable{
+    position:relative;display:flex;align-items:stretch;gap:4px;margin-top:10px;
+    padding:6px;border-radius:10px;cursor:pointer;border:2px solid transparent;
+  }
+  .longtable:hover{border-color:var(--map-ink-soft)}
+  .longtable.zoned{border-style:solid}
+  .lt-surface{
+    width:46px;border-radius:6px;
+    background:
+      repeating-linear-gradient(0deg,transparent 0 26px,rgba(95,61,32,.28) 26px 27px),
+      linear-gradient(90deg,var(--wood-light),var(--wood) 55%,var(--wood-dark));
+    border:2px solid var(--wood-dark);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .lt-surface span{
+    color:#FFF7EA;font-family:'Frank Ruhl Libre',serif;
+    font-weight:700;font-size:11px;direction:rtl;
+  }
+  .lt-chairs{display:flex;flex-direction:column;gap:5px;justify-content:center}
+  .lt-chairs .chair{width:19px;height:21px}
+  .lt-chairs.left .chair::after{left:1px;right:auto;top:1px;bottom:1px;width:4px;height:auto}
+  .lt-chairs.right .chair::after{left:auto;right:1px;top:1px;bottom:1px;width:4px;height:auto}
+
+  /* alcove + entrance side */
+  .side-col{display:flex;flex-direction:column;gap:14px;align-self:stretch}
+  .alcove{
+    border:2px dashed var(--map-ink-soft);border-radius:10px;
+    padding:8px 10px 10px;background:rgba(255,255,255,.4);
+  }
+  .alcove-head{
+    display:flex;align-items:center;gap:6px;justify-content:center;direction:rtl;
+    font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:13.5px;margin-bottom:6px;
+  }
+  .alcove-head .cseats{font-family:'Heebo';font-weight:400;font-size:11px;color:var(--map-ink-soft)}
+  .alcove-row{display:flex;gap:8px;align-items:flex-start;justify-content:center}
+  .alcove-bottom{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:8px}
+  .entrance{
+    margin-top:auto;text-align:center;color:var(--map-ink-soft);direction:rtl;
+    font-size:12px;padding:10px 6px 2px;
+  }
+  .entrance .door{
+    width:58px;height:26px;margin:0 auto 4px;
+    border:2px solid var(--map-ink-soft);border-top:none;border-radius:0 0 50px 50px;
+    position:relative;
+  }
+  .entrance .door::after{content:"↓";position:absolute;top:-4px;left:50%;transform:translateX(-50%);font-size:15px}
+
+  /* ---------- popover ---------- */
+  .pop{
+    position:fixed;z-index:60;width:252px;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);padding:12px 14px;direction:rtl;
+  }
+  .pop h3{margin:0 0 8px;font-size:14px;font-family:'Frank Ruhl Libre',serif}
+  .pop .row{display:flex;align-items:center;gap:8px;margin:8px 0}
+  .pop .row .rl{font-size:12.5px;color:var(--ink-soft);min-width:52px}
+  .stepper{display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .stepper button{border:none;background:var(--panel-2);width:30px;height:28px;font-size:16px;cursor:pointer;color:var(--ink)}
+  .stepper button:hover{background:var(--line)}
+  .stepper .val{width:36px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+  .zone-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:4px 0}
+  .zcell{
+    height:24px;border-radius:6px;border:1.5px solid rgba(0,0,0,.3);cursor:pointer;
+    font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+    color:#241A10;padding:0;
+  }
+  .zcell.sel{outline:2px solid var(--accent);outline-offset:1px}
+  .zclear{
+    grid-column:1 / -1;height:22px;border-radius:6px;border:1px dashed var(--line);
+    background:transparent;color:var(--ink-soft);font-size:11px;cursor:pointer;
+  }
+  .pop .btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .pop .btns .btn{padding:4px 9px;font-size:12px}
+  .seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .seg button{border:none;background:var(--panel);padding:4px 10px;font-size:12px;cursor:pointer;color:var(--ink)}
+  .seg button.on{background:var(--accent);color:var(--accent-ink)}
+
+  /* ---------- dialogs ---------- */
+  dialog{
+    border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);
+    box-shadow:var(--shadow);padding:18px;max-width:420px;width:90vw;direction:rtl;
+  }
+  dialog::backdrop{background:rgba(20,15,10,.45)}
+  dialog h3{margin:0 0 10px;font-family:'Frank Ruhl Libre',serif}
+  dialog textarea{
+    width:100%;height:130px;border:1px solid var(--line);border-radius:9px;
+    background:var(--panel-2);color:var(--ink);padding:8px;font-size:12px;direction:ltr;
+    font-family:ui-monospace,monospace;resize:vertical;
+  }
+  dialog .btns{display:flex;gap:8px;justify-content:flex-start;margin-top:12px}
+  dialog p{font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin:6px 0}
+
+  /* ---------- print ---------- */
+  @page{size:A4 landscape;margin:9mm}
+  @media print{
+    body{background:#fff}
+    header.app .actions,.toolbar,.col-tools,.add-col,.mini,.zoom-wrap{display:none !important}
+    header.app{position:static;border:none;padding:2mm 0}
+    main{display:block}
+    .map-scroll{overflow:visible;padding:0}
+    .map{box-shadow:none;
+      print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    aside.legend{position:static;width:auto;margin:6mm 0 0;break-inside:avoid;
+      print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .help,.save-badge{display:none}
+  }
+</style>
+
+<div class="topbar">
+<header class="app" dir="rtl">
+  <div class="title-wrap">
+    <h1 id="mapTitle" contenteditable="true" spellcheck="false">מפת בית המדרש</h1>
+    <span class="stats" id="stats"></span>
+  </div>
+  <div class="spacer"></div>
+  <div class="actions">
+    <span class="save-badge" id="saveBadge">טוען…</span>
+    <span class="zoom-wrap">זום <input type="range" id="zoom" min="55" max="140" value="100"></span>
+    <button class="btn" id="undoBtn" title="Ctrl+Z">↩ ביטול</button>
+    <button class="btn" id="exportBtn">גיבוי</button>
+    <button class="btn" id="importBtn">שחזור</button>
+    <button class="btn primary" id="printBtn">🖨 הדפסה</button>
+  </div>
+</header>
+
+<div class="toolbar" dir="rtl">
+  <span class="lbl">צביעת אזורים:</span>
+  <div class="chips" id="zoneChips"></div>
+  <span class="paint-hint">לחצו על ספסלים כדי לצבוע · לחיצה חוזרת מנקה · Esc לסיום</span>
+</div>
+</div>
+
+<main dir="rtl">
+  <aside class="legend">
+    <h2>מקרא כיתות</h2>
+    <div id="legendBody"></div>
+    <div class="legend-total"><span>סה״כ מקומות ישיבה</span><b id="legendTotal">0</b></div>
+    <div class="help">
+      <b>איך עורכים?</b><br>
+      לחיצה על ספסל / בימה / שולחן פותחת עריכה: מספר כיסאות, שיוך כיתה, הוספה, הזזה ומחיקה.<br>
+      לחיצה על שם טור — שינוי שם.<br>
+      בחירת כיתה למעלה מפעילה <b>מצב צביעה</b>.<br>
+      לפני הדפסה כוונו את הזום כך שהמפה נכנסת בעמוד.
+    </div>
+  </aside>
+  <div class="map-scroll">
+    <div class="map-frame" id="mapFrame">
+      <div class="map" id="map"></div>
+    </div>
+  </div>
+</main>
+
+<div class="pop" id="pop" hidden></div>
+
+<dialog id="exportDlg">
+  <h3>גיבוי המפה</h3>
+  <p>הטקסט הזה מכיל את כל המפה. שמרו אותו בצד (וואטסאפ לעצמכם, פתק…) — אפשר לשחזר ממנו בכל רגע.</p>
+  <textarea id="exportTxt" readonly></textarea>
+  <div class="btns">
+    <button class="btn primary" id="copyExport">העתקה</button>
+    <button class="btn" data-close>סגירה</button>
+  </div>
+</dialog>
+
+<dialog id="importDlg">
+  <h3>שחזור מגיבוי</h3>
+  <p>הדביקו כאן טקסט גיבוי שנשמר קודם. שימו לב: זה מחליף את המפה הנוכחית (אפשר לבטל עם ↩).</p>
+  <textarea id="importTxt" placeholder='{"columns": …}'></textarea>
+  <div class="btns">
+    <button class="btn primary" id="doImport">שחזור</button>
+    <button class="btn" data-close>סגירה</button>
+  </div>
+</dialog>
+
+<script>
+(function(){
+"use strict";
+document.documentElement.lang="he";
+document.documentElement.dir="rtl";
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const rid = () => Math.random().toString(36).slice(2,10);
+const clone = o => JSON.parse(JSON.stringify(o));
+const el = (tag, cls, txt) => {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (txt !== undefined) n.textContent = txt;
+  return n;
+};
+
+/* ---------- zones (כיתות) ---------- */
+const GRADES = ["ז","ח"], NUMS = [1,2,3,4,5,6,7];
+const HUES = [8,36,62,105,160,205,262];
+const ZONES = [];
+for (const g of GRADES) for (const n of NUMS) ZONES.push(g + n);
+const zLabel = id => id[0] + "׳" + id.slice(1);
+function zStyle(id){
+  const n = +id.slice(1), h = HUES[n-1];
+  if (id[0] === "ז") return { fill:`hsl(${h} 64% 84%)`, border:`hsl(${h} 50% 40%)` };
+  return { fill:`hsl(${h} 58% 70%)`, border:`hsl(${h} 62% 28%)` };
+}
+
+/* ---------- state ---------- */
+const mkBench = chairs => ({ id:rid(), type:"bench", chairs, zone:"" });
+const many = (n, f) => Array.from({length:n}, f);
+
+function defaultState(){
+  return {
+    rev: rid(),
+    title: "מפת בית המדרש",
+    columns: [
+      { id:rid(), name:"טור 1 (שמאל)", items: many(13, () => mkBench(6)) },
+      { id:rid(), name:"טור 2",        items: many(13, () => mkBench(6)) },
+      { id:rid(), name:"טור הבימה",    items: [
+          ...many(6, () => mkBench(6)),
+          { id:rid(), type:"bima" },
+          ...many(5, () => mkBench(6)),
+        ] },
+      { id:rid(), name:"טור הכניסה",   items: [
+          ...many(6, () => mkBench(6)),
+          { id:rid(), type:"table", chairs:20, zone:"" },
+        ] },
+    ],
+    alcove: { name:"המובלעת", benches: [
+      { id:rid(), chairs:6, zone:"", facing:"center" },
+      { id:rid(), chairs:6, zone:"", facing:"center" },
+      { id:rid(), chairs:6, zone:"", facing:"center" },
+      { id:rid(), chairs:6, zone:"", facing:"front"  },
+    ]},
+  };
+}
+
+function normalize(d){
+  const base = defaultState();
+  if (!d || typeof d !== "object") return base;
+  const out = {
+    rev: typeof d.rev === "string" ? d.rev : rid(),
+    title: typeof d.title === "string" && d.title.trim() ? d.title : base.title,
+    columns: [], alcove: { name:"המובלעת", benches: [] },
+  };
+  if (Array.isArray(d.columns)) for (const c of d.columns){
+    if (!c || typeof c !== "object") continue;
+    const col = { id: c.id || rid(), name: String(c.name || "טור"), items: [] };
+    if (Array.isArray(c.items)) for (const it of c.items){
+      if (!it || typeof it !== "object") continue;
+      if (it.type === "bima") col.items.push({ id: it.id || rid(), type:"bima" });
+      else if (it.type === "table") col.items.push({ id: it.id || rid(), type:"table",
+        chairs: clampInt(it.chairs, 1, 40, 20), zone: validZone(it.zone) });
+      else col.items.push({ id: it.id || rid(), type:"bench",
+        chairs: clampInt(it.chairs, 1, 12, 6), zone: validZone(it.zone) });
+    }
+    out.columns.push(col);
+  }
+  if (!out.columns.length) out.columns = base.columns;
+  const a = d.alcove;
+  if (a && typeof a === "object"){
+    out.alcove.name = String(a.name || "המובלעת");
+    if (Array.isArray(a.benches)) for (const b of a.benches){
+      if (!b || typeof b !== "object") continue;
+      out.alcove.benches.push({ id: b.id || rid(),
+        chairs: clampInt(b.chairs, 1, 12, 6), zone: validZone(b.zone),
+        facing: b.facing === "front" ? "front" : "center" });
+    }
+  }
+  return out;
+}
+const clampInt = (v, lo, hi, dflt) => {
+  const n = Math.round(Number(v));
+  return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt;
+};
+const validZone = z => ZONES.includes(z) ? z : "";
+
+let state = defaultState();
+let undoStack = [];
+let dirty = false;
+let paintZone = null;
+let popTarget = null;
+
+/* ---------- lookups ---------- */
+function findItem(id){
+  for (let ci = 0; ci < state.columns.length; ci++){
+    const items = state.columns[ci].items;
+    const idx = items.findIndex(it => it.id === id);
+    if (idx >= 0) return { where:"col", list:items, idx, item:items[idx], col:state.columns[ci] };
+  }
+  const idx = state.alcove.benches.findIndex(b => b.id === id);
+  if (idx >= 0) return { where:"alcove", list:state.alcove.benches, idx, item:state.alcove.benches[idx] };
+  return null;
+}
+const itemSeats = it => (it.type === "bench" || it.type === "table") ? it.chairs : 0;
+function totals(){
+  let seats = 0, benches = 0;
+  for (const c of state.columns) for (const it of c.items){
+    seats += itemSeats(it);
+    if (it.type === "bench") benches++;
+  }
+  for (const b of state.alcove.benches){ seats += b.chairs; benches++; }
+  return { seats, benches };
+}
+
+/* ---------- mutation + undo ---------- */
+function mutate(fn){
+  const before = clone(state);
+  try{ fn(state); }catch(e){ return; }
+  undoStack.push(before);
+  if (undoStack.length > 60) undoStack.shift();
+  state.rev = rid();
+  dirty = true;
+  renderAll();
+  saveSoon();
+}
+function undo(){
+  if (!undoStack.length) return;
+  state = undoStack.pop();
+  state.rev = rid();
+  dirty = true;
+  renderAll();
+  saveSoon();
+}
+
+/* ---------- rendering ---------- */
+function renderAll(){
+  const t = totals();
+  const titleEl = $("#mapTitle");
+  if (document.activeElement !== titleEl && titleEl.textContent !== state.title)
+    titleEl.textContent = state.title;
+  document.title = state.title;
+  $("#stats").innerHTML = `<b>${t.seats}</b> מקומות · <b>${t.benches}</b> ספסלים`;
+  $("#undoBtn").disabled = !undoStack.length;
+  renderMap();
+  renderLegend(t);
+  renderChips();
+  if (popTarget) openPop(popTarget, true);
+}
+
+function benchEl(b, vertical){
+  const d = el("div", "bench" + (vertical ? " vertical" : ""));
+  d.dataset.id = b.id;
+  if (b.zone){
+    const zs = zStyle(b.zone);
+    d.classList.add("zoned");
+    d.style.background = zs.fill;
+    d.style.borderColor = zs.border;
+    const tag = el("span", "ztag", zLabel(b.zone));
+    tag.style.background = zs.fill;
+    tag.style.borderColor = zs.border;
+    d.appendChild(tag);
+  }
+  d.appendChild(el("div", "bench-bar"));
+  const row = el("div", "chair-row");
+  for (let i = 0; i < b.chairs; i++) row.appendChild(el("div", "chair"));
+  d.appendChild(row);
+  d.title = `ספסל · ${b.chairs} כיסאות` + (b.zone ? ` · ${zLabel(b.zone)}` : "");
+  return d;
+}
+
+function bimaEl(it){
+  const d = el("div", "bima");
+  d.dataset.id = it.id;
+  d.textContent = "הבימה";
+  d.appendChild(el("small", "", "קריאת התורה"));
+  return d;
+}
+
+function tableEl(it){
+  const d = el("div", "longtable");
+  d.dataset.id = it.id;
+  if (it.zone){
+    const zs = zStyle(it.zone);
+    d.classList.add("zoned");
+    d.style.background = zs.fill;
+    d.style.borderColor = zs.border;
+    const tag = el("span", "ztag", zLabel(it.zone));
+    tag.style.background = zs.fill;
+    tag.style.borderColor = zs.border;
+    d.appendChild(tag);
+  }
+  const left = el("div", "lt-chairs left");
+  const right = el("div", "lt-chairs right");
+  const half = Math.ceil(it.chairs / 2);
+  for (let i = 0; i < half; i++) left.appendChild(el("div", "chair"));
+  for (let i = 0; i < it.chairs - half; i++) right.appendChild(el("div", "chair"));
+  const surf = el("div", "lt-surface");
+  const lbl = el("span", "", "שולחן");
+  surf.appendChild(lbl);
+  d.append(left, surf, right);
+  d.title = `שולחן · ${it.chairs} מקומות` + (it.zone ? ` · ${zLabel(it.zone)}` : "");
+  return d;
+}
+
+function editableName(txt, onCommit, cls){
+  const s = el("span", cls || "cname", txt);
+  s.contentEditable = "true";
+  s.spellcheck = false;
+  s.addEventListener("click", e => e.stopPropagation());
+  s.addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); s.blur(); } });
+  s.addEventListener("blur", () => {
+    const v = s.textContent.trim();
+    if (v && v !== txt) onCommit(v);
+    else s.textContent = txt;
+  });
+  return s;
+}
+
+function miniBtn(txt, fn, danger){
+  const b = el("button", "mini", txt);
+  if (danger) b.style.color = "var(--danger)";
+  b.addEventListener("click", e => { e.stopPropagation(); fn(b); });
+  return b;
+}
+
+function renderMap(){
+  const map = $("#map");
+  map.innerHTML = "";
+
+  const front = el("div", "front-wall");
+  const aron = el("div", "aron", "ארון הקודש");
+  aron.appendChild(el("small", "", "חזית בית המדרש"));
+  front.appendChild(aron);
+  map.appendChild(front);
+
+  const hall = el("div", "hall");
+
+  const addColBtn = pos => {
+    const b = el("button", "add-col", "+ טור");
+    b.title = "הוספת טור " + (pos === 0 ? "בקצה השמאלי" : "בקצה הימני");
+    b.addEventListener("click", () => mutate(s => {
+      const col = { id:rid(), name:"טור חדש", items: many(4, () => mkBench(6)) };
+      if (pos === 0) s.columns.unshift(col); else s.columns.push(col);
+    }));
+    return b;
+  };
+  hall.appendChild(addColBtn(0));
+
+  state.columns.forEach((c, ci) => {
+    const colEl = el("div", "column");
+    const head = el("div", "col-head");
+    head.appendChild(editableName(c.name, v => mutate(s => { s.columns[ci].name = v; })));
+    const seats = c.items.reduce((a, it) => a + itemSeats(it), 0);
+    head.appendChild(el("span", "cseats", seats + " מק׳"));
+    colEl.appendChild(head);
+
+    for (const it of c.items){
+      if (it.type === "bima") colEl.appendChild(bimaEl(it));
+      else if (it.type === "table") colEl.appendChild(tableEl(it));
+      else colEl.appendChild(benchEl(it, false));
+    }
+
+    const tools = el("div", "col-tools");
+    tools.appendChild(miniBtn("+ ספסל", () => mutate(s => s.columns[ci].items.push(mkBench(6)))));
+    if (!c.items.some(it => it.type === "bima"))
+      tools.appendChild(miniBtn("+ בימה", () => mutate(s => s.columns[ci].items.push({ id:rid(), type:"bima" }))));
+    tools.appendChild(miniBtn("+ שולחן", () => mutate(s => s.columns[ci].items.push({ id:rid(), type:"table", chairs:20, zone:"" }))));
+    tools.appendChild(miniBtn("מחיקת טור", b => {
+      if (b.dataset.arm){ mutate(s => s.columns.splice(ci, 1)); }
+      else { b.dataset.arm = "1"; b.textContent = "בטוח? לחצו שוב"; setTimeout(() => { delete b.dataset.arm; b.textContent = "מחיקת טור"; }, 2500); }
+    }, true));
+    colEl.appendChild(tools);
+    hall.appendChild(colEl);
+  });
+
+  /* side: alcove (front) + entrance (back) */
+  const side = el("div", "side-col");
+  const alc = el("div", "alcove");
+  const ah = el("div", "alcove-head");
+  ah.appendChild(editableName(state.alcove.name, v => mutate(s => { s.alcove.name = v; })));
+  const aSeats = state.alcove.benches.reduce((a, b) => a + b.chairs, 0);
+  ah.appendChild(el("span", "cseats", aSeats + " מק׳"));
+  alc.appendChild(ah);
+  const arow = el("div", "alcove-row");
+  const abot = el("div", "alcove-bottom");
+  for (const b of state.alcove.benches){
+    if (b.facing === "front") abot.appendChild(benchEl(b, false));
+    else arow.appendChild(benchEl(b, true));
+  }
+  if (arow.children.length) alc.appendChild(arow);
+  if (abot.children.length) alc.appendChild(abot);
+  const atools = el("div", "col-tools");
+  atools.style.justifyContent = "center";
+  atools.style.display = "flex";
+  atools.style.marginTop = "8px";
+  atools.appendChild(miniBtn("+ ספסל", () => mutate(s =>
+    s.alcove.benches.push({ id:rid(), chairs:6, zone:"", facing:"center" }))));
+  alc.appendChild(atools);
+  side.appendChild(alc);
+
+  const ent = el("div", "entrance");
+  ent.appendChild(el("div", "door"));
+  ent.appendChild(document.createTextNode("הכניסה"));
+  side.appendChild(ent);
+  hall.appendChild(side);
+
+  hall.appendChild(addColBtn(1));
+  map.appendChild(hall);
+}
+
+function renderLegend(t){
+  const body = $("#legendBody");
+  body.innerHTML = "";
+  const agg = {}; // zone -> {benches, seats}
+  const add = it => {
+    if (!it.zone) return;
+    (agg[it.zone] = agg[it.zone] || { benches:0, seats:0 });
+    agg[it.zone].benches++;
+    agg[it.zone].seats += it.chairs;
+  };
+  for (const c of state.columns) for (const it of c.items) if (it.type !== "bima") add(it);
+  for (const b of state.alcove.benches) add(b);
+  const used = ZONES.filter(z => agg[z]);
+  if (!used.length){
+    body.appendChild(el("div", "legend-empty",
+      "עוד לא שויכו כיתות. בחרו כיתה בסרגל למעלה ולחצו על ספסלים כדי לצבוע אותם."));
+  } else for (const z of used){
+    const row = el("div", "legend-row");
+    const dot = el("span", "dot");
+    const zs = zStyle(z);
+    dot.style.background = zs.fill;
+    dot.style.borderColor = zs.border;
+    row.appendChild(dot);
+    row.appendChild(el("span", "zname", "כיתה " + zLabel(z)));
+    row.appendChild(el("span", "zcount", `${agg[z].seats} מק׳ · ${agg[z].benches} ספ׳`));
+    body.appendChild(row);
+  }
+  $("#legendTotal").textContent = t.seats;
+}
+
+function renderChips(){
+  const wrap = $("#zoneChips");
+  wrap.innerHTML = "";
+  for (const z of ZONES){
+    const c = el("button", "chip" + (paintZone === z ? " active" : ""));
+    const dot = el("span", "dot");
+    const zs = zStyle(z);
+    dot.style.background = zs.fill;
+    dot.style.borderColor = zs.border;
+    c.append(dot, document.createTextNode(zLabel(z)));
+    c.addEventListener("click", () => setPaint(paintZone === z ? null : z));
+    wrap.appendChild(c);
+  }
+  const er = el("button", "chip eraser" + (paintZone === "" ? " active" : ""), "✕ מחיקת צבע");
+  er.addEventListener("click", () => setPaint(paintZone === "" ? null : ""));
+  wrap.appendChild(er);
+}
+function setPaint(z){
+  paintZone = z;
+  document.body.classList.toggle("painting", paintZone !== null);
+  closePop();
+  renderChips();
+}
+
+/* ---------- popover ---------- */
+const pop = $("#pop");
+pop.addEventListener("click", e => e.stopPropagation());
+function closePop(){ pop.hidden = true; popTarget = null; }
+
+function stepper(val, lo, hi, onChange){
+  const w = el("div", "stepper");
+  const minus = el("button", "", "−");
+  const plus = el("button", "", "+");
+  const v = el("span", "val", String(val));
+  minus.disabled = val <= lo;
+  plus.disabled = val >= hi;
+  minus.addEventListener("click", () => onChange(val - 1));
+  plus.addEventListener("click", () => onChange(val + 1));
+  w.append(plus, v, minus); /* rtl: פלוס מימין */
+  return w;
+}
+
+function zoneGrid(current, onPick){
+  const g = el("div", "zone-grid");
+  for (const z of ZONES){
+    const zs = zStyle(z);
+    const c = el("button", "zcell" + (current === z ? " sel" : ""), zLabel(z));
+    c.style.background = zs.fill;
+    c.style.borderColor = zs.border;
+    c.addEventListener("click", () => onPick(current === z ? "" : z));
+    g.appendChild(c);
+  }
+  const clr = el("button", "zclear", "ללא כיתה");
+  clr.addEventListener("click", () => onPick(""));
+  g.appendChild(clr);
+  return g;
+}
+
+function popBtn(txt, fn, danger){
+  const b = el("button", "btn" + (danger ? " danger" : ""), txt);
+  b.addEventListener("click", fn);
+  return b;
+}
+
+function openPop(id, refreshOnly){
+  const f = findItem(id);
+  if (!f){ closePop(); return; }
+  popTarget = id;
+  const it = f.item;
+  pop.innerHTML = "";
+
+  const kind = it.type === "bima" ? "הבימה"
+             : it.type === "table" ? "שולחן"
+             : f.where === "alcove" ? "ספסל במובלעת" : "ספסל";
+  pop.appendChild(el("h3", "", kind));
+
+  if (it.type !== "bima"){
+    const row = el("div", "row");
+    row.appendChild(el("span", "rl", "כיסאות"));
+    const hi = it.type === "table" ? 40 : 12;
+    row.appendChild(stepper(it.chairs, 1, hi, nv =>
+      mutate(() => { findItem(id).item.chairs = nv; })));
+    pop.appendChild(row);
+    pop.appendChild(el("div", "rl", "שיוך כיתה"));
+    pop.appendChild(zoneGrid(it.zone, z =>
+      mutate(() => { findItem(id).item.zone = z; })));
+  }
+
+  if (f.where === "alcove"){
+    const row = el("div", "row");
+    row.appendChild(el("span", "rl", "כיוון"));
+    const seg = el("div", "seg");
+    const b1 = el("button", it.facing === "center" ? "on" : "", "פנים למרכז");
+    const b2 = el("button", it.facing === "front" ? "on" : "", "פנים לארון");
+    b1.addEventListener("click", () => mutate(() => { findItem(id).item.facing = "center"; }));
+    b2.addEventListener("click", () => mutate(() => { findItem(id).item.facing = "front"; }));
+    seg.append(b1, b2);
+    row.appendChild(seg);
+    pop.appendChild(row);
+  }
+
+  const btns = el("div", "btns");
+  const fwdLbl = f.where === "alcove" ? "→ הזזה" : "↑ קדימה";
+  const bckLbl = f.where === "alcove" ? "← הזזה" : "↓ אחורה";
+  btns.appendChild(popBtn(fwdLbl, () => mutate(() => {
+    const g = findItem(id);
+    if (g.idx > 0) [g.list[g.idx-1], g.list[g.idx]] = [g.list[g.idx], g.list[g.idx-1]];
+  })));
+  btns.appendChild(popBtn(bckLbl, () => mutate(() => {
+    const g = findItem(id);
+    if (g.idx < g.list.length - 1) [g.list[g.idx+1], g.list[g.idx]] = [g.list[g.idx], g.list[g.idx+1]];
+  })));
+  if (f.where === "col"){
+    btns.appendChild(popBtn("+ ספסל לפני", () => mutate(() => {
+      const g = findItem(id); g.list.splice(g.idx, 0, mkBench(6));
+    })));
+    btns.appendChild(popBtn("+ ספסל אחרי", () => mutate(() => {
+      const g = findItem(id); g.list.splice(g.idx + 1, 0, mkBench(6));
+    })));
+  }
+  if (it.type === "bench"){
+    btns.appendChild(popBtn("שכפול", () => mutate(() => {
+      const g = findItem(id);
+      g.list.splice(g.idx + 1, 0, { ...clone(g.item), id: rid() });
+    })));
+  }
+  btns.appendChild(popBtn("מחיקה", () => { mutate(() => {
+    const g = findItem(id); g.list.splice(g.idx, 1);
+  }); closePop(); }, true));
+  pop.appendChild(btns);
+
+  pop.hidden = false;
+  positionPop(id);
+}
+
+function positionPop(id){
+  const anchor = document.querySelector(`#map [data-id="${id}"]`);
+  if (!anchor){ closePop(); return; }
+  const r = anchor.getBoundingClientRect();
+  const pw = pop.offsetWidth, ph = pop.offsetHeight;
+  let left = r.left + r.width / 2 - pw / 2;
+  left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
+  let top = r.bottom + 8;
+  if (top + ph > window.innerHeight - 8) top = r.top - ph - 8;
+  top = Math.max(8, top);
+  pop.style.left = left + "px";
+  pop.style.top = top + "px";
+}
+
+/* ---------- interactions ---------- */
+$("#map").addEventListener("click", e => {
+  if (e.target.isContentEditable || e.target.closest("button")) return;
+  const t = e.target.closest("[data-id]");
+  if (!t) return;
+  const f = findItem(t.dataset.id);
+  if (!f) return;
+  if (paintZone !== null){
+    if (f.item.type === "bima") return;
+    const nz = (f.item.zone === paintZone) ? "" : paintZone;
+    mutate(() => { findItem(t.dataset.id).item.zone = nz; });
+    return;
+  }
+  if (popTarget === t.dataset.id){ closePop(); return; }
+  openPop(t.dataset.id);
+});
+
+document.addEventListener("click", e => {
+  if (pop.hidden) return;
+  if (e.target.closest("#pop") || e.target.closest("[data-id]")) return;
+  closePop();
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape"){ closePop(); setPaint(null); }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z"){
+    if (!e.target.isContentEditable && e.target.tagName !== "TEXTAREA"){
+      e.preventDefault(); undo();
+    }
+  }
+});
+window.addEventListener("resize", () => { if (popTarget) positionPop(popTarget); });
+
+$("#mapTitle").addEventListener("blur", e => {
+  const v = e.target.textContent.trim();
+  if (v && v !== state.title) mutate(s => { s.title = v; });
+  else e.target.textContent = state.title;
+});
+$("#mapTitle").addEventListener("keydown", e => {
+  if (e.key === "Enter"){ e.preventDefault(); e.target.blur(); }
+});
+
+$("#undoBtn").addEventListener("click", undo);
+$("#printBtn").addEventListener("click", () => { closePop(); window.print(); });
+$("#zoom").addEventListener("input", e => {
+  closePop();
+  $("#mapFrame").style.transform = `scale(${e.target.value / 100})`;
+});
+
+/* backup / restore */
+const exportDlg = $("#exportDlg"), importDlg = $("#importDlg");
+document.querySelectorAll("dialog [data-close]").forEach(b =>
+  b.addEventListener("click", () => b.closest("dialog").close()));
+$("#exportBtn").addEventListener("click", () => {
+  $("#exportTxt").value = JSON.stringify(state);
+  exportDlg.showModal();
+});
+$("#copyExport").addEventListener("click", () => {
+  const ta = $("#exportTxt");
+  ta.select();
+  const done = () => { $("#copyExport").textContent = "הועתק ✓"; setTimeout(() => { $("#copyExport").textContent = "העתקה"; }, 1600); };
+  if (navigator.clipboard && navigator.clipboard.writeText)
+    navigator.clipboard.writeText(ta.value).then(done, () => { document.execCommand("copy"); done(); });
+  else { document.execCommand("copy"); done(); }
+});
+$("#importBtn").addEventListener("click", () => { $("#importTxt").value = ""; importDlg.showModal(); });
+$("#doImport").addEventListener("click", () => {
+  try{
+    const parsed = JSON.parse($("#importTxt").value);
+    if (!parsed || !Array.isArray(parsed.columns)) throw new Error("bad");
+    mutate(() => { state = normalize(parsed); });
+    importDlg.close();
+  }catch(err){
+    $("#importTxt").style.borderColor = "var(--danger)";
+    setTimeout(() => { $("#importTxt").style.borderColor = ""; }, 1500);
+  }
+});
+
+/* ---------- persistence ---------- */
+const badge = $("#saveBadge");
+function setBadge(cls, txt){ badge.className = "save-badge " + cls; badge.textContent = txt; }
+const LS_KEY = "beit-midrash-map";
+
+let docRef = null, saveTimer = null;
+function saveSoon(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
+  if (!docRef){ setBadge("local", "נשמר במכשיר זה בלבד"); return; }
+  setBadge("saving", "שומר…");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    docRef.set(clone(state)).then(() => {
+      dirty = false;
+      setBadge("saved", "נשמר לכולם ✓");
+    }).catch(() => setBadge("local", "שגיאת שמירה — נשמר במכשיר בלבד"));
+  }, 700);
+}
+
+try{
+  const raw = localStorage.getItem(LS_KEY);
+  if (raw) state = normalize(JSON.parse(raw));
+}catch(e){}
+renderAll();
+setBadge("", "טוען…");
+
+if (window.claude && window.claude.use){
+  window.claude.use("db").then(db => {
+    if (!db){ setBadge("local", "נשמר במכשיר זה בלבד"); return; }
+    docRef = db.doc("layout/main");
+    docRef.onSnapshot(snap => {
+      if (snap.exists){
+        const remote = snap.data();
+        if (remote && remote.rev !== state.rev && !dirty && !snap.metadata.hasPendingWrites){
+          state = normalize(remote);
+          renderAll();
+          setBadge("saved", "נשמר לכולם ✓");
+        } else if (!dirty && !snap.metadata.hasPendingWrites){
+          setBadge("saved", "נשמר לכולם ✓");
+        }
+      } else if (!dirty){
+        dirty = true;
+        saveSoon(); /* מפה ראשונה — זריעת ברירת המחדל */
+      }
+    }, () => {
+      docRef = null;
+      setBadge("local", "נשמר במכשיר זה בלבד");
+    });
+  });
+} else {
+  setBadge("local", "נשמר במכשיר זה בלבד");
+}
+})();
+</script>
+
+</body>
+</html>
