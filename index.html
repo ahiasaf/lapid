@@ -27,8 +27,11 @@
     --wood:#8A5A33;
     --wood-dark:#5F3D20;
     --wood-light:#A9744A;
-    --chair:#CFA274;
-    --chair-back:#7A4E28;
+    --plastic-hi:#F4F8FA;
+    --plastic:#D9E4E9;
+    --plastic-lo:#C0D1D9;
+    --plastic-edge:#96ACB8;
+    --plastic-back:#A7BdC7;
     --map-ink:#2B2117;
     --map-ink-soft:#8A7C6B;
   }
@@ -173,10 +176,11 @@
       var(--floor);
     border:3px solid var(--wood-dark);
     border-radius:6px;
-    padding:18px 26px 8px;
+    padding:18px 26px 14px;
     color:var(--map-ink);
     box-shadow:var(--shadow);
     min-width:max-content;
+    display:flex;flex-direction:column;
   }
   .front-wall{
     display:flex;justify-content:center;align-items:flex-end;gap:18px;
@@ -195,7 +199,7 @@
     border-radius:3px;background:#3E5C8A;
   }
   .aron small{display:block;font-family:'Heebo';font-weight:400;font-size:10px;opacity:.85}
-  .hall{display:flex;align-items:flex-start;gap:30px}
+  .hall{display:flex;align-items:flex-start;gap:24px;justify-content:space-between;flex:1;width:100%}
   .column{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:120px}
   .col-head{
     display:flex;align-items:center;gap:6px;margin-bottom:4px;
@@ -220,41 +224,62 @@
 
   /* bench */
   .bench{
-    position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;
-    padding:5px 7px 4px;border-radius:8px;cursor:pointer;
+    position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;
+    padding:5px 7px 8px;border-radius:8px;cursor:pointer;
     border:2px solid transparent;
   }
   .bench:hover{border-color:var(--map-ink-soft)}
-  .bench.zoned{border-style:solid}
   .bench-bar{height:11px;border-radius:3px;align-self:stretch;
     background:linear-gradient(180deg,var(--wood-light),var(--wood) 60%,var(--wood-dark));
     border:1px solid var(--wood-dark);
   }
-  .chair-row{display:flex;gap:4px}
+  .chair-row{display:flex;gap:5px}
+  /* כיסא פלסטיק במבט־על: מושב עם ברק עדין, משענת בולטת בצד המרוחק מהשולחן */
   .chair{
-    width:21px;height:19px;border-radius:5px 5px 6px 6px;
-    background:var(--chair);border:1px solid var(--chair-back);
-    position:relative;
+    width:22px;height:20px;position:relative;
+    background:linear-gradient(160deg,var(--plastic-hi) 8%,var(--plastic) 55%,var(--plastic-lo));
+    border:1px solid var(--plastic-edge);
+    border-radius:6px 6px 9px 9px;
+    box-shadow:0 1.5px 2px rgba(43,33,23,.22);
   }
-  .chair::after{ /* משענת — בצד המרוחק מהשולחן */
-    content:"";position:absolute;left:1px;right:1px;bottom:1px;height:4px;
-    border-radius:3px;background:var(--chair-back);
+  .chair::before{ /* ברק על המושב */
+    content:"";position:absolute;inset:2px 3px 8px 3px;border-radius:5px;
+    background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,0));
+    pointer-events:none;
+  }
+  .chair::after{ /* משענת */
+    content:"";position:absolute;left:2px;right:2px;bottom:-3px;height:6px;
+    background:linear-gradient(180deg,var(--plastic-back),var(--plastic-edge));
+    border:1px solid var(--plastic-edge);border-radius:4px 4px 5px 5px;
+    box-shadow:0 1px 1.5px rgba(43,33,23,.28);
   }
   .ztag{
-    position:absolute;top:-7px;right:-6px;z-index:2;
-    font-size:10.5px;font-weight:700;padding:0 6px;border-radius:99px;
-    border:1.5px solid rgba(0,0,0,.4);direction:rtl;line-height:15px;
-    color:#241A10;background:#fff;
+    position:absolute;top:-10px;right:-8px;z-index:2;
+    font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:99px;
+    border:1.5px solid rgba(0,0,0,.4);direction:rtl;line-height:16px;
+    color:#241A10;background:#fff;box-shadow:0 1px 2px rgba(43,33,23,.2);
   }
 
+  /* מסגרת אזור לכיתה — עוטפת רצף ספסלים של אותה כיתה */
+  .zgroup{
+    position:relative;display:flex;flex-direction:column;gap:7px;
+    padding:8px 6px 6px;border:2px solid;border-radius:12px;
+  }
+  .zgroup.h{flex-direction:row;gap:8px}
+
   /* vertical bench (המובלעת — פנים למרכז) */
-  .bench.vertical{flex-direction:row;align-items:center}
+  .bench.vertical{flex-direction:row;align-items:center;padding:6px 9px 6px 6px;gap:3px}
   .bench.vertical .bench-bar{width:11px;height:auto;align-self:stretch;
     background:linear-gradient(90deg,var(--wood-light),var(--wood) 60%,var(--wood-dark));
   }
-  .bench.vertical .chair-row{flex-direction:column}
-  .bench.vertical .chair{width:19px;height:21px}
-  .bench.vertical .chair::after{left:auto;top:1px;bottom:1px;right:1px;width:4px;height:auto}
+  .bench.vertical .chair-row{flex-direction:column;gap:5px}
+  .bench.vertical .chair{width:20px;height:22px;border-radius:6px 9px 9px 6px}
+  .bench.vertical .chair::before{inset:2px 8px 2px 3px}
+  .bench.vertical .chair::after{
+    left:auto;right:-3px;top:2px;bottom:2px;width:6px;height:auto;
+    background:linear-gradient(90deg,var(--plastic-back),var(--plastic-edge));
+    border-radius:4px 5px 5px 4px;
+  }
 
   /* bima */
   .bima{
@@ -276,7 +301,6 @@
     padding:6px;border-radius:10px;cursor:pointer;border:2px solid transparent;
   }
   .longtable:hover{border-color:var(--map-ink-soft)}
-  .longtable.zoned{border-style:solid}
   .lt-surface{
     width:46px;border-radius:6px;
     background:
@@ -287,12 +311,24 @@
   }
   .lt-surface span{
     color:#FFF7EA;font-family:'Frank Ruhl Libre',serif;
-    font-weight:700;font-size:11px;direction:rtl;
+    font-weight:700;font-size:11px;direction:rtl;white-space:nowrap;
   }
-  .lt-chairs{display:flex;flex-direction:column;gap:5px;justify-content:center}
-  .lt-chairs .chair{width:19px;height:21px}
-  .lt-chairs.left .chair::after{left:1px;right:auto;top:1px;bottom:1px;width:4px;height:auto}
-  .lt-chairs.right .chair::after{left:auto;right:1px;top:1px;bottom:1px;width:4px;height:auto}
+  .lt-chairs{display:flex;flex-direction:column;gap:6px;justify-content:center;padding:0 3px}
+  .lt-chairs .chair{width:20px;height:22px}
+  .lt-chairs.left .chair{border-radius:9px 6px 6px 9px}
+  .lt-chairs.left .chair::before{inset:2px 3px 2px 8px}
+  .lt-chairs.left .chair::after{
+    left:-3px;right:auto;top:2px;bottom:2px;width:6px;height:auto;
+    background:linear-gradient(270deg,var(--plastic-back),var(--plastic-edge));
+    border-radius:5px 4px 4px 5px;
+  }
+  .lt-chairs.right .chair{border-radius:6px 9px 9px 6px}
+  .lt-chairs.right .chair::before{inset:2px 8px 2px 3px}
+  .lt-chairs.right .chair::after{
+    left:auto;right:-3px;top:2px;bottom:2px;width:6px;height:auto;
+    background:linear-gradient(90deg,var(--plastic-back),var(--plastic-edge));
+    border-radius:4px 5px 5px 4px;
+  }
 
   /* alcove + entrance side */
   .side-col{display:flex;flex-direction:column;gap:14px;align-self:stretch}
@@ -411,7 +447,7 @@
     <div class="help">
       <b>איך עורכים?</b><br>
       לחיצה על ספסל / בימה / שולחן פותחת עריכה: מספר כיסאות, שיוך כיתה, הוספה, הזזה ומחיקה.<br>
-      לחיצה על שם טור — שינוי שם.<br>
+      "החלת X כיסאות על כל הקטע" משנה את כל הספסלים ברצף בבת אחת — הבימה מפרידה בין קטעים.<br>
       בחירת כיתה למעלה מפעילה <b>מצב צביעה</b>.<br>
       לפני הדפסה כוונו את הזום כך שהמפה נכנסת בעמוד.
     </div>
@@ -610,16 +646,6 @@ function renderAll(){
 function benchEl(b, vertical){
   const d = el("div", "bench" + (vertical ? " vertical" : ""));
   d.dataset.id = b.id;
-  if (b.zone){
-    const zs = zStyle(b.zone);
-    d.classList.add("zoned");
-    d.style.background = zs.fill;
-    d.style.borderColor = zs.border;
-    const tag = el("span", "ztag", zLabel(b.zone));
-    tag.style.background = zs.fill;
-    tag.style.borderColor = zs.border;
-    d.appendChild(tag);
-  }
   d.appendChild(el("div", "bench-bar"));
   const row = el("div", "chair-row");
   for (let i = 0; i < b.chairs; i++) row.appendChild(el("div", "chair"));
@@ -639,16 +665,6 @@ function bimaEl(it){
 function tableEl(it){
   const d = el("div", "longtable");
   d.dataset.id = it.id;
-  if (it.zone){
-    const zs = zStyle(it.zone);
-    d.classList.add("zoned");
-    d.style.background = zs.fill;
-    d.style.borderColor = zs.border;
-    const tag = el("span", "ztag", zLabel(it.zone));
-    tag.style.background = zs.fill;
-    tag.style.borderColor = zs.border;
-    d.appendChild(tag);
-  }
   const left = el("div", "lt-chairs left");
   const right = el("div", "lt-chairs right");
   const half = Math.ceil(it.chairs / 2);
@@ -674,6 +690,36 @@ function editableName(txt, onCommit, cls){
     else s.textContent = txt;
   });
   return s;
+}
+
+function zgroupEl(zone, horizontal){
+  const g = el("div", "zgroup" + (horizontal ? " h" : ""));
+  const zs = zStyle(zone);
+  g.style.borderColor = zs.border;
+  g.style.background = zs.fill;
+  const tag = el("span", "ztag", zLabel(zone));
+  tag.style.background = zs.fill;
+  tag.style.borderColor = zs.border;
+  g.appendChild(tag);
+  return g;
+}
+
+/* מוסיף פריטים למכל תוך איחוד רצפים של אותה כיתה למסגרת אחת */
+function appendGrouped(container, entries, horizontal){
+  let run = null; // {zone, wrap}
+  for (const { item, node } of entries){
+    const z = (item.type !== "bima" && item.zone) ? item.zone : null;
+    if (z){
+      if (!run || run.zone !== z){
+        run = { zone: z, wrap: zgroupEl(z, horizontal) };
+        container.appendChild(run.wrap);
+      }
+      run.wrap.appendChild(node);
+    } else {
+      run = null;
+      container.appendChild(node);
+    }
+  }
 }
 
 function miniBtn(txt, fn, danger){
@@ -708,17 +754,12 @@ function renderMap(){
 
   state.columns.forEach((c, ci) => {
     const colEl = el("div", "column");
-    const head = el("div", "col-head");
-    head.appendChild(editableName(c.name, v => mutate(s => { s.columns[ci].name = v; })));
-    const seats = c.items.reduce((a, it) => a + itemSeats(it), 0);
-    head.appendChild(el("span", "cseats", seats + " מק׳"));
-    colEl.appendChild(head);
-
-    for (const it of c.items){
-      if (it.type === "bima") colEl.appendChild(bimaEl(it));
-      else if (it.type === "table") colEl.appendChild(tableEl(it));
-      else colEl.appendChild(benchEl(it, false));
-    }
+    appendGrouped(colEl, c.items.map(it => ({
+      item: it,
+      node: it.type === "bima" ? bimaEl(it)
+          : it.type === "table" ? tableEl(it)
+          : benchEl(it, false),
+    })), false);
 
     const tools = el("div", "col-tools");
     tools.appendChild(miniBtn("+ ספסל", () => mutate(s => s.columns[ci].items.push(mkBench(6)))));
@@ -743,10 +784,10 @@ function renderMap(){
   alc.appendChild(ah);
   const arow = el("div", "alcove-row");
   const abot = el("div", "alcove-bottom");
-  for (const b of state.alcove.benches){
-    if (b.facing === "front") abot.appendChild(benchEl(b, false));
-    else arow.appendChild(benchEl(b, true));
-  }
+  const centerB = state.alcove.benches.filter(b => b.facing !== "front");
+  const frontB = state.alcove.benches.filter(b => b.facing === "front");
+  appendGrouped(arow, centerB.map(b => ({ item: { ...b, type:"bench" }, node: benchEl(b, true) })), true);
+  appendGrouped(abot, frontB.map(b => ({ item: { ...b, type:"bench" }, node: benchEl(b, false) })), false);
   if (arow.children.length) alc.appendChild(arow);
   if (abot.children.length) alc.appendChild(abot);
   const atools = el("div", "col-tools");
@@ -766,6 +807,17 @@ function renderMap(){
 
   hall.appendChild(addColBtn(1));
   map.appendChild(hall);
+  fitPage(map);
+}
+
+/* שומר על יחס דף A3/A4 לרוחב (√2) — משלים רוחב או גובה לפי הצורך */
+function fitPage(map){
+  map.style.minWidth = "";
+  map.style.minHeight = "";
+  const w = map.offsetWidth, h = map.offsetHeight, R = Math.SQRT2;
+  if (!w || !h) return;
+  if (w / h > R) map.style.minHeight = Math.ceil(w / R) + "px";
+  else map.style.minWidth = Math.ceil(h * R) + "px";
 }
 
 function renderLegend(t){
@@ -881,6 +933,25 @@ function openPop(id, refreshOnly){
     row.appendChild(stepper(it.chairs, 1, hi, nv =>
       mutate(() => { findItem(id).item.chairs = nv; })));
     pop.appendChild(row);
+    if (it.type === "bench"){
+      const secBtn = el("button", "btn", `החלת ${it.chairs} כיסאות על כל הקטע`);
+      secBtn.style.width = "100%";
+      secBtn.title = "כל הספסלים ברצף הזה (עד הבימה / השולחן / קצה הטור) יקבלו אותו מספר כיסאות";
+      secBtn.addEventListener("click", () => mutate(() => {
+        const g = findItem(id);
+        if (!g) return;
+        const n = g.item.chairs;
+        if (g.where === "alcove"){
+          for (const b of g.list) if (b.facing === g.item.facing) b.chairs = n;
+          return;
+        }
+        let lo = g.idx, hiI = g.idx;
+        while (lo > 0 && g.list[lo-1].type === "bench") lo--;
+        while (hiI < g.list.length - 1 && g.list[hiI+1].type === "bench") hiI++;
+        for (let i = lo; i <= hiI; i++) g.list[i].chairs = n;
+      }));
+      pop.appendChild(secBtn);
+    }
     pop.appendChild(el("div", "rl", "שיוך כיתה"));
     pop.appendChild(zoneGrid(it.zone, z =>
       mutate(() => { findItem(id).item.zone = z; })));
