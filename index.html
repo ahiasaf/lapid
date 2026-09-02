@@ -385,19 +385,44 @@
   dialog p{font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin:6px 0}
 
   /* ---------- print ---------- */
+  /* כותרת מודפסת בתוך המפה */
+  .map-title{
+    display:none;align-items:baseline;gap:12px;direction:rtl;
+    margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--wood-dark);
+  }
+  .map-title h2{
+    font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:20px;margin:0;
+    color:var(--map-ink);
+  }
+  .map-title .mt-stats{font-size:12px;color:var(--map-ink-soft);font-variant-numeric:tabular-nums}
+  body.printing .map-title{display:flex}
+
+  /* מקרא קומפקטי שמודפס בתוך המפה עצמה */
+  .map-legend{
+    display:none;flex-wrap:wrap;gap:6px 10px;align-items:center;direction:rtl;
+    margin-top:12px;padding-top:9px;border-top:2px dashed var(--map-ink-soft);
+    font-size:12px;color:var(--map-ink);
+  }
+  .map-legend .mchip{
+    padding:1px 10px;border-radius:99px;border:1.5px solid;font-weight:700;
+  }
+  .map-legend .mtotal{font-weight:700;margin-inline-start:auto}
+  body.printing .map-legend{display:flex}
+
   @page{size:A4 landscape;margin:9mm}
   @media print{
     body{background:#fff}
-    header.app .actions,.toolbar,.col-tools,.add-col,.mini,.zoom-wrap{display:none !important}
-    header.app{position:static;border:none;padding:2mm 0}
+    header.app,.toolbar,.col-tools,.add-col,.mini{display:none !important}
     main{display:block}
-    .map-scroll{overflow:visible;padding:0}
+    aside.legend{display:none}
+    .map-legend,.map-title{display:flex}
+    .map-scroll{overflow:visible;padding:0;direction:ltr}
     .map{box-shadow:none;
       print-color-adjust:exact;-webkit-print-color-adjust:exact}
-    aside.legend{position:static;width:auto;margin:6mm 0 0;break-inside:avoid;
-      print-color-adjust:exact;-webkit-print-color-adjust:exact}
-    .help,.save-badge{display:none}
   }
+  /* גשוש למדידת שטח הדף בפיקסלים אמיתיים */
+  #pageProbe{position:absolute;visibility:hidden;pointer-events:none;
+    width:279mm;height:192mm;top:0;left:0}
 </style>
 
 <div class="topbar">
@@ -413,6 +438,8 @@
     <button class="btn" id="undoBtn" title="Ctrl+Z">↩ ביטול</button>
     <button class="btn" id="exportBtn">גיבוי</button>
     <button class="btn" id="importBtn">שחזור</button>
+    <button class="btn" id="shareBtn">🔗 קישור לשיתוף</button>
+    <button class="btn" id="pdfBtn">⬇ PDF</button>
     <button class="btn primary" id="printBtn">🖨 הדפסה</button>
   </div>
 </header>
@@ -424,26 +451,7 @@
 </div>
 </div>
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <linearGradient id="seatG" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#DCE6EC"/>
-      <stop offset="1" stop-color="#A2B8C6"/>
-    </linearGradient>
-    <linearGradient id="backG" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#8FA8B8"/>
-      <stop offset="1" stop-color="#6E8B9D"/>
-    </linearGradient>
-    <symbol id="chairTop" viewBox="0 0 24 24">
-      <rect x="4.2" y="2" width="15.6" height="15" rx="2.4"
-            fill="url(#seatG)" stroke="#54707E" stroke-width="1.1"/>
-      <rect x="6.4" y="4.2" width="11.2" height="10.6" rx="1.4"
-            fill="none" stroke="#54707E" stroke-width="0.8" opacity="0.55"/>
-      <rect x="3" y="18.8" width="18" height="3.8" rx="1.7"
-            fill="url(#backG)" stroke="#48626F" stroke-width="1"/>
-    </symbol>
-  </defs>
-</svg>
+<div id="pageProbe"></div>
 
 <main dir="rtl">
   <aside class="legend">
@@ -457,7 +465,8 @@
       בחירת כיתה למעלה מפעילה <b>מצב צביעה</b>.<br>
       לחיצה על הריבוע הצבעוני במקרא — החלפת צבע הכיתה.<br>
       אפשר לפצל ספסל לשתי כיתות מתוך חלון העריכה.<br>
-      לפני הדפסה כוונו את הזום כך שהמפה נכנסת בעמוד.
+      <b>הדפסה</b> ו־<b>PDF</b> מתאימים את המפה אוטומטית לדף A4 לרוחב, כולל כותרת ומקרא.<br>
+      <b>קישור לשיתוף</b> מייצר קישור שמכיל את המפה — מי שיפתח אותו יראה בדיוק את מה שאתם רואים.
     </div>
   </aside>
   <div class="map-scroll">
@@ -653,6 +662,26 @@ function totals(){
   for (const b of state.alcove.benches){ seats += b.chairs; benches++; }
   return { seats, benches };
 }
+function zoneAgg(){
+  const agg = {}; // zone -> {benches (חצאים = 0.5), seats}
+  const add = (zone, seats, benchShare) => {
+    if (!zone) return;
+    (agg[zone] = agg[zone] || { benches:0, seats:0 });
+    agg[zone].benches += benchShare;
+    agg[zone].seats += seats;
+  };
+  const addItem = it => {
+    if (it.split){
+      const hs = halfSeats(it);
+      add(it.zone, hs.a, 0.5);
+      add(it.zoneB, hs.b, 0.5);
+    } else add(it.zone, it.chairs, 1);
+  };
+  for (const c of state.columns) for (const it of c.items) if (it.type !== "bima") addItem(it);
+  for (const b of state.alcove.benches) addItem(b);
+  return agg;
+}
+const fmtHalf = n => Number.isInteger(n) ? String(n) : (Math.floor(n) ? Math.floor(n) + "½" : "½");
 
 /* ---------- mutation + undo ---------- */
 function mutate(fn){
@@ -691,13 +720,24 @@ function renderAll(){
 }
 
 const SVG_NS = "http://www.w3.org/2000/svg";
+const CHAIR_SHAPES = [
+  ["rect", { x:4.2, y:2, width:15.6, height:15, rx:2.4,
+             fill:"#CBD9E2", stroke:"#54707E", "stroke-width":1.1 }],
+  ["rect", { x:6.4, y:4.2, width:11.2, height:10.6, rx:1.4,
+             fill:"none", stroke:"#54707E", "stroke-width":0.8, opacity:0.55 }],
+  ["rect", { x:3, y:18.8, width:18, height:3.8, rx:1.7,
+             fill:"#8FA8B8", stroke:"#48626F", "stroke-width":1 }],
+];
+/* הצורה משורטטת בכל כיסא במלואה (בלי <use>) כדי שתיוצא נכון ל־PDF ולהדפסה */
 function chairEl(rot){
   const s = document.createElementNS(SVG_NS, "svg");
   s.setAttribute("viewBox", "0 0 24 24");
   s.setAttribute("class", "chair" + (rot ? " " + rot : ""));
-  const u = document.createElementNS(SVG_NS, "use");
-  u.setAttribute("href", "#chairTop");
-  s.appendChild(u);
+  for (const [tag, attrs] of CHAIR_SHAPES){
+    const n = document.createElementNS(SVG_NS, tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    s.appendChild(n);
+  }
   return s;
 }
 
@@ -887,6 +927,29 @@ function renderMap(){
 
   hall.appendChild(addColBtn(1));
   map.appendChild(hall);
+
+  /* כותרת ומקרא מודפסים בתוך המפה */
+  const mt = el("div", "map-title");
+  mt.appendChild(el("h2", "", state.title));
+  const tt = totals();
+  mt.appendChild(el("span", "mt-stats", `${tt.seats} מקומות · ${tt.benches} ספסלים`));
+  map.insertBefore(mt, map.firstChild);
+
+  const agg = zoneAgg();
+  const usedZ = ZONES.filter(z => agg[z]);
+  const ml = el("div", "map-legend");
+  for (const z of usedZ){
+    const zs = zStyle(z);
+    const chip = el("span", "mchip", `כיתה ${zLabel(z)} · ${agg[z].seats}`);
+    chip.style.background = zs.fill;
+    chip.style.borderColor = zs.border;
+    chip.style.color = "#241A10";
+    ml.appendChild(chip);
+  }
+  const t = totals();
+  ml.appendChild(el("span", "mtotal", `סה״כ ${t.seats} מקומות · ${t.benches} ספסלים`));
+  map.appendChild(ml);
+
   fitPage(map);
 }
 
@@ -903,23 +966,7 @@ function fitPage(map){
 function renderLegend(t){
   const body = $("#legendBody");
   body.innerHTML = "";
-  const agg = {}; // zone -> {benches (חצאים = 0.5), seats}
-  const add = (zone, seats, benchShare) => {
-    if (!zone) return;
-    (agg[zone] = agg[zone] || { benches:0, seats:0 });
-    agg[zone].benches += benchShare;
-    agg[zone].seats += seats;
-  };
-  const addItem = it => {
-    if (it.split){
-      const hs = halfSeats(it);
-      add(it.zone, hs.a, 0.5);
-      add(it.zoneB, hs.b, 0.5);
-    } else add(it.zone, it.chairs, 1);
-  };
-  for (const c of state.columns) for (const it of c.items) if (it.type !== "bima") addItem(it);
-  for (const b of state.alcove.benches) addItem(b);
-  const fmtHalf = n => Number.isInteger(n) ? String(n) : (Math.floor(n) ? Math.floor(n) + "½" : "½");
+  const agg = zoneAgg();
   const used = ZONES.filter(z => agg[z]);
   if (!used.length){
     body.appendChild(el("div", "legend-empty",
@@ -1204,6 +1251,41 @@ $("#mapTitle").addEventListener("keydown", e => {
 });
 
 $("#undoBtn").addEventListener("click", undo);
+
+/* הדפסה: התאמה אוטומטית של המפה לעמוד A4 לרוחב, כמו שקף */
+function pageArea(){
+  const probe = $("#pageProbe");            /* 279mm × 192mm — שטח A4 לרוחב בניכוי שוליים */
+  const r = probe.getBoundingClientRect();
+  return { w: r.width || 1040, h: r.height || 715 };
+}
+function fitForPrint(){
+  document.body.classList.add("printing");
+  const frame = $("#mapFrame"), map = $("#map"), box = $(".map-scroll");
+  frame.style.transform = "none";           /* מדידה במידות אמת */
+  fitPage(map);                             /* יחס הדף מחדש — עם הכותרת והמקרא */
+  const mw = map.offsetWidth, mh = map.offsetHeight;
+  if (!mw || !mh) return;
+  const pa = pageArea();
+  const s = Math.min(pa.w / mw, pa.h / mh);
+  frame.style.transformOrigin = "top left";
+  frame.style.transform = `scale(${s})`;
+  /* המסגרת נשארת בגודלה הטבעי; המכל מקבל את המידות אחרי ההקטנה */
+  box.style.width = Math.floor(mw * s) + "px";
+  box.style.height = Math.ceil(mh * s) + "px";
+  box.style.overflow = "hidden";
+}
+function unfitPrint(){
+  document.body.classList.remove("printing");
+  const frame = $("#mapFrame"), box = $(".map-scroll");
+  fitPage($("#map"));
+  box.style.width = "";
+  box.style.height = "";
+  box.style.overflow = "";
+  frame.style.transformOrigin = "";
+  frame.style.transform = `scale(${$("#zoom").value / 100})`;
+}
+window.addEventListener("beforeprint", fitForPrint);
+window.addEventListener("afterprint", unfitPrint);
 $("#printBtn").addEventListener("click", () => { closePop(); window.print(); });
 $("#zoom").addEventListener("input", e => {
   closePop();
@@ -1239,58 +1321,174 @@ $("#doImport").addEventListener("click", () => {
   }
 });
 
-/* ---------- persistence ---------- */
+/* ---------- persistence: מקומי + קישור לשיתוף ---------- */
 const badge = $("#saveBadge");
 function setBadge(cls, txt){ badge.className = "save-badge " + cls; badge.textContent = txt; }
 const LS_KEY = "beit-midrash-map";
 
-let docRef = null, saveTimer = null;
+let badgeTimer = null;
 function saveSoon(){
-  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
-  if (!docRef){ setBadge("local", "נשמר במכשיר זה בלבד"); return; }
-  setBadge("saving", "שומר…");
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    docRef.set(clone(state)).then(() => {
-      dirty = false;
-      setBadge("saved", "נשמר לכולם ✓");
-    }).catch(() => setBadge("local", "שגיאת שמירה — נשמר במכשיר בלבד"));
-  }, 700);
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+    setBadge("saved", "נשמר ✓");
+  }catch(e){
+    setBadge("local", "לא ניתן לשמור בדפדפן");
+  }
+  clearTimeout(badgeTimer);
+  badgeTimer = setTimeout(() => setBadge("", "השינויים נשמרים אוטומטית"), 2200);
 }
 
-try{
-  const raw = localStorage.getItem(LS_KEY);
-  if (raw) state = normalize(JSON.parse(raw));
-}catch(e){}
-renderAll();
-setBadge("", "טוען…");
+/* קידוד/פענוח מצב לתוך כתובת הקישור (deflate + base64url) */
+const b64url = {
+  enc: bytes => {
+    let s = "";
+    for (const b of bytes) s += String.fromCharCode(b);
+    return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  },
+  dec: str => {
+    const s = atob(str.replace(/-/g, "+").replace(/_/g, "/"));
+    const out = new Uint8Array(s.length);
+    for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+    return out;
+  },
+};
+async function encodeState(){
+  const json = JSON.stringify(state);
+  const raw = new TextEncoder().encode(json);
+  if (typeof CompressionStream === "function"){
+    try{
+      const cs = new CompressionStream("deflate-raw");
+      const buf = await new Response(
+        new Blob([raw]).stream().pipeThrough(cs)).arrayBuffer();
+      return "z" + b64url.enc(new Uint8Array(buf));
+    }catch(e){}
+  }
+  return "j" + b64url.enc(raw);
+}
+async function decodeState(code){
+  const bytes = b64url.dec(code.slice(1));
+  if (code[0] === "z"){
+    const ds = new DecompressionStream("deflate-raw");
+    const buf = await new Response(
+      new Blob([bytes]).stream().pipeThrough(ds)).arrayBuffer();
+    return JSON.parse(new TextDecoder().decode(buf));
+  }
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
 
-if (window.claude && window.claude.use){
-  window.claude.use("db").then(db => {
-    if (!db){ setBadge("local", "נשמר במכשיר זה בלבד"); return; }
-    docRef = db.doc("layout/main");
-    docRef.onSnapshot(snap => {
-      if (snap.exists){
-        const remote = snap.data();
-        if (remote && remote.rev !== state.rev && !dirty && !snap.metadata.hasPendingWrites){
-          state = normalize(remote);
-          renderAll();
-          setBadge("saved", "נשמר לכולם ✓");
-        } else if (!dirty && !snap.metadata.hasPendingWrites){
-          setBadge("saved", "נשמר לכולם ✓");
-        }
-      } else if (!dirty){
-        dirty = true;
-        saveSoon(); /* מפה ראשונה — זריעת ברירת המחדל */
-      }
-    }, () => {
-      docRef = null;
-      setBadge("local", "נשמר במכשיר זה בלבד");
-    });
+$("#shareBtn").addEventListener("click", async () => {
+  const btn = $("#shareBtn");
+  try{
+    const code = await encodeState();
+    const url = location.origin + location.pathname + location.search + "#m=" + code;
+    const done = () => {
+      btn.textContent = "הקישור הועתק ✓";
+      setTimeout(() => { btn.textContent = "🔗 קישור לשיתוף"; }, 2200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(url);
+      done();
+    } else {
+      $("#exportTxt").value = url;
+      $("#exportDlg").showModal();
+    }
+  }catch(e){
+    btn.textContent = "שגיאה";
+    setTimeout(() => { btn.textContent = "🔗 קישור לשיתוף"; }, 2000);
+  }
+});
+
+/* ---------- ייצוא PDF ---------- */
+function loadScript(src){
+  return new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = src; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
   });
-} else {
-  setBadge("local", "נשמר במכשיר זה בלבד");
 }
+async function exportPdf(){
+  const btn = $("#pdfBtn");
+  const label = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "מכין PDF…";
+  try{
+    if (!window.html2canvas)
+      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
+    if (!(window.jspdf && window.jspdf.jsPDF))
+      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+
+    closePop();
+    const frame = $("#mapFrame"), map = $("#map");
+    const prevTransform = frame.style.transform;
+    document.body.classList.add("printing");
+    frame.style.transform = "none";
+    await new Promise(r => setTimeout(r, 60));
+
+    const canvas = await window.html2canvas(map, {
+      scale: 2, backgroundColor: "#FFFFFF", logging: false, useCORS: true,
+    });
+
+    document.body.classList.remove("printing");
+    frame.style.transform = prevTransform;
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    const PW = 297, PH = 210, M = 9;
+    const aw = PW - M * 2, ah = PH - M * 2;
+    const s = Math.min(aw / canvas.width, ah / canvas.height);
+    const w = canvas.width * s, h = canvas.height * s;
+    pdf.addImage(canvas.toDataURL("image/png"), "PNG",
+      (PW - w) / 2, (PH - h) / 2, w, h);
+
+    const name = (state.title || "מפת בית המדרש").replace(/[\\/:*?"<>|]/g, "") + ".pdf";
+    const blob = pdf.output("blob");
+    let saved = false;
+    if (window.claude && window.claude.use){
+      const dl = await window.claude.use("downloads");
+      if (dl){
+        await dl.save({ filename: name, data: blob });
+        saved = true;
+      }
+    }
+    if (!saved){
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+    }
+    btn.textContent = "PDF מוכן ✓";
+  }catch(e){
+    document.body.classList.remove("printing");
+    btn.textContent = "שגיאה — נסו הדפסה";
+  }
+  setTimeout(() => { btn.disabled = false; btn.textContent = label; }, 2200);
+}
+$("#pdfBtn").addEventListener("click", exportPdf);
+
+/* ---------- טעינה ראשונית ---------- */
+(async function boot(){
+  const hash = location.hash || "";
+  const m = hash.match(/[#&]m=([A-Za-z0-9\-_]+)/);
+  let loaded = false;
+  if (m){
+    try{
+      state = normalize(await decodeState(m[1]));
+      loaded = true;
+      try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
+    }catch(e){}
+  }
+  if (!loaded){
+    try{
+      const raw = localStorage.getItem(LS_KEY);
+      if (raw) state = normalize(JSON.parse(raw));
+    }catch(e){}
+  }
+  renderAll();
+  setBadge("", loaded ? "נטען מהקישור · השינויים נשמרים אוטומטית"
+                      : "השינויים נשמרים אוטומטית");
+})();
 })();
 </script>
 
