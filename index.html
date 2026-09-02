@@ -408,6 +408,10 @@
   }
   .map-legend .mtotal{font-weight:700;margin-inline-start:auto}
   body.printing .map-legend{display:flex}
+  /* מצב "כמו בהדפסה" — משמש גם לצילום ל־PDF, שבו כללי @media print לא חלים */
+  body.printing .col-tools,
+  body.printing .add-col,
+  body.printing .mini{display:none !important}
 
   @page{size:A4 landscape;margin:9mm}
   @media print{
@@ -1406,16 +1410,25 @@ function loadScript(src){
     document.head.appendChild(s);
   });
 }
+/* קודם מהעותק שבאתר, ואם אין — מ־CDN */
+async function loadLib(ready, local, cdn){
+  if (ready()) return;
+  try{ await loadScript(local); }catch(e){}
+  if (ready()) return;
+  await loadScript(cdn);
+}
 async function exportPdf(){
   const btn = $("#pdfBtn");
   const label = btn.textContent;
   btn.disabled = true;
   btn.textContent = "מכין PDF…";
   try{
-    if (!window.html2canvas)
-      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
-    if (!(window.jspdf && window.jspdf.jsPDF))
-      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+    await loadLib(() => !!window.html2canvas,
+      "vendor/html2canvas.min.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
+    await loadLib(() => !!(window.jspdf && window.jspdf.jsPDF),
+      "vendor/jspdf.umd.min.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
 
     closePop();
     const frame = $("#mapFrame"), map = $("#map");
@@ -1437,7 +1450,8 @@ async function exportPdf(){
     const aw = PW - M * 2, ah = PH - M * 2;
     const s = Math.min(aw / canvas.width, ah / canvas.height);
     const w = canvas.width * s, h = canvas.height * s;
-    pdf.addImage(canvas.toDataURL("image/png"), "PNG",
+    /* JPEG — שומר על קובץ קטן מספיק לשליחה בוואטסאפ/מייל */
+    pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG",
       (PW - w) / 2, (PH - h) / 2, w, h);
 
     const name = (state.title || "מפת בית המדרש").replace(/[\\/:*?"<>|]/g, "") + ".pdf";
@@ -1460,8 +1474,11 @@ async function exportPdf(){
     }
     btn.textContent = "PDF מוכן ✓";
   }catch(e){
+    /* אם יצירת ה־PDF נכשלה — נופלים לחלון ההדפסה, שממנו אפשר "שמירה כ־PDF" */
     document.body.classList.remove("printing");
-    btn.textContent = "שגיאה — נסו הדפסה";
+    unfitPrint();
+    btn.textContent = "פותח הדפסה…";
+    setTimeout(() => window.print(), 300);
   }
   setTimeout(() => { btn.disabled = false; btn.textContent = label; }, 2200);
 }

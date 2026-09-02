@@ -4,7 +4,15 @@
 
 ## איפה זה רץ
 
-האתר מתפרסם אוטומטית ב־GitHub Pages בכל דחיפה לענף: **https://ahiasaf.github.io/lapid/** — אתר סטטי רגיל, בלי חשבון וללא התחברות. כל אחד שמקבל את הכתובת יכול לפתוח, לערוך ולהדפיס.
+האתר הוא HTML סטטי אחד, בלי שרת ובלי התחברות — כל אחד שמקבל את הכתובת יכול לפתוח, לערוך, לייצא ולהדפיס.
+
+**הפעלה חד־פעמית של GitHub Pages** (נדרשת פעם אחת; ל‑Actions אין הרשאה להפעיל את זה לבד):
+Settings → Pages → Source: **GitHub Actions** → ואז Actions → הרצה מחדש של "Deploy map to GitHub Pages".
+הכתובת שתתקבל: **https://ahiasaf.github.io/lapid/**
+
+לחלופין, אם מעדיפים בלי Actions: Settings → Pages → Deploy from a branch → ענף `gh-pages` → תיקייה `/ (root)`. הענף כבר קיים ומעודכן.
+
+אפשר גם לייבא את הריפו כמו שהוא ל‑Vercel או Netlify (אתר סטטי, בלי הגדרות בנייה).
 
 ## מה יש בפנים
 
