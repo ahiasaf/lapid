@@ -481,7 +481,7 @@
       לחיצה על הריבוע הצבעוני במקרא — החלפת צבע הכיתה.<br>
       אפשר לפצל ספסל לשתי כיתות, ולהפוך כל ספסל ל<b>מאונך</b>, מתוך חלון העריכה.<br>
       <b>הדפסה</b> ו־<b>PDF</b> מתאימים את המפה אוטומטית לדף A4 לרוחב, כולל כותרת ומקרא.<br>
-      <b>קישור לשיתוף</b> מייצר קישור שמכיל את המפה — מי שיפתח אותו יראה בדיוק את מה שאתם רואים.
+      <b>קישור לשיתוף</b> מעתיק קישור שמכיל את המפה עצמה. גם שורת הכתובת מתעדכנת אוטומטית אחרי כל שינוי, כך שכל העתקה שלה מעבירה את המפה העדכנית — מי שיפתח יראה בדיוק את מה שאתם רואים, וימשיך לערוך משם.
     </div>
   </aside>
   <div class="map-scroll">
@@ -1407,7 +1407,7 @@ const badge = $("#saveBadge");
 function setBadge(cls, txt){ badge.className = "save-badge " + cls; badge.textContent = txt; }
 const LS_KEY = "beit-midrash-map";
 
-let badgeTimer = null;
+let badgeTimer = null, urlTimer = null, urlSeq = 0;
 function saveSoon(){
   try{
     localStorage.setItem(LS_KEY, JSON.stringify(state));
@@ -1417,6 +1417,21 @@ function saveSoon(){
   }
   clearTimeout(badgeTimer);
   badgeTimer = setTimeout(() => setBadge("", "השינויים נשמרים אוטומטית"), 2200);
+  syncUrlSoon();
+}
+
+/* הכתובת עצמה נושאת תמיד את המפה העדכנית, כדי שהעתקה שלה בכל רגע
+   תעביר בדיוק את מה שרואים — בלי להסתמך על לחיצה בכפתור */
+function syncUrlSoon(){
+  clearTimeout(urlTimer);
+  const seq = ++urlSeq;
+  urlTimer = setTimeout(async () => {
+    try{
+      const code = await encodeState();
+      if (seq !== urlSeq) return;           /* עריכה חדשה עקפה אותנו */
+      history.replaceState(null, "", location.pathname + location.search + "#m=" + code);
+    }catch(e){}
+  }, 700);
 }
 
 /* קידוד/פענוח מצב לתוך כתובת הקישור (deflate + base64url) */
@@ -1583,6 +1598,7 @@ $("#pdfBtn").addEventListener("click", exportPdf);
   renderAll();
   setBadge("", loaded ? "נטען מהקישור · השינויים נשמרים אוטומטית"
                       : "השינויים נשמרים אוטומטית");
+  syncUrlSoon();   /* גם בלי עריכה — הכתובת כבר נושאת את המפה */
 })();
 })();
 </script>
