@@ -199,6 +199,35 @@
     padding-bottom:14px;margin-bottom:10px;
     border-bottom:2px dashed var(--map-ink-soft);
   }
+  .platform{
+    display:flex;justify-content:center;align-items:flex-start;
+    border:2px solid var(--wood-dark);border-top:none;
+    border-radius:0 0 12px 12px;
+    background:rgba(255,255,255,.35);
+    padding:0 46px 14px;min-width:300px;
+  }
+  /* מקום מיוחד ליד הארון — מודגש כמו אזור כיתה */
+  .rav-seat{
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    padding:7px 12px 6px;margin-top:8px;align-self:flex-start;
+    border:2px solid #8A5A33;border-radius:10px;
+    background:hsl(38 70% 84%);cursor:pointer;position:relative;
+  }
+  .rav-seat .rs-label{
+    font-size:11.5px;font-weight:700;color:#241A10;direction:rtl;white-space:nowrap;
+    border-radius:5px;padding:0 3px;
+  }
+  .rav-seat .rs-label:focus{outline:2px solid var(--accent)}
+  .add-rav{
+    align-self:flex-start;margin-top:10px;border:1.5px dashed var(--map-ink-soft);
+    background:transparent;color:var(--map-ink-soft);border-radius:9px;
+    font-size:11px;padding:4px 9px;cursor:pointer;direction:rtl;
+  }
+  .add-rav:hover{color:var(--map-ink);border-color:var(--map-ink)}
+  .platform-label{
+    position:absolute;bottom:2px;left:50%;transform:translateX(-50%);
+    font-size:10px;color:var(--map-ink-soft);direction:rtl;white-space:nowrap;
+  }
   .aron{
     background:linear-gradient(180deg,var(--wood-light),var(--wood));
     border:2px solid var(--wood-dark);border-radius:8px 8px 3px 3px;
@@ -589,7 +618,7 @@ function defaultState(){
           { id:rid(), type:"bima" },
           ...many(5, () => mkBench(6)),
         ] },
-      { id:rid(), offset:-70, items: [            /* האזור הימני — קירו פנימה יותר */
+      { id:rid(), offset:-118, items: [            /* האזור הימני — קירו פנימה יותר */
           ...many(7, () => mkBench(6, "side")),  /* צמודים לקיר, מימין לבמת הארון */
           mkGap(18),
           ...many(3, () => mkBench(6, "side")),
@@ -600,6 +629,7 @@ function defaultState(){
         items: many(4, () => mkBench(6)) },
     ],
     zoneColors: {},
+    ravSeat: { id:rid(), label:"הרב שלום" },
   };
 }
 
@@ -611,6 +641,9 @@ function normalize(d){
     title: typeof d.title === "string" && d.title.trim() ? d.title : base.title,
     columns: [],
     zoneColors: {},
+    ravSeat: (d.ravSeat && typeof d.ravSeat === "object")
+      ? { id: d.ravSeat.id || rid(), label: String(d.ravSeat.label || "מקום שמור").slice(0, 40) }
+      : (d.ravSeat === null ? null : { id: rid(), label: "הרב שלום" }),
   };
   if (d.zoneColors && typeof d.zoneColors === "object")
     for (const z of ZONES){
@@ -684,6 +717,7 @@ function totals(){
     seats += itemSeats(it);
     if (it.type === "bench") benches++;
   }
+  if (state.ravSeat) seats += 1;
   return { seats, benches };
 }
 function zoneAgg(){
@@ -904,9 +938,48 @@ function renderMap(){
 
   const room = el("div", "room");
   const front = el("div", "front-wall");
+  const platform = el("div", "platform");
+  platform.style.position = "relative";
   const aron = el("div", "aron", "ארון הקודש");
   aron.appendChild(el("small", "", "חזית בית המדרש"));
-  front.appendChild(aron);
+  platform.appendChild(aron);
+  if (state.ravSeat){
+    const rs = el("div", "rav-seat");
+    rs.appendChild(chairEl(""));
+    const lbl = el("span", "rs-label", state.ravSeat.label);
+    lbl.contentEditable = "true";
+    lbl.spellcheck = false;
+    lbl.addEventListener("click", e => e.stopPropagation());
+    lbl.addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); lbl.blur(); } });
+    lbl.addEventListener("blur", () => {
+      const v = lbl.textContent.trim();
+      if (v && v !== state.ravSeat.label) mutate(s => { s.ravSeat.label = v.slice(0, 40); });
+      else lbl.textContent = state.ravSeat.label;
+    });
+    rs.appendChild(lbl);
+    rs.title = "מקום שמור — לחיצה על השם לשינוי";
+    rs.addEventListener("click", e => {
+      if (e.target === lbl) return;
+      e.stopPropagation();
+      if (rs.dataset.arm){ mutate(s => { s.ravSeat = null; }); }
+      else {
+        rs.dataset.arm = "1";
+        const old = lbl.textContent;
+        lbl.textContent = "למחיקה — לחצו שוב";
+        setTimeout(() => { delete rs.dataset.arm; lbl.textContent = old; }, 2500);
+      }
+    });
+    platform.appendChild(rs);
+  } else {
+    const add = el("button", "add-rav", "+ מקום ליד הארון");
+    add.addEventListener("click", e => {
+      e.stopPropagation();
+      mutate(s => { s.ravSeat = { id: rid(), label: "הרב שלום" }; });
+    });
+    platform.appendChild(add);
+  }
+  platform.appendChild(el("span", "platform-label", "הבמה"));
+  front.appendChild(platform);
   room.appendChild(front);
 
   const hall = el("div", "hall");
