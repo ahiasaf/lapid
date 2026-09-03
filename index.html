@@ -211,8 +211,8 @@
     border-radius:3px;background:#3E5C8A;
   }
   .aron small{display:block;font-family:'Heebo';font-weight:400;font-size:10px;opacity:.85}
-  .hall{display:flex;align-items:flex-start;gap:26px;justify-content:space-around;flex:1;width:100%}
-  .column{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:120px}
+  .hall{display:flex;align-items:flex-start;gap:18px;justify-content:center;flex:1;width:100%}
+  .column{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:110px}
   .col-head{
     display:flex;align-items:center;gap:6px;margin-bottom:4px;
     font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:13.5px;
@@ -327,7 +327,7 @@
   .lt-chairs{display:flex;flex-direction:column;gap:5px;justify-content:center;padding:0 2px}
 
   /* רצף ספסלים מאונכים — יושבים זה לצד זה, כמו במציאות */
-  .side-run{display:flex;gap:8px;align-items:flex-start;justify-content:center;align-self:center}
+  .side-run{display:flex;gap:5px;align-items:flex-start;justify-content:center;align-self:center}
   /* רווח בין קבוצות בתוך טור */
   .gap-item{
     align-self:stretch;min-width:70px;cursor:pointer;border-radius:8px;
@@ -336,7 +336,7 @@
   .gap-item:hover{border-color:var(--map-ink-soft)}
   .col-spacer{flex:none}
   /* אשכול טורים צמודים — נשארים יחד כשהמפה נפרסת לרוחב הדף */
-  .col-group{display:flex;align-items:flex-start;gap:14px}
+  .col-group{display:flex;align-items:flex-start;gap:8px}
   /* כניסות — פתח בקיר עם חץ פנימה, ממוקם מול הבימה */
   .door{
     position:absolute;z-index:4;display:flex;align-items:center;justify-content:center;
@@ -589,14 +589,14 @@ function defaultState(){
           { id:rid(), type:"bima" },
           ...many(5, () => mkBench(6)),
         ] },
-      { id:rid(), items: [                       /* הצד הימני — מקדימה לאחור */
-          ...many(7, () => mkBench(6, "side")),  /* צמודים לקיר, פנים לארון */
-          mkGap(34),
+      { id:rid(), offset:-70, items: [            /* האזור הימני — קירו פנימה יותר */
+          ...many(7, () => mkBench(6, "side")),  /* צמודים לקיר, מימין לבמת הארון */
+          mkGap(18),
           ...many(3, () => mkBench(6, "side")),
           ...many(2, () => mkBench(4)),
           { id:rid(), type:"table", chairs:20, zone:"" },
         ] },
-      { id:rid(), offset:210, attach:true,        /* המובלעת הימנית — צמודה */
+      { id:rid(), offset:130, attach:true,        /* המובלעת הימנית — צמודה לשלושת המאונכים */
         items: many(4, () => mkBench(6)) },
     ],
     zoneColors: {},
@@ -629,7 +629,7 @@ function normalize(d){
   };
   if (Array.isArray(d.columns)) for (const c of d.columns){
     if (!c || typeof c !== "object") continue;
-    const col = { id: c.id || rid(), offset: clampInt(c.offset, 0, 1200, 0),
+    const col = { id: c.id || rid(), offset: clampInt(c.offset, -400, 1200, 0),
                   attach: !!c.attach, items: [] };
     if (Array.isArray(c.items)) for (const it of c.items){
       if (!it || typeof it !== "object") continue;
@@ -672,7 +672,7 @@ function findItem(id){
   for (let ci = 0; ci < state.columns.length; ci++){
     const items = state.columns[ci].items;
     const idx = items.findIndex(it => it.id === id);
-    if (idx >= 0) return { where:"col", list:items, idx, item:items[idx], col:state.columns[ci] };
+    if (idx >= 0) return { where:"col", list:items, idx, item:items[idx], col:state.columns[ci], ci };
   }
   return null;
 }
@@ -927,10 +927,12 @@ function renderMap(){
     const colEl = el("div", "column");
     const colSeats = c.items.reduce((a, it) => a + itemSeats(it), 0);
     colEl.appendChild(el("div", "col-count", colSeats + " מקומות"));
-    if (c.offset){
+    if (c.offset > 0){
       const sp = el("div", "col-spacer");
       sp.style.height = c.offset + "px";
       colEl.appendChild(sp);
+    } else if (c.offset < 0){
+      colEl.style.marginTop = c.offset + "px";   /* עולה אל מול במת הארון */
     }
     renderColumnItems(colEl, c.items);
 
@@ -941,7 +943,7 @@ function renderMap(){
     tools.appendChild(miniBtn("+ שולחן", () => mutate(s => s.columns[ci].items.push({ id:rid(), type:"table", chairs:20, zone:"" }))));
     tools.appendChild(miniBtn("+ רווח", () => mutate(s => s.columns[ci].items.push(mkGap(30)))));
     tools.appendChild(miniBtn("↑ הזזת הטור", () => mutate(s => {
-      s.columns[ci].offset = Math.max(0, (s.columns[ci].offset || 0) - 20);
+      s.columns[ci].offset = Math.max(-400, (s.columns[ci].offset || 0) - 20);
     })));
     tools.appendChild(miniBtn("↓ הזזת הטור", () => mutate(s => {
       s.columns[ci].offset = Math.min(1200, (s.columns[ci].offset || 0) + 20);
@@ -1026,10 +1028,6 @@ function positionDoors(){
 function fitPage(map){
   map.style.minWidth = "";
   map.style.minHeight = "";
-  const w = map.offsetWidth, h = map.offsetHeight, R = Math.SQRT2;
-  if (!w || !h) return;
-  if (w / h > R) map.style.minHeight = Math.ceil(w / R) + "px";
-  else map.style.minWidth = Math.ceil(h * R) + "px";
   positionDoors();
 }
 
@@ -1265,6 +1263,20 @@ function openPop(id, refreshOnly){
       g.list.splice(g.idx + 1, 0, { ...clone(g.item), id: rid() });
     })));
   }
+  const moveCol = (dir, label) => {
+    const g0 = findItem(id);
+    if (!g0 || g0.ci + dir < 0 || g0.ci + dir >= state.columns.length) return;
+    btns.appendChild(popBtn(label, () => mutate(() => {
+      const g = findItem(id);
+      const target = g && state.columns[g.ci + dir];
+      if (!target) return;
+      const [moved] = g.list.splice(g.idx, 1);
+      target.items.splice(Math.min(g.idx, target.items.length), 0, moved);
+    })));
+  };
+  moveCol(-1, "← לטור שמשמאל");
+  moveCol(1, "לטור שמימין →");
+
   btns.appendChild(popBtn("מחיקה", () => { mutate(() => {
     const g = findItem(id); g.list.splice(g.idx, 1);
   }); closePop(); }, true));
