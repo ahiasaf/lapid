@@ -485,6 +485,7 @@
     <button class="btn" id="undoBtn" title="Ctrl+Z">↩ ביטול</button>
     <button class="btn" id="exportBtn">גיבוי</button>
     <button class="btn" id="importBtn">שחזור</button>
+    <button class="btn" id="siteMapBtn" title="טעינת המפה שמופיעה באתר">מפת האתר</button>
     <button class="btn" id="shareBtn">🔗 קישור לשיתוף</button>
     <button class="btn" id="pdfBtn">⬇ PDF</button>
     <button class="btn primary" id="printBtn">🖨 הדפסה</button>
@@ -599,6 +600,10 @@ function zStyle(id){
   return { fill: p.f, border: p.b, idx };
 }
 
+/* ---------- המפה של בית המדרש, כפי שנספרה בשטח ---------- */
+const SITE_MAP = {"rev":"site-2026-09-03","title":"מפת בית המדרש","columns":[{"id":"lm9hdteu","offset":0,"attach":false,"items":[{"id":"hjwkoylg","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"09ohed1h","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"mbybfsvb","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"cz8bev9m","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4snhmgcf","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"0jo1cisy","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"5epp85h6","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4w5rdvsz","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"who3kwc6","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"2utk11dk","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"dis4v3xx","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"vuov6nf0","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4adzos2d","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"}]},{"id":"29cp83ry","offset":0,"attach":false,"items":[{"id":"qxaatdlk","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4z2fual3","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"2jxu57fw","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"ccwj5yit","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"h6139nb8","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"y598v0j0","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"3pouij74","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"9idi7rl6","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"n2cqc7eu","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"noi09h7w","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"bw623y0t","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"fjt60q3g","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"vrlwe8je","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"1c5qwlxn","type":"bench","chairs":4,"zone":"","zoneB":"","split":false,"facing":"front"}]},{"id":"3k2ly9nk","offset":0,"attach":false,"items":[{"id":"gd3x9gwl","type":"bench","chairs":3,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4tswkbtg","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"yxsy0qeo","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"ehkqdgcr","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"6dxbmvlx","type":"bench","chairs":3,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"oqo2yndd","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"9vwj930q","type":"bench","chairs":5,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"tja90ta8","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"q0sonipp","type":"bench","chairs":5,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"ui8giknr","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"ndnu3hrz","type":"bench","chairs":5,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"n3qp7rua","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"}]},{"id":"8h08d7xu","offset":0,"attach":false,"items":[{"id":"k7lxvhlr","type":"bench","chairs":3,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"jn7ng1n7","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"ey5ymesy","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"gsxwcde6","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"wgers2ye","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"usihc08r","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"d6rr3lmx","type":"bima"},{"id":"g8olzi1l","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"em1k5w5t","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"5568sg7k","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"w4p7j7ln","type":"bench","chairs":3,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"mtctsyl4","type":"bench","chairs":6,"zone":"","zoneB":"","split":false,"facing":"front"},{"id":"srcn7kfa","type":"bench","chairs":3,"zone":"","zoneB":"","split":false,"facing":"front"}]},{"id":"y4xjeri1","offset":-118,"attach":false,"items":[{"id":"y65m87zr","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"qxuwdoo1","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"xhzv0kr6","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"qia9r0qu","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"vzl9lulg","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"dl6up5ja","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"0s15dmg0","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"g1h5rdzy","type":"gap","h":18},{"id":"ff51u9x3","type":"bench","chairs":5,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"eltgz4oj","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"q3ue5kbr","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"isp9qo5x","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4sc7pxfi","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"nw4koiuj","type":"table","chairs":20,"zone":""}]},{"id":"kd72zqhs","offset":130,"attach":true,"items":[{"id":"uzxzdvt1","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"icu8ozte","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"1hddsq8l","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"5nvcimpk","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"}]}],"zoneColors":{},"ravSeat":{"id":"j9llwiu1","label":"הרב שלום"}};
+const SITE_REV = SITE_MAP.rev;
+
 /* ---------- state ---------- */
 const mkGap = h => ({ id:rid(), type:"gap", h: h || 30 });
 const mkBench = (chairs, facing) =>
@@ -606,6 +611,9 @@ const mkBench = (chairs, facing) =>
 const many = (n, f) => Array.from({length:n}, f);
 
 function defaultState(){
+  return normalize(clone(SITE_MAP));
+}
+function blankState(){
   return {
     rev: rid(),
     title: "מפת בית המדרש",
@@ -634,7 +642,7 @@ function defaultState(){
 }
 
 function normalize(d){
-  const base = defaultState();
+  const base = blankState();
   if (!d || typeof d !== "object") return base;
   const out = {
     rev: typeof d.rev === "string" ? d.rev : rid(),
@@ -1497,13 +1505,27 @@ function setBadge(cls, txt){ badge.className = "save-badge " + cls; badge.textCo
 const LS_KEY = "beit-midrash-map";
 
 let badgeTimer = null, urlTimer = null, urlSeq = 0;
-function saveSoon(){
+
+/* מה ששמור בדפדפן: המפה, מאיזו גרסת אתר היא יצאה, והאם נערכה מאז */
+function readStore(){
   try{
-    localStorage.setItem(LS_KEY, JSON.stringify(state));
-    setBadge("saved", "נשמר ✓");
-  }catch(e){
-    setBadge("local", "לא ניתן לשמור בדפדפן");
-  }
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw);
+    if (p && p.state) return { siteRev: p.siteRev || null, edited: !!p.edited, state: p.state };
+    return { siteRev: null, edited: true, state: p };      /* פורמט ישן */
+  }catch(e){ return null; }
+}
+function writeStore(edited){
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify({ siteRev: SITE_REV, edited, state }));
+    return true;
+  }catch(e){ return false; }
+}
+
+function saveSoon(){
+  if (writeStore(true)) setBadge("saved", "נשמר ✓");
+  else setBadge("local", "לא ניתן לשמור בדפדפן");
   clearTimeout(badgeTimer);
   badgeTimer = setTimeout(() => setBadge("", "השינויים נשמרים אוטומטית"), 2200);
   syncUrlSoon();
@@ -1560,6 +1582,23 @@ async function decodeState(code){
   }
   return JSON.parse(new TextDecoder().decode(bytes));
 }
+
+$("#siteMapBtn").addEventListener("click", () => {
+  const b = $("#siteMapBtn");
+  if (!b.dataset.arm){
+    b.dataset.arm = "1";
+    const old = b.textContent;
+    b.textContent = "להחליף את המפה? לחצו שוב";
+    setTimeout(() => { delete b.dataset.arm; b.textContent = old; }, 3000);
+    return;
+  }
+  delete b.dataset.arm;
+  b.textContent = "מפת האתר";
+  b.classList.remove("primary");
+  mutate(() => { state = defaultState(); });
+  history.replaceState(null, "", location.pathname + location.search);
+  setBadge("saved", "נטענה המפה של האתר");
+});
 
 $("#shareBtn").addEventListener("click", async () => {
   const btn = $("#shareBtn");
@@ -1670,23 +1709,27 @@ $("#pdfBtn").addEventListener("click", exportPdf);
 (async function boot(){
   const hash = location.hash || "";
   const m = hash.match(/[#&]m=([A-Za-z0-9\-_]+)/);
-  let loaded = false;
+  let source = "site";
   if (m){
-    try{
-      state = normalize(await decodeState(m[1]));
-      loaded = true;
-      try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
-    }catch(e){}
+    try{ state = normalize(await decodeState(m[1])); source = "link"; }catch(e){}
   }
-  if (!loaded){
-    try{
-      const raw = localStorage.getItem(LS_KEY);
-      if (raw) state = normalize(JSON.parse(raw));
-    }catch(e){}
+  if (source !== "link"){
+    const store = readStore();
+    if (store && store.edited){
+      state = normalize(store.state);
+      source = store.siteRev === SITE_REV ? "mine" : "mine-old";
+    } else {
+      state = defaultState();                 /* המפה של האתר */
+    }
   }
+  writeStore(source === "link" || source.startsWith("mine"));
   renderAll();
-  setBadge("", loaded ? "נטען מהקישור · השינויים נשמרים אוטומטית"
-                      : "השינויים נשמרים אוטומטית");
+  setBadge("",
+    source === "link"     ? "נטען מהקישור · השינויים נשמרים אוטומטית"
+  : source === "mine-old" ? "המפה שלכם · יש מפה חדשה יותר באתר"
+  : source === "mine"     ? "השינויים נשמרים אוטומטית"
+  :                         "המפה של האתר · השינויים נשמרים אוטומטית");
+  if (source === "mine-old") $("#siteMapBtn").classList.add("primary");
   syncUrlSoon();   /* גם בלי עריכה — הכתובת כבר נושאת את המפה */
 })();
 })();
