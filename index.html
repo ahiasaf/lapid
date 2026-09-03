@@ -642,7 +642,8 @@ function normalize(d){
     columns: [],
     zoneColors: {},
     ravSeat: (d.ravSeat && typeof d.ravSeat === "object")
-      ? { id: d.ravSeat.id || rid(), label: String(d.ravSeat.label || "מקום שמור").slice(0, 40) }
+      ? { id: d.ravSeat.id || rid(),
+          label: String(d.ravSeat.label || d.ravSeat.effectivelabel || "מקום שמור").slice(0, 40) }
       : (d.ravSeat === null ? null : { id: rid(), label: "הרב שלום" }),
   };
   if (d.zoneColors && typeof d.zoneColors === "object")
