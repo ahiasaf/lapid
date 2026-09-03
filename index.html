@@ -195,7 +195,7 @@
     padding:16px 22px 12px;
   }
   .front-wall{
-    display:flex;justify-content:center;align-items:flex-end;gap:18px;
+    display:flex;justify-content:center;align-items:flex-end;gap:5px;
     padding-bottom:14px;margin-bottom:10px;
     border-bottom:2px dashed var(--map-ink-soft);
   }
@@ -204,12 +204,12 @@
     border:2px solid var(--wood-dark);border-top:none;
     border-radius:0 0 12px 12px;
     background:rgba(255,255,255,.35);
-    padding:0 46px 14px;min-width:300px;
+    padding:0 16px 13px;
   }
   /* מקום מיוחד ליד הארון — מודגש כמו אזור כיתה */
   .rav-seat{
     display:flex;flex-direction:column;align-items:center;gap:3px;
-    padding:7px 12px 6px;margin-top:8px;align-self:flex-start;
+    padding:7px 10px 6px;align-self:flex-end;
     border:2px solid #8A5A33;border-radius:10px;
     background:hsl(38 70% 84%);cursor:pointer;position:relative;
   }
@@ -943,7 +943,9 @@ function renderMap(){
   platform.style.position = "relative";
   const aron = el("div", "aron", "ארון הקודש");
   aron.appendChild(el("small", "", "חזית בית המדרש"));
+  platform.appendChild(el("span", "platform-label", "הבמה"));
   platform.appendChild(aron);
+  front.appendChild(platform);
   if (state.ravSeat){
     const rs = el("div", "rav-seat");
     rs.appendChild(chairEl(""));
@@ -970,17 +972,15 @@ function renderMap(){
         setTimeout(() => { delete rs.dataset.arm; lbl.textContent = old; }, 2500);
       }
     });
-    platform.appendChild(rs);
+    front.appendChild(rs);
   } else {
     const add = el("button", "add-rav", "+ מקום ליד הארון");
     add.addEventListener("click", e => {
       e.stopPropagation();
       mutate(s => { s.ravSeat = { id: rid(), label: "הרב שלום" }; });
     });
-    platform.appendChild(add);
+    front.appendChild(add);
   }
-  platform.appendChild(el("span", "platform-label", "הבמה"));
-  front.appendChild(platform);
   room.appendChild(front);
 
   const hall = el("div", "hall");
