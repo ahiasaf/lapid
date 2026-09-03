@@ -325,6 +325,15 @@
 
   /* רצף ספסלים מאונכים — יושבים זה לצד זה, כמו במציאות */
   .side-run{display:flex;gap:8px;align-items:flex-start;justify-content:center;align-self:center}
+  /* רווח בין קבוצות בתוך טור */
+  .gap-item{
+    align-self:stretch;min-width:70px;cursor:pointer;border-radius:8px;
+    border:1.5px dashed transparent;
+  }
+  .gap-item:hover{border-color:var(--map-ink-soft)}
+  .col-spacer{flex:none}
+  /* אשכול טורים צמודים — נשארים יחד כשהמפה נפרסת לרוחב הדף */
+  .col-group{display:flex;align-items:flex-start;gap:14px}
   /* כניסות — פתח בקיר עם חץ פנימה, ממוקם מול הבימה */
   .door{
     position:absolute;z-index:4;display:flex;align-items:center;justify-content:center;
@@ -559,6 +568,7 @@ function zStyle(id){
 }
 
 /* ---------- state ---------- */
+const mkGap = h => ({ id:rid(), type:"gap", h: h || 30 });
 const mkBench = (chairs, facing) =>
   ({ id:rid(), type:"bench", chairs, zone:"", zoneB:"", split:false, facing: facing || "front" });
 const many = (n, f) => Array.from({length:n}, f);
@@ -578,11 +588,13 @@ function defaultState(){
         ] },
       { id:rid(), items: [                       /* הצד הימני — מקדימה לאחור */
           ...many(7, () => mkBench(6, "side")),  /* צמודים לקיר, פנים לארון */
-          ...many(4, () => mkBench(6)),
+          mkGap(34),
           ...many(3, () => mkBench(6, "side")),
           ...many(2, () => mkBench(4)),
           { id:rid(), type:"table", chairs:20, zone:"" },
         ] },
+      { id:rid(), offset:210, attach:true,        /* המובלעת הימנית — צמודה */
+        items: many(4, () => mkBench(6)) },
     ],
     zoneColors: {},
   };
@@ -614,10 +626,13 @@ function normalize(d){
   };
   if (Array.isArray(d.columns)) for (const c of d.columns){
     if (!c || typeof c !== "object") continue;
-    const col = { id: c.id || rid(), name: String(c.name || "טור"), items: [] };
+    const col = { id: c.id || rid(), offset: clampInt(c.offset, 0, 1200, 0),
+                  attach: !!c.attach, items: [] };
     if (Array.isArray(c.items)) for (const it of c.items){
       if (!it || typeof it !== "object") continue;
       if (it.type === "bima") col.items.push({ id: it.id || rid(), type:"bima" });
+      else if (it.type === "gap") col.items.push({ id: it.id || rid(), type:"gap",
+        h: clampInt(it.h, 8, 300, 30) });
       else if (it.type === "table") col.items.push({ id: it.id || rid(), type:"table",
         chairs: clampInt(it.chairs, 1, 40, 20), zone: validZone(it.zone) });
       else col.items.push({ id: it.id || rid(), type:"bench", ...benchFields(it) });
@@ -659,6 +674,7 @@ function findItem(id){
   return null;
 }
 const itemSeats = it => (it.type === "bench" || it.type === "table") ? it.chairs : 0;
+const isGap = it => it.type === "gap";
 function totals(){
   let seats = 0, benches = 0;
   for (const c of state.columns) for (const it of c.items){
@@ -682,7 +698,8 @@ function zoneAgg(){
       add(it.zoneB, hs.b, 0.5);
     } else add(it.zone, it.chairs, 1);
   };
-  for (const c of state.columns) for (const it of c.items) if (it.type !== "bima") addItem(it);
+  for (const c of state.columns) for (const it of c.items)
+    if (it.type !== "bima" && it.type !== "gap") addItem(it);
   return agg;
 }
 const fmtHalf = n => Number.isInteger(n) ? String(n) : (Math.floor(n) ? Math.floor(n) + "½" : "½");
@@ -852,6 +869,7 @@ const isSide = it => it.type === "bench" && it.facing === "side";
 function renderColumnItems(colEl, items){
   const nodeFor = it => it.type === "bima" ? bimaEl(it)
     : it.type === "table" ? tableEl(it)
+    : it.type === "gap" ? gapEl(it)
     : benchEl(it, isSide(it));
   let i = 0;
   while (i < items.length){
@@ -867,6 +885,14 @@ function renderColumnItems(colEl, items){
       appendGrouped(colEl, run.map(it => ({ item: it, node: nodeFor(it) })), false);
     }
   }
+}
+
+function gapEl(it){
+  const d = el("div", "gap-item");
+  d.dataset.id = it.id;
+  d.style.height = it.h + "px";
+  d.title = "רווח — לחיצה לעריכה";
+  return d;
 }
 
 function renderMap(){
@@ -893,10 +919,16 @@ function renderMap(){
   };
   hall.appendChild(addColBtn(0));
 
+  let lastGroup = null;
   state.columns.forEach((c, ci) => {
     const colEl = el("div", "column");
     const colSeats = c.items.reduce((a, it) => a + itemSeats(it), 0);
     colEl.appendChild(el("div", "col-count", colSeats + " מקומות"));
+    if (c.offset){
+      const sp = el("div", "col-spacer");
+      sp.style.height = c.offset + "px";
+      colEl.appendChild(sp);
+    }
     renderColumnItems(colEl, c.items);
 
     const tools = el("div", "col-tools");
@@ -904,6 +936,15 @@ function renderMap(){
     if (!c.items.some(it => it.type === "bima"))
       tools.appendChild(miniBtn("+ בימה", () => mutate(s => s.columns[ci].items.push({ id:rid(), type:"bima" }))));
     tools.appendChild(miniBtn("+ שולחן", () => mutate(s => s.columns[ci].items.push({ id:rid(), type:"table", chairs:20, zone:"" }))));
+    tools.appendChild(miniBtn("+ רווח", () => mutate(s => s.columns[ci].items.push(mkGap(30)))));
+    tools.appendChild(miniBtn("↑ הזזת הטור", () => mutate(s => {
+      s.columns[ci].offset = Math.max(0, (s.columns[ci].offset || 0) - 20);
+    })));
+    tools.appendChild(miniBtn("↓ הזזת הטור", () => mutate(s => {
+      s.columns[ci].offset = Math.min(1200, (s.columns[ci].offset || 0) + 20);
+    })));
+    if (ci > 0) tools.appendChild(miniBtn(c.attach ? "ניתוק מהטור שלידו" : "הצמדה לטור שלידו",
+      () => mutate(s => { s.columns[ci].attach = !s.columns[ci].attach; })));
     tools.appendChild(miniBtn("שכפול טור", () => mutate(s => {
       const cc = clone(s.columns[ci]);
       cc.id = rid();
@@ -915,7 +956,8 @@ function renderMap(){
       else { b.dataset.arm = "1"; b.textContent = "בטוח? לחצו שוב"; setTimeout(() => { delete b.dataset.arm; b.textContent = "מחיקת טור"; }, 2500); }
     }, true));
     colEl.appendChild(tools);
-    hall.appendChild(colEl);
+    if (c.attach && lastGroup) lastGroup.appendChild(colEl);
+    else { lastGroup = el("div", "col-group"); lastGroup.appendChild(colEl); hall.appendChild(lastGroup); }
   });
 
   hall.appendChild(addColBtn(1));
@@ -1119,10 +1161,19 @@ function openPop(id, refreshOnly){
 
   const kind = it.type === "bima" ? "הבימה"
              : it.type === "table" ? "שולחן"
+             : it.type === "gap" ? "רווח"
              : isSide(it) ? "ספסל מאונך" : "ספסל";
   pop.appendChild(el("h3", "", kind));
 
-  if (it.type !== "bima"){
+  if (it.type === "gap"){
+    const row = el("div", "row");
+    row.appendChild(el("span", "rl", "גובה"));
+    row.appendChild(stepper(Math.round(it.h / 10), 1, 30, nv =>
+      mutate(() => { const g = findItem(id); if (g) g.item.h = nv * 10; })));
+    pop.appendChild(row);
+  }
+
+  if (it.type !== "bima" && it.type !== "gap"){
     const row = el("div", "row");
     row.appendChild(el("span", "rl", "כיסאות"));
     const hi = it.type === "table" ? 40 : 12;
