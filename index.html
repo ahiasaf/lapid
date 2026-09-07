@@ -176,6 +176,13 @@
     border-radius:99px;border:1.5px solid rgba(0,0,0,.4);direction:rtl;line-height:16px;
     color:#241A10;background:#fff;box-shadow:0 1px 2px rgba(43,33,23,.2);white-space:nowrap}
 
+  /* קווי עזר בזמן הצמדה */
+  .guide{position:absolute;background:var(--accent);z-index:55;display:none;pointer-events:none;
+    box-shadow:0 0 0 1px rgba(255,255,255,.6)}
+  .guide.v{top:-6px;bottom:-6px;width:1.5px}
+  .guide.h{left:-6px;right:-6px;height:1.5px}
+  body.printing .guide{display:none !important}
+
   /* ידיות שינוי גודל החדר */
   .rz{position:absolute;background:var(--accent);border:2px solid #fff;border-radius:5px;touch-action:none;
     z-index:60;box-shadow:0 1px 4px rgba(0,0,0,.3)}
@@ -277,6 +284,7 @@
   <div class="actions">
     <span class="save-badge" id="saveBadge">טוען…</span>
     <span class="zoom-wrap">זום <input type="range" id="zoom" min="25" max="140" value="100"></span>
+    <button class="btn primary" id="snapBtn">🧲 הצמדה</button>
     <button class="btn" id="undoBtn" title="Ctrl+Z">↩ ביטול</button>
     <button class="btn" id="siteMapBtn" title="טעינת המפה שמופיעה באתר">מפת האתר</button>
     <button class="btn primary" id="sendBtn">📤 שליחת המפה</button>
@@ -307,7 +315,7 @@
     <div id="legendBody"></div>
     <div class="legend-total"><span>סה״כ מקומות</span><b id="legendTotal">0</b></div>
     <div class="help">
-      <b>גרירה:</b> תופסים כל פריט וגוררים לאן שרוצים.<br>
+      <b>גרירה:</b> תופסים כל פריט וגוררים לאן שרוצים. הפריטים <b>נצמדים</b> זה לזה ומתיישרים אוטומטית; להזזה חופשית לגמרי — מחזיקים <b>Alt</b> בזמן הגרירה, או מכבים את "🧲 הצמדה".<br>
       <b>סיבוב:</b> בוחרים פריט ולוחצים <b>R</b>, או "סיבוב 90°" בחלון העריכה.<br>
       <b>קירות:</b> הידיות הכחולות בקצה החדר מותחות אותו.<br>
       <b>גרירה מדויקת:</b> מקשי החיצים מזיזים פיקסל־פיקסל.<br>
@@ -556,6 +564,8 @@ let state = defaultState();
 let undoStack = [];
 let paintZone = null;
 let selId = null;
+let anchorId = null;            /* הפריט האחרון שנבחר — עוגן להוספה מיושרת */
+function setSel(id){ selId = id; if (id) anchorId = id; }
 let popTarget = null, popMode = null;
 
 const findItem = id => state.items.find(i => i.id === id) || null;
@@ -578,6 +588,71 @@ function zoneAgg(){
   return agg;
 }
 const fmtHalf = n => Number.isInteger(n) ? String(n) : (Math.floor(n) ? Math.floor(n) + "½" : "½");
+
+/* ---------- הצמדה מגנטית ---------- */
+const SNAP_GAP = 6;          /* המרווח הסטנדרטי בין ספסלים */
+const SNAP_TOL = 9;          /* מרחק שבו הפריט "נתפס" */
+let snapOn = true;
+try{ snapOn = localStorage.getItem("bm-snap") !== "off"; }catch(e){}
+
+/* מחזיר מיקום מוצמד + הקווים שיש להציג */
+function computeSnap(moving, px, py){
+  if (!snapOn) return { x: snap(px), y: snap(py), gx: null, gy: null };
+  const mb = boxSize(moving);
+  const mw = mb.w / 2, mh = mb.h / 2;
+  let bestX = null, bestY = null;
+  for (const o of state.items){
+    if (o.id === moving.id) continue;
+    const ob = boxSize(o);
+    const ow = ob.w / 2, oh = ob.h / 2;
+    /* מועמדים לציר X: מרכזים, קצוות, והצמדה עם מרווח */
+    const xs = [
+      [o.x, o.x],                                   /* מרכז מול מרכז */
+      [o.x - ow + mw, o.x - ow],                    /* יישור קצה שמאלי */
+      [o.x + ow - mw, o.x + ow],                    /* יישור קצה ימני */
+      [o.x + ow + SNAP_GAP + mw, o.x + ow],         /* צמוד מימין */
+      [o.x - ow - SNAP_GAP - mw, o.x - ow],         /* צמוד משמאל */
+    ];
+    for (const [cand, line] of xs){
+      const d = Math.abs(cand - px);
+      if (d <= SNAP_TOL && (!bestX || d < bestX.d)) bestX = { v: cand, d, line };
+    }
+    const ys = [
+      [o.y, o.y],
+      [o.y - oh + mh, o.y - oh],
+      [o.y + oh - mh, o.y + oh],
+      [o.y + oh + SNAP_GAP + mh, o.y + oh],
+      [o.y - oh - SNAP_GAP - mh, o.y - oh],
+    ];
+    for (const [cand, line] of ys){
+      const d = Math.abs(cand - py);
+      if (d <= SNAP_TOL && (!bestY || d < bestY.d)) bestY = { v: cand, d, line };
+    }
+  }
+  return {
+    x: bestX ? Math.round(bestX.v) : snap(px),
+    y: bestY ? Math.round(bestY.v) : snap(py),
+    gx: bestX ? bestX.line : null,
+    gy: bestY ? bestY.line : null,
+  };
+}
+
+function showGuides(gx, gy){
+  const room = $("#room");
+  if (!room) return;
+  let v = room.querySelector(".guide.v"), h = room.querySelector(".guide.h");
+  if (!v){ v = el("div", "guide v"); room.appendChild(v); }
+  if (!h){ h = el("div", "guide h"); room.appendChild(h); }
+  v.style.display = gx === null ? "none" : "block";
+  h.style.display = gy === null ? "none" : "block";
+  if (gx !== null) v.style.left = gx + "px";
+  if (gy !== null) h.style.top = gy + "px";
+}
+function hideGuides(){
+  const room = $("#room");
+  if (!room) return;
+  room.querySelectorAll(".guide").forEach(g => g.style.display = "none");
+}
 
 /* ---------- שינוי מצב + ביטול ---------- */
 function mutate(fn){
@@ -855,9 +930,9 @@ $("#map").addEventListener("pointerdown", e => {
     const it = findItem(node.dataset.id);
     if (!it) return;
     drag = { kind:"item", id:it.id, node, sx:e.clientX, sy:e.clientY, sc,
-             x0:it.x, y0:it.y, moved:false };
+             x0:it.x, y0:it.y, moved:false, noSnap:e.altKey, last:null };
     node.classList.add("dragging");
-    selId = it.id;
+    setSel(it.id);
   }
   try{ e.target.setPointerCapture(e.pointerId); }catch(err){}
 });
@@ -874,9 +949,14 @@ window.addEventListener("pointermove", e => {
   } else {
     const it = findItem(drag.id);
     if (!it) return;
+    const free = drag.noSnap || e.altKey;
+    const res = free ? { x: snap(drag.x0 + dx), y: snap(drag.y0 + dy), gx: null, gy: null }
+                     : computeSnap(it, drag.x0 + dx, drag.y0 + dy);
+    drag.last = res;
     const s = baseSize(it);
-    drag.node.style.left = (snap(drag.x0 + dx) - s.w / 2) + "px";
-    drag.node.style.top  = (snap(drag.y0 + dy) - s.h / 2) + "px";
+    drag.node.style.left = (res.x - s.w / 2) + "px";
+    drag.node.style.top  = (res.y - s.h / 2) + "px";
+    showGuides(res.gx, res.gy);
   }
 });
 
@@ -892,10 +972,12 @@ window.addEventListener("pointerup", e => {
       if (d.mode !== "e") s.room.h = Math.max(200, snap(d.h0 + dy));
     });
   } else {
+    hideGuides();
+    const res = d.last || { x: snap(d.x0 + dx), y: snap(d.y0 + dy) };
     mutate(s => {
       const it = s.items.find(i => i.id === d.id);
       if (!it) return;
-      it.x = snap(d.x0 + dx); it.y = snap(d.y0 + dy);
+      it.x = res.x; it.y = res.y;
       growRoom(s, it);
     });
   }
@@ -1062,7 +1144,7 @@ function openPop(id){
     const b = boxSize(t);
     c.x = snap(t.x + b.w + 10); c.y = t.y;
     s.items.push(c); growRoom(s, c);
-    selId = c.id;
+    setSel(c.id);
   })));
   btns.appendChild(popBtn("מחיקה", () => {
     mutate(s => { s.items = s.items.filter(i => i.id !== id); });
@@ -1077,23 +1159,65 @@ function openPop(id){
 
 document.addEventListener("pointerdown", e => {
   if (pop.hidden) return;
-  if (e.target.closest("#pop") || e.target.closest(".it") || e.target.closest(".legend")) return;
+  if (e.target.closest("#pop") || e.target.closest(".it") ||
+      e.target.closest(".legend") || e.target.closest("[data-add]")) return;
   closePop(); selId = null; renderAll();
 });
 
 /* ---------- הוספת פריטים ---------- */
+/* ממשיך את הטור: מוצא את הפריט האחרון ברצף שמתחת/לצד העוגן ומניח אחריו */
+const RUN_ALIGN = 16, RUN_REACH = 46;
+function placeAfter(s, anchor, it){
+  const horiz = anchor.type === "bench" && (anchor.rot === 90 || anchor.rot === 270);
+  let tail = anchor;
+  for (let guard = 0; guard < 80; guard++){
+    const tb = boxSize(tail);
+    const next = s.items.find(o => {
+      if (o === tail || o.type === "door" || o.type === "aron") return false;
+      const ob = boxSize(o);
+      if (horiz){
+        if (Math.abs(o.y - tail.y) > RUN_ALIGN) return false;
+        const d = (o.x - ob.w / 2) - (tail.x + tb.w / 2);
+        return d > -8 && d < RUN_REACH;
+      }
+      if (Math.abs(o.x - tail.x) > RUN_ALIGN) return false;
+      const d = (o.y - ob.h / 2) - (tail.y + tb.h / 2);
+      return d > -8 && d < RUN_REACH;
+    });
+    if (!next) break;
+    tail = next;
+  }
+  const tb = boxSize(tail), ib = boxSize(it);
+  if (horiz){
+    it.y = tail.y;
+    it.x = Math.round(tail.x + tb.w / 2 + SNAP_GAP + ib.w / 2);
+  } else {
+    it.x = tail.x;
+    it.y = Math.round(tail.y + tb.h / 2 + SNAP_GAP + ib.h / 2);
+  }
+}
+
 document.querySelectorAll("[data-add]").forEach(b => {
   b.addEventListener("click", () => {
     const type = b.dataset.add;
     mutate(s => {
-      const x = snap(s.room.w / 2), y = snap(s.room.h / 2);
       const extra = type === "bench" ? { chairs:6, zone:"", zoneB:"", split:false }
                   : type === "table" ? { chairs:20, zone:"" }
                   : type === "seat"  ? { label:"מקום שמור", zone:"" }
                   : type === "door"  ? { label:"כניסה" } : {};
-      const it = mkItem(type, x, y, extra);
+      const it = mkItem(type, 0, 0, extra);
+      /* מתיישר בהמשך הטור של הפריט הנבחר (או האחרון שנבחר) */
+      const aid = selId || anchorId;
+      const anchor = snapOn && aid ? s.items.find(i => i.id === aid) : null;
+      if (anchor){
+        if (type === "bench") it.rot = anchor.rot;
+        placeAfter(s, anchor, it);
+      } else {
+        it.x = snap(s.room.w / 2); it.y = snap(s.room.h / 2);
+      }
       s.items.push(it);
-      selId = it.id;
+      growRoom(s, it);
+      setSel(it.id);
     });
   });
 });
@@ -1107,6 +1231,20 @@ $("#mapTitle").addEventListener("blur", e => {
 $("#mapTitle").addEventListener("keydown", e => {
   if (e.key === "Enter"){ e.preventDefault(); e.target.blur(); }
 });
+function paintSnapBtn(){
+  const b = $("#snapBtn");
+  b.textContent = snapOn ? "🧲 הצמדה" : "הצמדה כבויה";
+  b.classList.toggle("primary", snapOn);
+  b.title = snapOn ? "הפריטים נצמדים זה לזה. Alt בזמן גרירה = חופשי לגמרי"
+                   : "גרירה חופשית לגמרי";
+}
+$("#snapBtn").addEventListener("click", () => {
+  snapOn = !snapOn;
+  try{ localStorage.setItem("bm-snap", snapOn ? "on" : "off"); }catch(e){}
+  paintSnapBtn();
+});
+paintSnapBtn();
+
 $("#undoBtn").addEventListener("click", undo);
 $("#zoom").addEventListener("input", e => {
   closePop();
