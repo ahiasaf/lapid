@@ -37,50 +37,84 @@
   body{background:var(--bg);color:var(--ink);font-family:'Heebo',system-ui,sans-serif;font-size:14px;margin:0}
   button{font-family:inherit}
 
-  .topbar{position:sticky;top:0;z-index:40}
-  header.app{
-    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
-    padding:9px 16px;background:var(--panel);border-bottom:1px solid var(--line);
-  }
-  h1{font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:21px;margin:0;
-     cursor:text;border-radius:6px;padding:0 4px}
-  h1:focus{outline:2px solid var(--accent);outline-offset:2px}
-  .stats{color:var(--ink-soft);font-size:13px;white-space:nowrap}
+  /* ---------- סרגל עליון: משטח אחד, לא רשימת כפתורים ---------- */
+  .topbar{position:sticky;top:0;z-index:40;background:var(--panel);
+    box-shadow:0 1px 0 var(--line), 0 10px 22px -18px rgba(43,33,23,.55)}
+  header.app{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:8px 15px 7px}
+  .ident{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .ident-sub{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  h1{font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:19px;margin:0;line-height:1.15;
+     cursor:text;border-radius:6px;padding:0 3px;margin-inline-start:-3px}
+  h1:hover{background:var(--panel-2)}
+  h1:focus{outline:2px solid var(--accent);outline-offset:1px;background:transparent}
+  .stats{color:var(--ink-soft);font-size:12.5px;white-space:nowrap}
   .stats b{color:var(--ink);font-variant-numeric:tabular-nums}
-  .spacer{flex:1}
-  .actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-  .btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);
-    border-radius:9px;padding:6px 11px;font-size:13px;font-weight:500;cursor:pointer}
+  .save-badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;
+    color:var(--ink-soft);white-space:nowrap}
+  .save-badge::before{content:"";width:6px;height:6px;border-radius:50%;
+    background:var(--ink-soft);flex:none}
+  .save-badge.saved{color:var(--ok)} .save-badge.saved::before{background:var(--ok)}
+  .save-badge.local{color:var(--danger)} .save-badge.local::before{background:var(--danger)}
+  .spacer{flex:1;min-width:6px}
+
+  /* אשכול = משטח אחד שמכיל כמה פעולות קרובות */
+  .cluster{display:flex;align-items:center;gap:2px;padding:3px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:12px}
+  .cluster .sep{width:1px;align-self:stretch;margin:4px 1px;background:var(--line);flex:none}
+  .cluster .lbl{font-size:11px;color:var(--ink-soft);font-weight:700;letter-spacing:.05em;
+    padding:0 8px 0 4px;white-space:nowrap}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    border:1px solid var(--line);background:var(--panel);color:var(--ink);
+    border-radius:9px;padding:6px 11px;font-size:13px;font-weight:500;cursor:pointer;
+    white-space:nowrap}
   .btn:hover{background:var(--panel-2)}
   .btn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
   .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
   .btn.danger{color:var(--danger);border-color:var(--danger)}
   .btn:disabled{opacity:.5;cursor:default}
-  .save-badge{font-size:12px;padding:4px 10px;border-radius:99px;background:var(--panel-2);
-    color:var(--ink-soft);white-space:nowrap}
-  .save-badge.saved{color:var(--ok)}
-  .save-badge.local{color:var(--danger)}
-  .zoom-wrap{display:flex;align-items:center;gap:6px;color:var(--ink-soft);font-size:12px}
-  .zoom-wrap input{accent-color:var(--accent);width:88px}
+  .btn .i{font-size:13.5px;line-height:1}
+  .cluster .btn{border-color:transparent;background:transparent;padding:5px 10px}
+  .cluster .btn:hover:not(:disabled){background:var(--panel);border-color:var(--line)}
+  .cluster .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .cluster .btn.primary:hover{background:var(--accent);filter:brightness(1.1)}
 
-  .toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:7px 16px;
-    background:var(--panel);border-bottom:1px solid var(--line)}
-  .toolbar .lbl{font-size:12px;color:var(--ink-soft);font-weight:700;letter-spacing:.04em}
-  .chips{display:flex;gap:5px;flex-wrap:wrap}
-  .chip{display:inline-flex;align-items:center;gap:5px;border:1.5px solid var(--line);
+  .zoom-wrap{display:flex;align-items:center;gap:6px;color:var(--ink-soft);font-size:12px;
+    padding:0 8px 0 4px}
+  .zoom-wrap input{accent-color:var(--accent);width:82px}
+
+  .menu-wrap{position:relative}
+  .btn.icon{width:34px;height:32px;padding:0;font-size:18px;line-height:1;position:relative}
+  .btn.icon.dot::after{content:"";position:absolute;top:3px;left:3px;width:8px;height:8px;
+    border-radius:50%;background:var(--accent);border:2px solid var(--panel)}
+  .menu{position:absolute;top:calc(100% + 7px);left:0;min-width:200px;z-index:65;
+    background:var(--panel);border:1px solid var(--line);border-radius:13px;
+    box-shadow:var(--shadow);padding:5px}
+  .menu-item{display:flex;align-items:center;gap:10px;width:100%;text-align:right;
+    border:none;background:transparent;color:var(--ink);border-radius:9px;
+    padding:8px 10px;font-size:13px;cursor:pointer}
+  .menu-item:hover{background:var(--panel-2)}
+  .menu-item .i{width:18px;text-align:center;flex:none}
+  .menu-item.primary{color:var(--accent);font-weight:700}
+  .menu-sep{height:1px;background:var(--line);margin:4px 8px}
+
+  .toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:0 15px 8px}
+  .toolbar .cluster.paint{max-width:100%;overflow-x:auto}
+  .chips{display:flex;gap:4px;flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:5px;border:1.5px solid transparent;
     border-radius:99px;padding:3px 9px;font-size:12.5px;font-weight:700;cursor:pointer;
     background:var(--panel);color:var(--ink)}
   .chip .dot{width:11px;height:11px;border-radius:50%;border:1.5px solid rgba(0,0,0,.35)}
-  .chip:hover{background:var(--panel-2)}
+  .chip:hover{border-color:var(--line)}
   .chip.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
   .chip.eraser{color:var(--ink-soft)}
-  .paint-hint{font-size:12px;color:var(--accent);font-weight:500;display:none}
+  .paint-hint{font-size:12px;color:var(--accent);font-weight:600;display:none}
   body.painting .paint-hint{display:inline}
   body.painting .room{cursor:crosshair}
 
   main{display:flex;align-items:flex-start}
   .map-scroll{flex:1;overflow:auto;padding:20px;min-width:0}
-  aside.legend{width:220px;flex:none;position:sticky;top:104px;margin:20px 16px 20px 0;
+  aside.legend{width:220px;flex:none;position:sticky;top:calc(var(--topbar-h, 104px) + 10px);margin:20px 16px 20px 0;
     background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 15px}
   aside.legend h2{font-family:'Frank Ruhl Libre',serif;font-size:16px;font-weight:700;
     margin:0 0 9px;padding-bottom:7px;border-bottom:1px solid var(--line)}
@@ -101,6 +135,7 @@
   .swatch:hover,.swatch.sel{outline:2px solid var(--accent);outline-offset:1px}
 
   /* ---------- הדף והחדר ---------- */
+  .map-fit{display:inline-block;overflow:hidden;vertical-align:top}
   .map-frame{display:inline-block;transform-origin:top right}
   .map{direction:ltr;background:#FCFAF4;border:1px solid var(--line);border-radius:6px;
     padding:14px 16px 12px;color:var(--map-ink);box-shadow:var(--shadow);
@@ -119,7 +154,9 @@
       display:flex;align-items:center;justify-content:center}
   .it.dragging{cursor:grabbing;z-index:50;filter:drop-shadow(0 6px 10px rgba(43,33,23,.35))}
   .it.sel{outline:2.5px solid var(--accent);outline-offset:3px;border-radius:6px}
-  body.printing .it.sel{outline:none}
+  .it.free{outline:1.5px dashed var(--map-ink-soft);outline-offset:2px;border-radius:6px}
+  .it.free.sel{outline:2.5px solid var(--accent);outline-offset:3px}
+  body.printing .it.sel,body.printing .it.free{outline:none}
 
   .chair-row{display:flex;gap:4px}
   .chair{width:22px;height:22px;flex:none;filter:drop-shadow(0 1.2px 1px rgba(43,33,23,.28))}
@@ -220,6 +257,15 @@
   .zcell.sel{outline:2px solid var(--accent);outline-offset:1px}
   .zclear{grid-column:1 / -1;height:22px;border-radius:6px;border:1px dashed var(--line);
     background:transparent;color:var(--ink-soft);font-size:11px;cursor:pointer}
+  .pop .row.magnet{gap:7px;margin-top:10px;padding-top:9px;border-top:1px solid var(--line)}
+  .pop .magtxt{font-size:12px;color:var(--ink-soft);cursor:pointer}
+  .switch{position:relative;width:38px;height:22px;flex:none;border-radius:99px;padding:0;
+    border:1px solid var(--line);background:var(--panel-2);cursor:pointer;transition:background .15s}
+  .switch .knob{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;
+    background:var(--panel);box-shadow:0 1px 2px rgba(0,0,0,.3);transition:transform .15s}
+  .switch.on{background:var(--accent);border-color:var(--accent)}
+  .switch.on .knob{transform:translateX(-16px)}
+  .switch:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .pop .btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
   .pop .btns .btn{padding:4px 9px;font-size:12px}
 
@@ -237,18 +283,21 @@
 
   /* ---------- נייד ---------- */
   @media (max-width: 860px){
-    header.app{padding:7px 10px;gap:8px}
-    h1{font-size:17px}
-    .stats{font-size:12px}
-    .actions{gap:5px}
+    header.app{padding:7px 10px;gap:7px}
+    .ident{flex:1 1 100%;min-width:0}
+    .spacer{display:none}
+    h1{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .stats{font-size:11.5px}
+    .save-badge{font-size:11px}
     .btn{padding:7px 10px;font-size:12.5px;min-height:36px}
-    .save-badge{font-size:11px;padding:3px 8px}
-    .zoom-wrap input{width:70px}
-    .toolbar{padding:6px 10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .cluster .btn{padding:6px 9px}
+    .zoom-wrap input{width:64px}
+    .toolbar{padding:0 10px 7px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
     .toolbar > *{flex:none}
     .chips{flex-wrap:nowrap}
     .chip{padding:6px 10px;font-size:12.5px}
     .paint-hint{white-space:nowrap}
+    .menu{left:auto;right:0}
     main{display:flex;flex-direction:column-reverse;align-items:stretch}
     aside.legend{width:auto;position:static;margin:0 10px 14px}
     .map-scroll{padding:10px;flex:none}
@@ -257,9 +306,16 @@
     .rz.se{width:20px;height:20px;right:-11px;bottom:-11px}
     .pop{width:min(280px, calc(100vw - 24px))}
   }
-  @media (max-width: 520px){
-    .actions .btn-wide{display:none}
-    h1{font-size:16px}
+  /* במסך צר הכפתורים מצטמצמים לאייקונים — האשכולות נשארים */
+  @media (max-width: 620px){
+    .ident-sub .stats{display:none}
+    #printBtn .t,#pdfBtn .t,#shareBtn .t,#undoBtn .t,
+    .toolbar .cluster .btn .t{display:none}
+    .cluster .btn{padding:6px 8px}
+    .cluster .lbl{padding:0 6px 0 2px}
+    .btn .i{font-size:15px}
+    .zoom-wrap{padding:0 5px 0 2px;gap:4px}
+    .zoom-wrap input{width:52px}
   }
 
   @page{size:A4 landscape;margin:9mm}
@@ -278,33 +334,66 @@
 
 <div class="topbar">
 <header class="app" dir="rtl">
-  <h1 id="mapTitle" contenteditable="true" spellcheck="false">מפת בית המדרש</h1>
-  <span class="stats" id="stats"></span>
+  <div class="ident">
+    <h1 id="mapTitle" contenteditable="true" spellcheck="false">מפת בית המדרש</h1>
+    <div class="ident-sub">
+      <span class="stats" id="stats"></span>
+      <span class="save-badge" id="saveBadge">טוען…</span>
+    </div>
+  </div>
   <div class="spacer"></div>
-  <div class="actions">
-    <span class="save-badge" id="saveBadge">טוען…</span>
-    <span class="zoom-wrap">זום <input type="range" id="zoom" min="25" max="140" value="100"></span>
-    <button class="btn primary" id="snapBtn">🧲 הצמדה</button>
-    <button class="btn" id="undoBtn" title="Ctrl+Z">↩ ביטול</button>
-    <button class="btn" id="siteMapBtn" title="טעינת המפה שמופיעה באתר">מפת האתר</button>
-    <button class="btn primary" id="sendBtn">📤 שליחת המפה</button>
-    <button class="btn" id="shareBtn">🔗 קישור</button>
-    <button class="btn btn-wide" id="exportBtn">גיבוי</button>
-    <button class="btn btn-wide" id="importBtn">שחזור</button>
-    <button class="btn" id="pdfBtn">⬇ PDF</button>
-    <button class="btn primary" id="printBtn">🖨 הדפסה</button>
+
+  <div class="cluster" role="group" aria-label="תצוגה">
+    <button class="btn" id="undoBtn" title="ביטול הפעולה האחרונה (Ctrl+Z)">
+      <span class="i">↩</span><span class="t">ביטול</span></button>
+    <span class="sep"></span>
+    <label class="zoom-wrap" title="זום"><span class="i">🔍</span>
+      <input type="range" id="zoom" min="25" max="140" value="100" aria-label="זום"></label>
+  </div>
+
+  <div class="cluster" role="group" aria-label="הפקה">
+    <button class="btn" id="printBtn" title="הדפסה בעמוד A4 לרוחב">
+      <span class="i">🖨</span><span class="t">הדפסה</span></button>
+    <span class="sep"></span>
+    <button class="btn" id="pdfBtn" title="שמירת המפה כקובץ PDF">
+      <span class="i">⬇</span><span class="t">PDF</span></button>
+  </div>
+
+  <div class="cluster" role="group" aria-label="שיתוף">
+    <button class="btn" id="shareBtn" title="העתקת קישור למפה הנוכחית">
+      <span class="i">🔗</span><span class="t">קישור</span></button>
+    <span class="sep"></span>
+    <button class="btn primary" id="sendBtn" title="שליחת המפה בוואטסאפ">
+      <span class="i">📤</span><span class="t">שליחה</span></button>
+  </div>
+
+  <div class="menu-wrap">
+    <button class="btn icon" id="moreBtn" aria-haspopup="menu" aria-expanded="false" title="עוד">⋯</button>
+    <div class="menu" id="moreMenu" role="menu" hidden>
+      <button class="menu-item" id="exportBtn" role="menuitem">
+        <span class="i">🗄</span><span class="t">גיבוי לטקסט</span></button>
+      <button class="menu-item" id="importBtn" role="menuitem">
+        <span class="i">↺</span><span class="t">שחזור מגיבוי</span></button>
+      <div class="menu-sep"></div>
+      <button class="menu-item" id="siteMapBtn" role="menuitem" title="טעינת המפה שמופיעה באתר">
+        <span class="i">🏛</span><span class="t">מפת האתר</span></button>
+    </div>
   </div>
 </header>
 
 <div class="toolbar" dir="rtl">
-  <span class="lbl">הוספה:</span>
-  <button class="btn" data-add="bench">+ ספסל</button>
-  <button class="btn" data-add="table">+ שולחן</button>
-  <button class="btn" data-add="bima">+ בימה</button>
-  <button class="btn" data-add="seat">+ מקום שמור</button>
-  <button class="btn" data-add="door">+ כניסה</button>
-  <span class="lbl" style="margin-inline-start:10px">כיתות:</span>
-  <div class="chips" id="zoneChips"></div>
+  <div class="cluster" role="group" aria-label="הוספת פריט">
+    <span class="lbl">הוספה</span>
+    <button class="btn" data-add="bench"><span class="i">🪑</span><span class="t">ספסל</span></button>
+    <button class="btn" data-add="table"><span class="i">▭</span><span class="t">שולחן</span></button>
+    <button class="btn" data-add="bima"><span class="i">📖</span><span class="t">בימה</span></button>
+    <button class="btn" data-add="seat"><span class="i">★</span><span class="t">מקום שמור</span></button>
+    <button class="btn" data-add="door"><span class="i">🚪</span><span class="t">כניסה</span></button>
+  </div>
+  <div class="cluster paint" role="group" aria-label="צביעת כיתות">
+    <span class="lbl">כיתות</span>
+    <div class="chips" id="zoneChips"></div>
+  </div>
   <span class="paint-hint">לחצו על ספסלים לצביעה · Esc לסיום</span>
 </div>
 </div>
@@ -315,16 +404,19 @@
     <div id="legendBody"></div>
     <div class="legend-total"><span>סה״כ מקומות</span><b id="legendTotal">0</b></div>
     <div class="help">
-      <b>גרירה:</b> תופסים כל פריט וגוררים לאן שרוצים. הפריטים <b>נצמדים</b> זה לזה ומתיישרים אוטומטית; להזזה חופשית לגמרי — מחזיקים <b>Alt</b> בזמן הגרירה, או מכבים את "🧲 הצמדה".<br>
+      <b>גרירה:</b> תופסים כל פריט וגוררים לאן שרוצים. הפריטים <b>נצמדים</b> זה לזה ומתיישרים אוטומטית, וספסל שמוסיפים ממשיך את הטור של הפריט המסומן.<br>
+      <b>לשחרר פריט מהמגנט:</b> לוחצים עליו, ובחלון העריכה מכבים את <b>"מגנט"</b> — רק הוא ישתחרר. ל<b>הזזה חופשית חד־פעמית</b> מחזיקים <b>Alt</b> בזמן הגרירה.<br>
       <b>סיבוב:</b> בוחרים פריט ולוחצים <b>R</b>, או "סיבוב 90°" בחלון העריכה.<br>
       <b>קירות:</b> הידיות הכחולות בקצה החדר מותחות אותו.<br>
       <b>גרירה מדויקת:</b> מקשי החיצים מזיזים פיקסל־פיקסל.<br>
-      לחיצה על פריט פותחת עריכה: כיסאות, כיתה, שכפול ומחיקה.
+      לחיצה על פריט פותחת עריכה: כיסאות, כיתה, מגנט, שכפול ומחיקה.
     </div>
   </aside>
   <div class="map-scroll">
-    <div class="map-frame" id="mapFrame">
-      <div class="map" id="map"></div>
+    <div class="map-fit" id="mapFit">
+      <div class="map-frame" id="mapFrame">
+        <div class="map" id="map"></div>
+      </div>
     </div>
   </div>
 </main>
@@ -371,6 +463,9 @@ const el = (tag, cls, txt) => {
   if (txt !== undefined) n.textContent = txt;
   return n;
 };
+/* כפתורי הסרגל בנויים מאייקון + טקסט — משנים רק את הטקסט */
+const btnText = (b, txt) => { const t = b.querySelector(".t"); if (t) t.textContent = txt; else b.textContent = txt; };
+const btnTextOf = b => { const t = b.querySelector(".t"); return t ? t.textContent : b.textContent; };
 const clampInt = (v, lo, hi, dflt) => {
   const n = Math.round(Number(v));
   return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt;
@@ -538,7 +633,7 @@ function normalize(d){
       if (Number.isInteger(v) && v >= 0 && v < PRESETS.length) out.zoneColors[z] = v; }
   for (const it of (d.items || [])){
     if (!it || typeof it !== "object") continue;
-    const b = { id: it.id || rid(), type: it.type, rot: ROT(it.rot),
+    const b = { id: it.id || rid(), type: it.type, rot: ROT(it.rot), free: !!it.free,
                 x: clampInt(it.x, -4000, 9000, 100), y: clampInt(it.y, -4000, 9000, 100) };
     if (it.type === "bench"){
       const split = !!it.split;
@@ -592,12 +687,12 @@ const fmtHalf = n => Number.isInteger(n) ? String(n) : (Math.floor(n) ? Math.flo
 /* ---------- הצמדה מגנטית ---------- */
 const SNAP_GAP = 6;          /* המרווח הסטנדרטי בין ספסלים */
 const SNAP_TOL = 9;          /* מרחק שבו הפריט "נתפס" */
-let snapOn = true;
-try{ snapOn = localStorage.getItem("bm-snap") !== "off"; }catch(e){}
+/* המגנט דולק תמיד; פריט מסומן כ-free מתנהג כאילו הוא כבוי — רק בשבילו */
+const noSnapRes = (px, py) => ({ x: snap(px), y: snap(py), gx: null, gy: null });
 
 /* מחזיר מיקום מוצמד + הקווים שיש להציג */
 function computeSnap(moving, px, py){
-  if (!snapOn) return { x: snap(px), y: snap(py), gx: null, gy: null };
+  if (moving.free) return noSnapRes(px, py);
   const mb = boxSize(moving);
   const mw = mb.w / 2, mh = mb.h / 2;
   let bestX = null, bestY = null;
@@ -757,7 +852,7 @@ function innerFor(it){
 function renderItems(room){
   for (const it of state.items){
     const s = baseSize(it);
-    const node = el("div", "it" + (it.id === selId ? " sel" : ""));
+    const node = el("div", "it" + (it.id === selId ? " sel" : "") + (it.free ? " free" : ""));
     node.dataset.id = it.id;
     node.style.width = s.w + "px";
     node.style.height = s.h + "px";
@@ -907,6 +1002,8 @@ function renderAll(){
   renderMap();
   renderLegend(t);
   renderChips();
+  /* התיבה החיצונית מתעדכנת לפי גודל המפה — למשל אחרי מתיחת קיר */
+  if (!document.body.classList.contains("printing")) applyZoom($("#zoom").value);
   if (popTarget && findItem(popTarget)) openPop(popTarget);
   else if (popMode === "item") closePop();
 }
@@ -949,8 +1046,8 @@ window.addEventListener("pointermove", e => {
   } else {
     const it = findItem(drag.id);
     if (!it) return;
-    const free = drag.noSnap || e.altKey;
-    const res = free ? { x: snap(drag.x0 + dx), y: snap(drag.y0 + dy), gx: null, gy: null }
+    const free = it.free || drag.noSnap || e.altKey;
+    const res = free ? noSnapRes(drag.x0 + dx, drag.y0 + dy)
                      : computeSnap(it, drag.x0 + dx, drag.y0 + dy);
     drag.last = res;
     const s = baseSize(it);
@@ -1131,6 +1228,20 @@ function openPop(id){
       const t = s.items.find(i => i.id === id); if (t) t.zone = z; })));
   }
 
+  /* מגנט לפריט הזה בלבד — דולק כברירת מחדל */
+  const magRow = el("div", "row magnet");
+  const magLbl = el("span", "rl", "מגנט");
+  const sw = el("button", "switch" + (it.free ? "" : " on"));
+  sw.setAttribute("role", "switch");
+  sw.setAttribute("aria-checked", it.free ? "false" : "true");
+  sw.appendChild(el("span", "knob"));
+  const magTxt = el("span", "magtxt", it.free ? "חופשי — לא נצמד" : "נצמד לשכנים");
+  const flip = () => mutate(s2 => { const t = s2.items.find(i => i.id === id); if (t) t.free = !t.free; });
+  sw.addEventListener("click", flip);
+  magTxt.addEventListener("click", flip);
+  magRow.append(magLbl, sw, magTxt);
+  pop.appendChild(magRow);
+
   const btns = el("div", "btns");
   btns.appendChild(popBtn("⟳ סיבוב 90°", () => rotate(id)));
   if (it.type === "bench")
@@ -1208,7 +1319,7 @@ document.querySelectorAll("[data-add]").forEach(b => {
       const it = mkItem(type, 0, 0, extra);
       /* מתיישר בהמשך הטור של הפריט הנבחר (או האחרון שנבחר) */
       const aid = selId || anchorId;
-      const anchor = snapOn && aid ? s.items.find(i => i.id === aid) : null;
+      const anchor = aid ? s.items.find(i => i.id === aid) : null;
       if (anchor){
         if (type === "bench") it.rot = anchor.rot;
         placeAfter(s, anchor, it);
@@ -1231,25 +1342,40 @@ $("#mapTitle").addEventListener("blur", e => {
 $("#mapTitle").addEventListener("keydown", e => {
   if (e.key === "Enter"){ e.preventDefault(); e.target.blur(); }
 });
-function paintSnapBtn(){
-  const b = $("#snapBtn");
-  b.textContent = snapOn ? "🧲 הצמדה" : "הצמדה כבויה";
-  b.classList.toggle("primary", snapOn);
-  b.title = snapOn ? "הפריטים נצמדים זה לזה. Alt בזמן גרירה = חופשי לגמרי"
-                   : "גרירה חופשית לגמרי";
+/* ---------- תפריט "עוד" ---------- */
+const moreBtn = $("#moreBtn"), moreMenu = $("#moreMenu");
+function closeMenu(){ moreMenu.hidden = true; moreBtn.setAttribute("aria-expanded", "false"); }
+function toggleMenu(){
+  const open = moreMenu.hidden;
+  moreMenu.hidden = !open;
+  moreBtn.setAttribute("aria-expanded", open ? "true" : "false");
 }
-$("#snapBtn").addEventListener("click", () => {
-  snapOn = !snapOn;
-  try{ localStorage.setItem("bm-snap", snapOn ? "on" : "off"); }catch(e){}
-  paintSnapBtn();
+moreBtn.addEventListener("click", e => { e.stopPropagation(); toggleMenu(); });
+moreMenu.addEventListener("click", e => {
+  if (e.target.closest("#siteMapBtn")) return;    /* דורש לחיצה שנייה לאישור */
+  setTimeout(closeMenu, 0);
 });
-paintSnapBtn();
+document.addEventListener("pointerdown", e => {
+  if (!moreMenu.hidden && !e.target.closest(".menu-wrap")) closeMenu();
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeMenu(); });
 
 $("#undoBtn").addEventListener("click", undo);
-$("#zoom").addEventListener("input", e => {
-  closePop();
-  $("#mapFrame").style.transform = `scale(${e.target.value / 100})`;
-});
+/* זום: transform לבד משאיר את שטח הפריסה המקורי — הפרש המידות מקוזז בשוליים */
+function clearFit(){ const c = $("#mapFit"); if (c){ c.style.width = ""; c.style.height = ""; } }
+function applyZoom(pct){
+  const f = $("#mapFrame"), c = $("#mapFit");
+  const sc = Math.max(.1, (+pct || 100) / 100);
+  clearFit();
+  f.style.transform = "none";
+  const w = f.offsetWidth, h = f.offsetHeight;   /* המידות האמיתיות, ללא הקטנה */
+  f.style.transform = `scale(${sc})`;
+  if (c && sc < 1 && w && h){                     /* התיבה מתכווצת יחד עם התצוגה */
+    c.style.width = Math.round(w * sc) + "px";
+    c.style.height = Math.round(h * sc) + "px";
+  }
+}
+$("#zoom").addEventListener("input", e => { closePop(); applyZoom(e.target.value); });
 
 /* ---------- הדפסה ---------- */
 function pageArea(){
@@ -1259,6 +1385,7 @@ function pageArea(){
 function fitForPrint(){
   document.body.classList.add("printing");
   const frame = $("#mapFrame"), map = $("#map"), box = $(".map-scroll");
+  clearFit();
   frame.style.transform = "none";
   const mw = map.offsetWidth, mh = map.offsetHeight;
   if (!mw || !mh) return;
@@ -1275,7 +1402,7 @@ function unfitPrint(){
   const frame = $("#mapFrame"), box = $(".map-scroll");
   box.style.width = ""; box.style.height = ""; box.style.overflow = "";
   frame.style.transformOrigin = "";
-  frame.style.transform = `scale(${$("#zoom").value / 100})`;
+  applyZoom($("#zoom").value);
 }
 window.addEventListener("beforeprint", fitForPrint);
 window.addEventListener("afterprint", unfitPrint);
@@ -1303,8 +1430,8 @@ async function loadLib(ready, local, cdn){
   await loadScript(cdn);
 }
 async function exportPdf(){
-  const btn = $("#pdfBtn"), label = btn.textContent;
-  btn.disabled = true; btn.textContent = "מכין PDF…";
+  const btn = $("#pdfBtn"), label = btnTextOf(btn);
+  btn.disabled = true; btnText(btn, "מכין PDF…");
   try{
     await loadLib(() => !!window.html2canvas, "vendor/html2canvas.min.js",
       "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
@@ -1315,11 +1442,13 @@ async function exportPdf(){
     const frame = $("#mapFrame"), map = $("#map");
     const prev = frame.style.transform;
     document.body.classList.add("printing");
+    clearFit();
     frame.style.transform = "none";
     await new Promise(r => setTimeout(r, 80));
     const canvas = await window.html2canvas(map, { scale:2, backgroundColor:"#FFFFFF", logging:false });
     document.body.classList.remove("printing");
     frame.style.transform = prev;
+    applyZoom($("#zoom").value);
     selId = savedSel; renderAll();
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation:"landscape", unit:"mm", format:"a4" });
@@ -1340,14 +1469,14 @@ async function exportPdf(){
       document.body.appendChild(a); a.click();
       setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
     }
-    btn.textContent = "PDF מוכן ✓";
+    btnText(btn, "PDF מוכן ✓");
   }catch(e){
     document.body.classList.remove("printing");
     unfitPrint();
-    btn.textContent = "פותח הדפסה…";
+    btnText(btn, "פותח הדפסה…");
     setTimeout(() => window.print(), 300);
   }
-  setTimeout(() => { btn.disabled = false; btn.textContent = label; }, 2400);
+  setTimeout(() => { btn.disabled = false; btnText(btn, label); }, 2400);
 }
 $("#pdfBtn").addEventListener("click", exportPdf);
 
@@ -1433,36 +1562,38 @@ $("#siteMapBtn").addEventListener("click", () => {
   const b = $("#siteMapBtn");
   if (!b.dataset.arm){
     b.dataset.arm = "1";
-    const old = b.textContent;
-    b.textContent = "להחליף? לחצו שוב";
-    setTimeout(() => { delete b.dataset.arm; b.textContent = old; }, 3000);
+    const old = btnTextOf(b);
+    btnText(b, "להחליף? לחצו שוב");
+    setTimeout(() => { delete b.dataset.arm; btnText(b, old); }, 3000);
     return;
   }
   delete b.dataset.arm;
-  b.textContent = "מפת האתר";
+  btnText(b, "מפת האתר");
   b.classList.remove("primary");
+  $("#moreBtn").classList.remove("dot");
+  closeMenu();
   mutate(() => { state = defaultState(); });
   history.replaceState(null, "", location.pathname + location.search);
   setBadge("saved", "נטענה המפה של האתר");
 });
 
 $("#sendBtn").addEventListener("click", async () => {
-  const btn = $("#sendBtn"), label = btn.textContent;
-  btn.disabled = true; btn.textContent = "מכין…";
+  const btn = $("#sendBtn"), label = btnTextOf(btn);
+  btn.disabled = true; btnText(btn, "מכין…");
   try{
     const code = await encodeState();
     const url = location.origin + location.pathname + location.search + "#m=" + code;
     const t = totals();
     const text = `מפת בית המדרש – ${t.seats} מקומות, ${t.benches} ספסלים.\nלצפייה ולעריכה:\n${url}`;
     if (navigator.share){
-      try{ await navigator.share({ text }); btn.textContent = "נשלח ✓"; }
-      catch(e){ btn.textContent = label; }
+      try{ await navigator.share({ text }); btnText(btn, "נשלח ✓"); }
+      catch(e){ btnText(btn, label); }
     } else {
       window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
-      btn.textContent = "נפתח וואטסאפ ✓";
+      btnText(btn, "נפתח וואטסאפ ✓");
     }
-  }catch(e){ btn.textContent = "שגיאה"; }
-  setTimeout(() => { btn.disabled = false; btn.textContent = label; }, 2600);
+  }catch(e){ btnText(btn, "שגיאה"); }
+  setTimeout(() => { btn.disabled = false; btnText(btn, label); }, 2600);
 });
 
 $("#shareBtn").addEventListener("click", async () => {
@@ -1470,14 +1601,14 @@ $("#shareBtn").addEventListener("click", async () => {
   try{
     const code = await encodeState();
     const url = location.origin + location.pathname + location.search + "#m=" + code;
-    const done = () => { btn.textContent = "הועתק ✓";
-      setTimeout(() => { btn.textContent = "🔗 קישור"; }, 2200); };
+    const done = () => { btnText(btn, "הועתק ✓");
+      setTimeout(() => { btnText(btn, "קישור"); }, 2200); };
     if (navigator.clipboard && navigator.clipboard.writeText){
       await navigator.clipboard.writeText(url); done();
     } else { $("#exportTxt").value = url; $("#exportDlg").showModal(); }
   }catch(e){
-    btn.textContent = "שגיאה";
-    setTimeout(() => { btn.textContent = "🔗 קישור"; }, 2000);
+    btnText(btn, "שגיאה");
+    setTimeout(() => { btnText(btn, "קישור"); }, 2000);
   }
 });
 
@@ -1528,10 +1659,22 @@ $("#doImport").addEventListener("click", () => {
   : source === "mine-old" ? "המפה שלכם · יש מפה חדשה יותר באתר"
   : source === "mine"     ? "השינויים נשמרים אוטומטית"
   :                         "המפה של האתר · השינויים נשמרים אוטומטית");
-  if (source === "mine-old") $("#siteMapBtn").classList.add("primary");
+  if (source === "mine-old"){
+    $("#siteMapBtn").classList.add("primary");
+    $("#moreBtn").classList.add("dot");
+    $("#moreBtn").title = "יש מפה חדשה יותר באתר";
+  }
   fitToScreen();
   syncUrlSoon();
 })();
+
+/* גובה הסרגל העליון — כדי שהמקרא הדביק יישב בדיוק מתחתיו */
+function syncTopbarHeight(){
+  const t = document.querySelector(".topbar");
+  if (t) document.documentElement.style.setProperty("--topbar-h", t.offsetHeight + "px");
+}
+syncTopbarHeight();
+window.addEventListener("resize", syncTopbarHeight);
 
 /* מתאים את הזום כך שהמפה נכנסת לרוחב המסך — חשוב בנייד */
 function fitToScreen(){
@@ -1541,7 +1684,8 @@ function fitToScreen(){
   if (!avail || !w) return;
   const pct = Math.max(45, Math.min(100, Math.floor(avail / w * 100)));
   $("#zoom").value = pct;
-  $("#mapFrame").style.transform = `scale(${pct / 100})`;
+  applyZoom(pct);
+  syncTopbarHeight();
 }
 window.addEventListener("orientationchange", () => setTimeout(fitToScreen, 300));
 })();
