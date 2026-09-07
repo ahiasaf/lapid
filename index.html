@@ -106,17 +106,16 @@
     padding:14px 16px 12px;color:var(--map-ink);box-shadow:var(--shadow);
     min-width:max-content;display:flex;flex-direction:column}
   .room{
-    position:relative;
+    position:relative;touch-action:pan-x pan-y;
     background:
       repeating-linear-gradient(0deg,transparent 0 39px,var(--floor-line) 39px 40px),
       repeating-linear-gradient(90deg,transparent 0 39px,var(--floor-line) 39px 40px),
       var(--floor);
     border:3px solid var(--wood-dark);border-radius:5px;
-    touch-action:none;
   }
 
   /* כל פריט על המפה */
-  .it{position:absolute;transform-origin:center center;cursor:grab;
+  .it{position:absolute;transform-origin:center center;cursor:grab;touch-action:none;
       display:flex;align-items:center;justify-content:center}
   .it.dragging{cursor:grabbing;z-index:50;filter:drop-shadow(0 6px 10px rgba(43,33,23,.35))}
   .it.sel{outline:2.5px solid var(--accent);outline-offset:3px;border-radius:6px}
@@ -178,7 +177,7 @@
     color:#241A10;background:#fff;box-shadow:0 1px 2px rgba(43,33,23,.2);white-space:nowrap}
 
   /* ידיות שינוי גודל החדר */
-  .rz{position:absolute;background:var(--accent);border:2px solid #fff;border-radius:5px;
+  .rz{position:absolute;background:var(--accent);border:2px solid #fff;border-radius:5px;touch-action:none;
     z-index:60;box-shadow:0 1px 4px rgba(0,0,0,.3)}
   .rz.e{width:12px;height:34px;right:-8px;top:50%;transform:translateY(-50%);cursor:ew-resize}
   .rz.s{width:34px;height:12px;bottom:-8px;left:50%;transform:translateX(-50%);cursor:ns-resize}
@@ -229,6 +228,33 @@
 
   #pageProbe{position:absolute;visibility:hidden;pointer-events:none;width:279mm;height:192mm;top:0;left:0}
 
+  /* ---------- נייד ---------- */
+  @media (max-width: 860px){
+    header.app{padding:7px 10px;gap:8px}
+    h1{font-size:17px}
+    .stats{font-size:12px}
+    .actions{gap:5px}
+    .btn{padding:7px 10px;font-size:12.5px;min-height:36px}
+    .save-badge{font-size:11px;padding:3px 8px}
+    .zoom-wrap input{width:70px}
+    .toolbar{padding:6px 10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .toolbar > *{flex:none}
+    .chips{flex-wrap:nowrap}
+    .chip{padding:6px 10px;font-size:12.5px}
+    .paint-hint{white-space:nowrap}
+    main{display:flex;flex-direction:column-reverse;align-items:stretch}
+    aside.legend{width:auto;position:static;margin:0 10px 14px}
+    .map-scroll{padding:10px;flex:none}
+    .rz.e{width:16px;height:44px;right:-10px}
+    .rz.s{width:44px;height:16px;bottom:-10px}
+    .rz.se{width:20px;height:20px;right:-11px;bottom:-11px}
+    .pop{width:min(280px, calc(100vw - 24px))}
+  }
+  @media (max-width: 520px){
+    .actions .btn-wide{display:none}
+    h1{font-size:16px}
+  }
+
   @page{size:A4 landscape;margin:9mm}
   @media print{
     body{background:#fff}
@@ -250,13 +276,13 @@
   <div class="spacer"></div>
   <div class="actions">
     <span class="save-badge" id="saveBadge">טוען…</span>
-    <span class="zoom-wrap">זום <input type="range" id="zoom" min="40" max="140" value="100"></span>
+    <span class="zoom-wrap">זום <input type="range" id="zoom" min="25" max="140" value="100"></span>
     <button class="btn" id="undoBtn" title="Ctrl+Z">↩ ביטול</button>
     <button class="btn" id="siteMapBtn" title="טעינת המפה שמופיעה באתר">מפת האתר</button>
     <button class="btn primary" id="sendBtn">📤 שליחת המפה</button>
     <button class="btn" id="shareBtn">🔗 קישור</button>
-    <button class="btn" id="exportBtn">גיבוי</button>
-    <button class="btn" id="importBtn">שחזור</button>
+    <button class="btn btn-wide" id="exportBtn">גיבוי</button>
+    <button class="btn btn-wide" id="importBtn">שחזור</button>
     <button class="btn" id="pdfBtn">⬇ PDF</button>
     <button class="btn primary" id="printBtn">🖨 הדפסה</button>
   </div>
@@ -1365,8 +1391,21 @@ $("#doImport").addEventListener("click", () => {
   : source === "mine"     ? "השינויים נשמרים אוטומטית"
   :                         "המפה של האתר · השינויים נשמרים אוטומטית");
   if (source === "mine-old") $("#siteMapBtn").classList.add("primary");
+  fitToScreen();
   syncUrlSoon();
 })();
+
+/* מתאים את הזום כך שהמפה נכנסת לרוחב המסך — חשוב בנייד */
+function fitToScreen(){
+  const box = $(".map-scroll"), map = $("#map");
+  if (!box || !map) return;
+  const avail = box.clientWidth - 20, w = map.offsetWidth;
+  if (!avail || !w) return;
+  const pct = Math.max(45, Math.min(100, Math.floor(avail / w * 100)));
+  $("#zoom").value = pct;
+  $("#mapFrame").style.transform = `scale(${pct / 100})`;
+}
+window.addEventListener("orientationchange", () => setTimeout(fitToScreen, 300));
 })();
 
 </script>
