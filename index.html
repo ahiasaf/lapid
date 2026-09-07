@@ -207,6 +207,18 @@
     font-weight:700;font-size:12px;white-space:nowrap;
     background:var(--floor);border:3px solid var(--wood-dark);border-radius:8px}
 
+  /* מבנה: מסגרת הטור וידית הגרירה שלו */
+  .colframe{position:absolute;border:1.6px dashed var(--accent);border-radius:14px;
+    background:var(--accent-soft);opacity:.5;pointer-events:none;z-index:0}
+  .colgrip{position:absolute;transform:translateX(-50%);z-index:56;cursor:grab;
+    display:inline-flex;align-items:center;gap:5px;white-space:nowrap;direction:rtl;
+    padding:2px 9px;border-radius:99px;font-size:11.5px;font-weight:700;
+    background:var(--accent);color:var(--accent-ink);border:1.5px solid var(--accent);
+    box-shadow:0 1px 4px rgba(43,33,23,.3);touch-action:none;user-select:none}
+  .colgrip:active{cursor:grabbing}
+  .colgrip .gdots{opacity:.75;letter-spacing:-1px}
+  body.printing .colframe,body.printing .colgrip{display:none}
+
   /* מסגרת אזור כיתה */
   .zcluster{position:absolute;border:2px solid;border-radius:12px;pointer-events:none;z-index:0}
   .ztag{position:absolute;top:-11px;right:-6px;font-size:11.5px;font-weight:700;padding:1px 8px;
@@ -257,6 +269,9 @@
   .zcell.sel{outline:2px solid var(--accent);outline-offset:1px}
   .zclear{grid-column:1 / -1;height:22px;border-radius:6px;border:1px dashed var(--line);
     background:transparent;color:var(--ink-soft);font-size:11px;cursor:pointer}
+  .pop .runline{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);
+    font-weight:700;margin:-2px 0 8px}
+  .pop .runline .sub{color:var(--ink-soft);font-weight:400}
   .pop .row.magnet{gap:7px;margin-top:10px;padding-top:9px;border-top:1px solid var(--line)}
   .pop .magtxt{font-size:12px;color:var(--ink-soft);cursor:pointer}
   .switch{position:relative;width:38px;height:22px;flex:none;border-radius:99px;padding:0;
@@ -404,12 +419,11 @@
     <div id="legendBody"></div>
     <div class="legend-total"><span>סה״כ מקומות</span><b id="legendTotal">0</b></div>
     <div class="help">
-      <b>גרירה:</b> תופסים כל פריט וגוררים לאן שרוצים. הפריטים <b>נצמדים</b> זה לזה ומתיישרים אוטומטית, וספסל שמוסיפים ממשיך את הטור של הפריט המסומן.<br>
-      <b>לשחרר פריט מהמגנט:</b> לוחצים עליו, ובחלון העריכה מכבים את <b>"מגנט"</b> — רק הוא ישתחרר. ל<b>הזזה חופשית חד־פעמית</b> מחזיקים <b>Alt</b> בזמן הגרירה.<br>
-      <b>סיבוב:</b> בוחרים פריט ולוחצים <b>R</b>, או "סיבוב 90°" בחלון העריכה.<br>
-      <b>קירות:</b> הידיות הכחולות בקצה החדר מותחות אותו.<br>
-      <b>גרירה מדויקת:</b> מקשי החיצים מזיזים פיקסל־פיקסל.<br>
-      לחיצה על פריט פותחת עריכה: כיסאות, כיתה, מגנט, שכפול ומחיקה.
+      <b>טורים ושורות:</b> האפליקציה מזהה כל טור ורצף על המפה ושומרת עליו. לחיצה על ספסל מסמנת את הטור שלו במסגרת, ומעליו מופיעה ידית — גוררים אותה ו<b>כל הטור זז יחד</b> (גם Shift+גרירה על ספסל).<br>
+      <b>מה נשמר:</b> שינוי מספר הכיסאות <b>מתמרכז בטור</b> ולא חורג ממנו; <b>שכפול</b> נכנס לתוך הטור ודוחף את ההמשך; <b>מחיקה</b> סוגרת את הרווח; ספסל שמוסיפים מהסרגל נכנס בסוף הטור המסומן.<br>
+      <b>גרירה:</b> תופסים כל פריט וגוררים לאן שרוצים. הפריטים נצמדים זה לזה ומתיישרים אוטומטית.<br>
+      <b>לשחרר פריט:</b> בחלון העריכה מכבים את <b>"מגנט"</b> — הוא יוצא מהמבנה ונשאר חופשי. ל<b>הזזה חופשית חד־פעמית</b> מחזיקים <b>Alt</b> בגרירה.<br>
+      <b>סיבוב:</b> בוחרים פריט ולוחצים <b>R</b>. <b>קירות:</b> הידיות הכחולות מותחות את החדר. <b>חיצים:</b> הזזה פיקסל־פיקסל.
     </div>
   </aside>
   <div class="map-scroll">
@@ -684,6 +698,91 @@ function zoneAgg(){
 }
 const fmtHalf = n => Number.isInteger(n) ? String(n) : (Math.floor(n) ? Math.floor(n) + "½" : "½");
 
+/* ---------- מבנה: טורים ורצפים ---------- */
+/* טור הוא לא ציור — הוא ישות שהאפליקציה מזהה ושומרת עליה.
+   הזיהוי גאומטרי: פריטים שהתיבות שלהם חופפות בציר הרוחב וצמודים בציר האורך. */
+const RUN_GAP_MAX = 22;      /* מרווח מרבי בין שני פריטים באותו רצף */
+const RUN_OVERLAP = .55;     /* חפיפה מזערית ברוחב, כשיעור מהצר שבשניים */
+const isStruct = it => !it.free &&
+  (it.type === "bench" || it.type === "table" || it.type === "bima");
+const median = a => { const l = a.slice().sort((x, y) => x - y);
+  return l.length ? l[Math.floor((l.length - 1) / 2)] : 0; };
+
+function runsFor(items, dir){
+  const vert = dir === "v";
+  const A = vert ? "y" : "x", C = vert ? "x" : "y";
+  const len = it => { const b = boxSize(it); return vert ? b.h : b.w; };
+  const wid = it => { const b = boxSize(it); return vert ? b.w : b.h; };
+  const pool = items.filter(isStruct).slice().sort((p, q) => p[A] - q[A]);
+  const used = new Set(), out = [];
+  for (const seed of pool){
+    if (used.has(seed.id)) continue;
+    const chain = [seed]; used.add(seed.id);
+    let cur = seed;
+    for (;;){
+      let best = null;
+      for (const o of pool){
+        if (used.has(o.id)) continue;
+        const gap = (o[A] - len(o) / 2) - (cur[A] + len(cur) / 2);
+        if (gap < -2 || gap > RUN_GAP_MAX) continue;
+        const ov = Math.min(cur[C] + wid(cur) / 2, o[C] + wid(o) / 2) -
+                   Math.max(cur[C] - wid(cur) / 2, o[C] - wid(o) / 2);
+        if (ov < Math.min(wid(cur), wid(o)) * RUN_OVERLAP) continue;
+        if (!best || gap < best.gap) best = { o, gap };
+      }
+      if (!best) break;
+      used.add(best.o.id); chain.push(best.o); cur = best.o;
+    }
+    if (chain.length < 2) continue;
+    const gaps = [];
+    for (let i = 1; i < chain.length; i++)
+      gaps.push(Math.round((chain[i][A] - len(chain[i]) / 2) - (chain[i-1][A] + len(chain[i-1]) / 2)));
+    out.push({ dir, items: chain, axis: Math.round(median(chain.map(i => i[C]))),
+               gap: Math.max(0, median(gaps)) });
+  }
+  return out;
+}
+/* לכל פריט — המבנה הגדול ביותר שהוא שייך אליו (אנכי מנצח בתיקו) */
+function allRuns(items){
+  const byId = {};
+  for (const run of runsFor(items, "v").concat(runsFor(items, "h")))
+    for (const it of run.items){
+      const cur = byId[it.id];
+      if (!cur || cur.items.length < run.items.length) byId[it.id] = run;
+    }
+  return byId;
+}
+function findRun(items, id){ return allRuns(items)[id] || null; }
+
+let runCache = null;
+const runOf = id => (runCache || (runCache = allRuns(state.items)))[id] || null;
+
+/* פריסה מחדש של רצף: שומרת יישור ומרווח אחיד */
+const runMain  = run => run.dir === "v" ? "y" : "x";
+const runCross = run => run.dir === "v" ? "x" : "y";
+const runLen = (run, it) => { const b = boxSize(it); return run.dir === "v" ? b.h : b.w; };
+function centerInRun(run, it){ it[runCross(run)] = run.axis; }
+function reflowRun(run, from){
+  const A = runMain(run);
+  for (let i = Math.max(1, from || 1); i < run.items.length; i++){
+    const prev = run.items[i - 1], it = run.items[i];
+    it[A] = Math.round(prev[A] + runLen(run, prev) / 2 + run.gap + runLen(run, it) / 2);
+  }
+}
+/* הוספה לתוך רצף במקום נתון, עם סגירת המבנה מחדש */
+function insertInRun(s, run, it, idx){
+  centerInRun(run, it);
+  run.items.splice(idx, 0, it);
+  s.items.push(it);
+  if (idx === 0){
+    const next = run.items[1];
+    const A = runMain(run);
+    it[A] = Math.round(next[A] - runLen(run, next) / 2 - run.gap - runLen(run, it) / 2);
+  }
+  reflowRun(run, idx === 0 ? 1 : idx);
+  for (const m of run.items) growRoom(s, m);
+}
+
 /* ---------- הצמדה מגנטית ---------- */
 const SNAP_GAP = 6;          /* המרווח הסטנדרטי בין ספסלים */
 const SNAP_TOL = 9;          /* מרחק שבו הפריט "נתפס" */
@@ -913,6 +1012,41 @@ function renderClusters(room){
   }
 }
 
+/* גבולות המבנה שהפריט המסומן שייך אליו */
+function runBounds(run){
+  let L = 1e9, T = 1e9, R = -1e9, B = -1e9;
+  for (const it of run.items){
+    const b = boxSize(it);
+    L = Math.min(L, it.x - b.w / 2); R = Math.max(R, it.x + b.w / 2);
+    T = Math.min(T, it.y - b.h / 2); B = Math.max(B, it.y + b.h / 2);
+  }
+  return { L, T, R, B };
+}
+const RUN_PAD = 8;
+function renderRunFrame(room){
+  const run = selId && runOf(selId);
+  if (!run) return;
+  const b = runBounds(run);
+  const f = el("div", "colframe");
+  f.style.left = (b.L - RUN_PAD) + "px"; f.style.top = (b.T - RUN_PAD) + "px";
+  f.style.width = (b.R - b.L + RUN_PAD * 2) + "px";
+  f.style.height = (b.B - b.T + RUN_PAD * 2) + "px";
+  room.appendChild(f);
+}
+function renderRunGrip(room){
+  const run = selId && runOf(selId);
+  if (!run) return;
+  const b = runBounds(run);
+  const g = el("div", "colgrip");
+  g.dataset.grip = "1";
+  g.title = "גרירת " + (run.dir === "v" ? "הטור" : "השורה") + " כולו";
+  g.append(el("span", "gdots", "⣿"),
+           el("span", "", (run.dir === "v" ? "טור · " : "שורה · ") + run.items.length));
+  g.style.left = ((b.L + b.R) / 2) + "px";
+  g.style.top = (b.T - RUN_PAD - 12) + "px";
+  room.appendChild(g);
+}
+
 function renderMap(){
   const map = $("#map");
   map.innerHTML = "";
@@ -928,7 +1062,9 @@ function renderMap(){
   room.style.width = state.room.w + "px";
   room.style.height = state.room.h + "px";
   renderClusters(room);
+  renderRunFrame(room);
   renderItems(room);
+  renderRunGrip(room);
   for (const c of ["e","s","se"]) room.appendChild(el("div", "rz " + c));
   map.appendChild(room);
 
@@ -992,6 +1128,7 @@ function setPaint(z){
 }
 
 function renderAll(){
+  runCache = null;
   const t = totals();
   const titleEl = $("#mapTitle");
   if (document.activeElement !== titleEl && titleEl.textContent !== state.title)
@@ -1012,17 +1149,32 @@ function renderAll(){
 const zoomScale = () => (+$("#zoom").value || 100) / 100;
 
 let drag = null;
+function startRunDrag(run, e, sc){
+  const members = run.items.map(it => ({ id: it.id, x0: it.x, y0: it.y,
+    node: document.querySelector(`#map .it[data-id="${it.id}"]`) }));
+  return { kind:"run", members, sx:e.clientX, sy:e.clientY, sc, moved:false };
+}
+
 $("#map").addEventListener("pointerdown", e => {
   const rz = e.target.closest(".rz");
+  const grip = e.target.closest(".colgrip");
   const node = e.target.closest(".it");
-  if (!rz && !node) return;
+  if (!rz && !node && !grip) return;
   if (e.target.isContentEditable) return;
   e.preventDefault();
   const sc = zoomScale();
-  if (rz){
+  if (grip){
+    const run = selId && runOf(selId);
+    if (!run) return;
+    drag = startRunDrag(run, e, sc);
+    closePop();
+  } else if (rz){
     const mode = rz.classList.contains("e") ? "e" : rz.classList.contains("s") ? "s" : "se";
     drag = { kind:"room", mode, sx:e.clientX, sy:e.clientY, sc,
              w0:state.room.w, h0:state.room.h, moved:false };
+  } else if (e.shiftKey && findItem(node.dataset.id) && runOf(node.dataset.id)){
+    setSel(node.dataset.id);
+    drag = startRunDrag(runOf(node.dataset.id), e, sc);
   } else {
     const it = findItem(node.dataset.id);
     if (!it) return;
@@ -1039,7 +1191,18 @@ window.addEventListener("pointermove", e => {
   const dx = (e.clientX - drag.sx) / drag.sc, dy = (e.clientY - drag.sy) / drag.sc;
   if (Math.abs(dx) > 3 || Math.abs(dy) > 3) drag.moved = true;
   if (!drag.moved) return;
-  if (drag.kind === "room"){
+  if (drag.kind === "run"){
+    const ox = snap(dx), oy = snap(dy);
+    drag.off = { x: ox, y: oy };
+    for (const m of drag.members){
+      if (!m.node) continue;
+      const it = findItem(m.id);
+      if (!it) continue;
+      const b = baseSize(it);
+      m.node.style.left = (m.x0 + ox - b.w / 2) + "px";
+      m.node.style.top  = (m.y0 + oy - b.h / 2) + "px";
+    }
+  } else if (drag.kind === "room"){
     const room = $("#room");
     if (drag.mode !== "s") room.style.width  = Math.max(300, snap(drag.w0 + dx)) + "px";
     if (drag.mode !== "e") room.style.height = Math.max(200, snap(drag.h0 + dy)) + "px";
@@ -1063,6 +1226,21 @@ window.addEventListener("pointerup", e => {
   if (d.kind === "item") d.node.classList.remove("dragging");
   if (!d.moved){ handleTap(d); return; }
   const dx = (e.clientX - d.sx) / d.sc, dy = (e.clientY - d.sy) / d.sc;
+  if (d.kind === "run"){
+    const off = d.off || { x: snap(dx), y: snap(dy) };
+    mutate(s => {
+      for (const m of d.members){
+        const it = s.items.find(i => i.id === m.id);
+        if (!it) continue;
+        it.x = m.x0 + off.x; it.y = m.y0 + off.y;
+      }
+      for (const m of d.members){
+        const it = s.items.find(i => i.id === m.id);
+        if (it) growRoom(s, it);
+      }
+    });
+    return;
+  }
   if (d.kind === "room"){
     mutate(s => {
       if (d.mode !== "s") s.room.w = Math.max(300, snap(d.w0 + dx));
@@ -1105,6 +1283,25 @@ function handleTap(d){
   renderAll();
 }
 
+/* מחיקה שסוגרת את הטור מאחוריה */
+function removeItem(id){
+  mutate(s => {
+    const run = findRun(s.items, id);
+    const t = s.items.find(i => i.id === id);
+    s.items = s.items.filter(i => i.id !== id);
+    if (run && t){
+      const idx = run.items.indexOf(t);
+      const A = runMain(run), top = t[A] - runLen(run, t) / 2;
+      run.items.splice(idx, 1);
+      if (run.items.length > 1){
+        if (idx === 0) run.items[0][A] = Math.round(top + runLen(run, run.items[0]) / 2);
+        reflowRun(run, idx === 0 ? 1 : idx);
+      }
+    }
+  });
+  selId = null; closePop();
+}
+
 function rotate(id){
   mutate(s => { const it = s.items.find(i => i.id === id);
     if (it){ it.rot = ROT((it.rot + 90) % 360); growRoom(s, it); } });
@@ -1124,11 +1321,7 @@ document.addEventListener("keydown", e => {
     mutate(s => { const it = s.items.find(i => i.id === selId);
       if (it){ it.x += mx; it.y += my; growRoom(s, it); } });
   }
-  if (e.key === "Delete"){
-    e.preventDefault();
-    mutate(s => { s.items = s.items.filter(i => i.id !== selId); });
-    selId = null; closePop();
-  }
+  if (e.key === "Delete"){ e.preventDefault(); removeItem(selId); }
 });
 
 /* ---------- חלון עריכה ---------- */
@@ -1206,11 +1399,31 @@ function openPop(id){
                   seat:"מקום שמור", door:"כניסה" };
   pop.appendChild(el("h3", "", names[it.type] || "פריט"));
 
+  /* שייכות למבנה — כדי שיהיה ברור שהאפליקציה מזהה את הטור */
+  const run = runOf(id);
+  if (run){
+    const idx = run.items.findIndex(i => i.id === id) + 1;
+    const line = el("div", "runline");
+    line.append(el("span", "", (run.dir === "v" ? "טור" : "שורה") + ` · ${idx} מתוך ${run.items.length}`),
+                el("span", "sub", "גוררים את כולו מהידית שמעליו"));
+    pop.appendChild(line);
+  }
+
   if (it.type === "bench" || it.type === "table"){
     const row = el("div", "row");
     row.appendChild(el("span", "rl", "כיסאות"));
     row.appendChild(stepper(it.chairs, 1, it.type === "table" ? 40 : 14,
-      nv => mutate(s => { const t = s.items.find(i => i.id === id); if (t) t.chairs = nv; })));
+      nv => mutate(s => {
+        const t = s.items.find(i => i.id === id);
+        if (!t) return;
+        t.chairs = nv;
+        const run = findRun(s.items, id);      /* נשאר מרוכז בטור ולא חורג ממנו */
+        if (run){
+          centerInRun(run, t);
+          reflowRun(run, run.items.indexOf(t) + 1);
+          for (const m of run.items) growRoom(s, m);
+        }
+      })));
     pop.appendChild(row);
   }
 
@@ -1252,15 +1465,17 @@ function openPop(id){
     const t = s.items.find(i => i.id === id);
     if (!t) return;
     const c = clone(t); c.id = rid();
-    const b = boxSize(t);
-    c.x = snap(t.x + b.w + 10); c.y = t.y;
-    s.items.push(c); growRoom(s, c);
+    const run = findRun(s.items, id);
+    if (run){                                   /* משתכפל בתוך הטור, וההמשך נדחף */
+      insertInRun(s, run, c, run.items.indexOf(t) + 1);
+    } else {
+      const b = boxSize(t);
+      c.x = snap(t.x + b.w + 10); c.y = t.y;
+      s.items.push(c); growRoom(s, c);
+    }
     setSel(c.id);
   })));
-  btns.appendChild(popBtn("מחיקה", () => {
-    mutate(s => { s.items = s.items.filter(i => i.id !== id); });
-    selId = null; closePop();
-  }, true));
+  btns.appendChild(popBtn("מחיקה", () => { removeItem(id); }, true));
   pop.appendChild(btns);
 
   pop.hidden = false;
@@ -1320,6 +1535,14 @@ document.querySelectorAll("[data-add]").forEach(b => {
       /* מתיישר בהמשך הטור של הפריט הנבחר (או האחרון שנבחר) */
       const aid = selId || anchorId;
       const anchor = aid ? s.items.find(i => i.id === aid) : null;
+      const run = anchor ? findRun(s.items, aid) : null;
+      if (run){                                  /* נכנס כאיבר אחרון בטור */
+        const last = run.items[run.items.length - 1];
+        if (type === "bench") it.rot = last.rot;
+        insertInRun(s, run, it, run.items.length);
+        setSel(it.id);
+        return;
+      }
       if (anchor){
         if (type === "bench") it.rot = anchor.rot;
         placeAfter(s, anchor, it);
