@@ -9,514 +9,283 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@400;500;700&display=swap">
 <style>
   :root{
-    --bg:#F7F4EC;
-    --panel:#FFFFFF;
-    --panel-2:#F1EDE3;
-    --ink:#2B2117;
-    --ink-soft:#75685A;
-    --line:#E2DACB;
-    --accent:#1F4E5F;
-    --accent-soft:#DDE9EC;
-    --accent-ink:#FFFFFF;
-    --danger:#A6402E;
-    --ok:#3E7A4E;
+    --bg:#F7F4EC; --panel:#FFFFFF; --panel-2:#F1EDE3;
+    --ink:#2B2117; --ink-soft:#75685A; --line:#E2DACB;
+    --accent:#1F4E5F; --accent-soft:#DDE9EC; --accent-ink:#FFFFFF;
+    --danger:#A6402E; --ok:#3E7A4E;
     --shadow:0 8px 28px rgba(43,33,23,.14);
-    /* המפה עצמה היא תוכנית מודפסת — מראה בהיר קבוע בשני המצבים */
-    --floor:#F1ECE1;
-    --floor-line:#E2D9C7;
-    --wood:#8A5A33;
-    --wood-dark:#5F3D20;
-    --wood-light:#A9744A;
-    --plastic-hi:#F4F8FA;
-    --plastic:#D9E4E9;
-    --plastic-lo:#C0D1D9;
-    --plastic-edge:#96ACB8;
-    --plastic-back:#A7BdC7;
-    --map-ink:#2B2117;
-    --map-ink-soft:#8A7C6B;
+    --floor:#F1ECE1; --floor-line:#E2D9C7;
+    --wood:#8A5A33; --wood-dark:#5F3D20; --wood-light:#A9744A;
+    --map-ink:#2B2117; --map-ink-soft:#8A7C6B;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#211C15;
-      --panel:#2C261E;
-      --panel-2:#352E24;
-      --ink:#EFE8DC;
-      --ink-soft:#BFB2A2;
-      --line:#463D30;
-      --accent:#7FB6C6;
-      --accent-soft:#2E4249;
-      --accent-ink:#14262B;
-      --danger:#E08A78;
-      --ok:#8FC49C;
-      --shadow:0 8px 28px rgba(0,0,0,.45);
+      --bg:#211C15; --panel:#2C261E; --panel-2:#352E24;
+      --ink:#EFE8DC; --ink-soft:#BFB2A2; --line:#463D30;
+      --accent:#7FB6C6; --accent-soft:#2E4249; --accent-ink:#14262B;
+      --danger:#E08A78; --ok:#8FC49C; --shadow:0 8px 28px rgba(0,0,0,.45);
     }
   }
   :root[data-theme="dark"]{
-    --bg:#211C15;
-    --panel:#2C261E;
-    --panel-2:#352E24;
-    --ink:#EFE8DC;
-    --ink-soft:#BFB2A2;
-    --line:#463D30;
-    --accent:#7FB6C6;
-    --accent-soft:#2E4249;
-    --accent-ink:#14262B;
-    --danger:#E08A78;
-    --ok:#8FC49C;
-    --shadow:0 8px 28px rgba(0,0,0,.45);
+    --bg:#211C15; --panel:#2C261E; --panel-2:#352E24;
+    --ink:#EFE8DC; --ink-soft:#BFB2A2; --line:#463D30;
+    --accent:#7FB6C6; --accent-soft:#2E4249; --accent-ink:#14262B;
+    --danger:#E08A78; --ok:#8FC49C; --shadow:0 8px 28px rgba(0,0,0,.45);
   }
 
   *{box-sizing:border-box}
-  body{
-    background:var(--bg);
-    color:var(--ink);
-    font-family:'Heebo',system-ui,-apple-system,sans-serif;
-    font-size:14px;
-    margin:0;
-  }
+  body{background:var(--bg);color:var(--ink);font-family:'Heebo',system-ui,sans-serif;font-size:14px;margin:0}
   button{font-family:inherit}
 
-  /* ---------- header ---------- */
   .topbar{position:sticky;top:0;z-index:40}
   header.app{
-    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
-    padding:10px 18px;
-    background:var(--panel);
-    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    padding:9px 16px;background:var(--panel);border-bottom:1px solid var(--line);
   }
-  .title-wrap{display:flex;align-items:baseline;gap:12px;min-width:0}
-  h1{
-    font-family:'Frank Ruhl Libre',serif;font-weight:900;
-    font-size:22px;margin:0;line-height:1.2;
-    text-wrap:balance;cursor:text;border-radius:6px;padding:0 4px;
-  }
+  h1{font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:21px;margin:0;
+     cursor:text;border-radius:6px;padding:0 4px}
   h1:focus{outline:2px solid var(--accent);outline-offset:2px}
   .stats{color:var(--ink-soft);font-size:13px;white-space:nowrap}
   .stats b{color:var(--ink);font-variant-numeric:tabular-nums}
   .spacer{flex:1}
-  .actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .btn{
-    border:1px solid var(--line);background:var(--panel);color:var(--ink);
-    border-radius:9px;padding:6px 12px;font-size:13px;font-weight:500;
-    cursor:pointer;transition:background .12s,border-color .12s;
-  }
+  .actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);
+    border-radius:9px;padding:6px 11px;font-size:13px;font-weight:500;cursor:pointer}
   .btn:hover{background:var(--panel-2)}
   .btn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
   .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
   .btn.danger{color:var(--danger);border-color:var(--danger)}
-  .save-badge{
-    font-size:12px;padding:4px 10px;border-radius:99px;
-    background:var(--panel-2);color:var(--ink-soft);white-space:nowrap;
-  }
+  .btn:disabled{opacity:.5;cursor:default}
+  .save-badge{font-size:12px;padding:4px 10px;border-radius:99px;background:var(--panel-2);
+    color:var(--ink-soft);white-space:nowrap}
   .save-badge.saved{color:var(--ok)}
-  .save-badge.saving{color:var(--accent)}
   .save-badge.local{color:var(--danger)}
   .zoom-wrap{display:flex;align-items:center;gap:6px;color:var(--ink-soft);font-size:12px}
-  .zoom-wrap input{accent-color:var(--accent);width:90px}
+  .zoom-wrap input{accent-color:var(--accent);width:88px}
 
-  /* ---------- zone toolbar ---------- */
-  .toolbar{
-    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-    padding:8px 18px;
-    background:var(--panel);
-    border-bottom:1px solid var(--line);
-  }
+  .toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:7px 16px;
+    background:var(--panel);border-bottom:1px solid var(--line)}
   .toolbar .lbl{font-size:12px;color:var(--ink-soft);font-weight:700;letter-spacing:.04em}
-  .chips{display:flex;gap:6px;flex-wrap:wrap}
-  .chip{
-    display:inline-flex;align-items:center;gap:6px;
-    border:1.5px solid var(--line);border-radius:99px;
-    padding:3px 10px;font-size:13px;font-weight:700;cursor:pointer;
-    background:var(--panel);color:var(--ink);
-  }
-  .chip .dot{width:12px;height:12px;border-radius:50%;border:1.5px solid rgba(0,0,0,.35)}
+  .chips{display:flex;gap:5px;flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:5px;border:1.5px solid var(--line);
+    border-radius:99px;padding:3px 9px;font-size:12.5px;font-weight:700;cursor:pointer;
+    background:var(--panel);color:var(--ink)}
+  .chip .dot{width:11px;height:11px;border-radius:50%;border:1.5px solid rgba(0,0,0,.35)}
   .chip:hover{background:var(--panel-2)}
   .chip.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
   .chip.eraser{color:var(--ink-soft)}
   .paint-hint{font-size:12px;color:var(--accent);font-weight:500;display:none}
   body.painting .paint-hint{display:inline}
-  body.painting .map-scroll{cursor:crosshair}
+  body.painting .room{cursor:crosshair}
 
-  /* ---------- layout ---------- */
-  main{display:flex;align-items:flex-start;gap:0}
-  .map-scroll{flex:1;overflow:auto;padding:22px;min-width:0}
-  aside.legend{
-    width:225px;flex:none;position:sticky;top:112px;
-    margin:22px 0 22px 18px;margin-inline-start:0;margin-inline-end:18px;
-    background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    padding:14px 16px;
-  }
-  aside.legend h2{
-    font-family:'Frank Ruhl Libre',serif;font-size:16px;font-weight:700;
-    margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line);
-  }
+  main{display:flex;align-items:flex-start}
+  .map-scroll{flex:1;overflow:auto;padding:20px;min-width:0}
+  aside.legend{width:220px;flex:none;position:sticky;top:104px;margin:20px 16px 20px 0;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 15px}
+  aside.legend h2{font-family:'Frank Ruhl Libre',serif;font-size:16px;font-weight:700;
+    margin:0 0 9px;padding-bottom:7px;border-bottom:1px solid var(--line)}
   .legend-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px}
-  .legend-row .dot{width:15px;height:15px;border-radius:4px;border:1.5px solid rgba(0,0,0,.35);flex:none;cursor:pointer;padding:0}
+  .legend-row .dot{width:15px;height:15px;border-radius:4px;border:1.5px solid rgba(0,0,0,.35);
+    flex:none;cursor:pointer;padding:0}
   .legend-row .dot:hover{outline:2px solid var(--accent);outline-offset:1px}
-  .swatches{display:grid;grid-template-columns:repeat(8,26px);gap:6px;justify-content:center;margin-top:6px}
-  .swatch{width:24px;height:24px;border-radius:7px;border:2px solid;cursor:pointer;padding:0}
-  .swatch:hover,.swatch.sel{outline:2px solid var(--accent);outline-offset:1px}
   .legend-row .zname{font-weight:700}
   .legend-row .zcount{margin-inline-start:auto;color:var(--ink-soft);font-variant-numeric:tabular-nums}
   .legend-empty{color:var(--ink-soft);font-size:12.5px;line-height:1.6}
-  .legend-total{
-    margin-top:10px;padding-top:8px;border-top:1px solid var(--line);
-    font-size:13px;display:flex;justify-content:space-between;
-  }
+  .legend-total{margin-top:9px;padding-top:7px;border-top:1px solid var(--line);
+    font-size:13px;display:flex;justify-content:space-between}
   .legend-total b{font-variant-numeric:tabular-nums}
-  .help{margin-top:12px;font-size:12px;color:var(--ink-soft);line-height:1.7}
+  .help{margin-top:11px;font-size:12px;color:var(--ink-soft);line-height:1.7}
   .help b{color:var(--ink)}
+  .swatches{display:grid;grid-template-columns:repeat(8,26px);gap:6px;justify-content:center;margin-top:6px}
+  .swatch{width:24px;height:24px;border-radius:7px;border:2px solid;cursor:pointer;padding:0}
+  .swatch:hover,.swatch.sel{outline:2px solid var(--accent);outline-offset:1px}
 
-  /* ---------- the map ---------- */
-  .map-frame{
-    display:inline-block;
-    transform-origin:top right;
-  }
-  .map{
-    direction:ltr; /* geometry: index 0 = הטור השמאלי בפועל */
-    background:#FCFAF4;
-    border:1px solid var(--line);
-    border-radius:6px;
-    padding:14px 18px 12px;
-    color:var(--map-ink);
-    box-shadow:var(--shadow);
-    min-width:max-content;
-    display:flex;flex-direction:column;
-  }
-  /* חלל בית המדרש עצמו — הקירות והרצפה */
+  /* ---------- הדף והחדר ---------- */
+  .map-frame{display:inline-block;transform-origin:top right}
+  .map{direction:ltr;background:#FCFAF4;border:1px solid var(--line);border-radius:6px;
+    padding:14px 16px 12px;color:var(--map-ink);box-shadow:var(--shadow);
+    min-width:max-content;display:flex;flex-direction:column}
   .room{
-    position:relative;flex:1;display:flex;flex-direction:column;
+    position:relative;
     background:
       repeating-linear-gradient(0deg,transparent 0 39px,var(--floor-line) 39px 40px),
       repeating-linear-gradient(90deg,transparent 0 39px,var(--floor-line) 39px 40px),
       var(--floor);
-    border:3px solid var(--wood-dark);
-    border-radius:5px;
-    padding:16px 22px 12px;
+    border:3px solid var(--wood-dark);border-radius:5px;
+    touch-action:none;
   }
-  .front-wall{
-    display:flex;justify-content:center;align-items:flex-end;gap:5px;
-    padding-bottom:14px;margin-bottom:10px;
-    border-bottom:2px dashed var(--map-ink-soft);
-  }
-  .platform{
-    display:flex;justify-content:center;align-items:flex-start;
-    border:2px solid var(--wood-dark);border-top:none;
-    border-radius:0 0 12px 12px;
-    background:rgba(255,255,255,.35);
-    padding:0 16px 13px;
-  }
-  /* מקום מיוחד ליד הארון — מודגש כמו אזור כיתה */
-  .rav-seat{
-    display:flex;flex-direction:column;align-items:center;gap:3px;
-    padding:7px 10px 6px;align-self:flex-end;
-    border:2px solid #8A5A33;border-radius:10px;
-    background:hsl(38 70% 84%);cursor:pointer;position:relative;
-  }
-  .rav-seat .rs-label{
-    font-size:11.5px;font-weight:700;color:#241A10;direction:rtl;white-space:nowrap;
-    border-radius:5px;padding:0 3px;
-  }
-  .rav-seat .rs-label:focus{outline:2px solid var(--accent)}
-  .add-rav{
-    align-self:flex-start;margin-top:10px;border:1.5px dashed var(--map-ink-soft);
-    background:transparent;color:var(--map-ink-soft);border-radius:9px;
-    font-size:11px;padding:4px 9px;cursor:pointer;direction:rtl;
-  }
-  .add-rav:hover{color:var(--map-ink);border-color:var(--map-ink)}
-  .platform-label{
-    position:absolute;bottom:2px;left:50%;transform:translateX(-50%);
-    font-size:10px;color:var(--map-ink-soft);direction:rtl;white-space:nowrap;
-  }
-  .aron{
-    background:linear-gradient(180deg,var(--wood-light),var(--wood));
-    border:2px solid var(--wood-dark);border-radius:8px 8px 3px 3px;
-    padding:7px 26px 9px;text-align:center;color:#FFF7EA;
-    font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:15px;
-    position:relative;
-  }
-  .aron::before{
-    content:"";position:absolute;inset:4px 8px auto 8px;height:5px;
-    border-radius:3px;background:#3E5C8A;
-  }
-  .aron small{display:block;font-family:'Heebo';font-weight:400;font-size:10px;opacity:.85}
-  .hall{display:flex;align-items:flex-start;gap:18px;justify-content:center;flex:1;width:100%}
-  .column{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:110px}
-  .col-head{
-    display:flex;align-items:center;gap:6px;margin-bottom:4px;
-    font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:13.5px;
-    color:var(--map-ink);direction:rtl;
-  }
-  .col-head .cname{cursor:text;border-radius:5px;padding:0 4px}
-  .col-head .cname:focus{outline:2px solid var(--accent)}
-  .col-head .cseats{font-family:'Heebo';font-weight:400;font-size:11px;color:var(--map-ink-soft);font-variant-numeric:tabular-nums}
-  .col-tools{
-    display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;
-    justify-content:center;max-width:190px;align-self:center;
-  }
-  .mini{
-    border:1px dashed var(--map-ink-soft);background:transparent;color:var(--map-ink-soft);
-    border-radius:7px;font-size:11px;padding:2px 8px;cursor:pointer;direction:rtl;
-  }
-  .mini:hover{color:var(--map-ink);border-color:var(--map-ink)}
-  .add-col{
-    align-self:center;border:1.5px dashed var(--map-ink-soft);background:transparent;
-    color:var(--map-ink-soft);border-radius:10px;padding:14px 6px;cursor:pointer;
-    writing-mode:vertical-rl;font-size:12px;letter-spacing:.1em;
-  }
-  .add-col:hover{color:var(--map-ink);border-color:var(--map-ink)}
 
-  /* bench */
-  .bench{
-    position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;
-    padding:5px 7px;border-radius:8px;cursor:pointer;
-    border:2px solid transparent;
-  }
-  .bench:hover{border-color:var(--map-ink-soft)}
+  /* כל פריט על המפה */
+  .it{position:absolute;transform-origin:center center;cursor:grab;
+      display:flex;align-items:center;justify-content:center}
+  .it.dragging{cursor:grabbing;z-index:50;filter:drop-shadow(0 6px 10px rgba(43,33,23,.35))}
+  .it.sel{outline:2.5px solid var(--accent);outline-offset:3px;border-radius:6px}
+  body.printing .it.sel{outline:none}
+
+  .chair-row{display:flex;gap:4px}
+  .chair{width:22px;height:22px;flex:none;filter:drop-shadow(0 1.2px 1px rgba(43,33,23,.28))}
+
+  .bench-inner{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 7px}
   .bench-bar{height:11px;border-radius:3px;align-self:stretch;
     background:linear-gradient(180deg,var(--wood-light),var(--wood) 60%,var(--wood-dark));
-    border:1px solid var(--wood-dark);
-    box-shadow:0 1.5px 2px rgba(43,33,23,.25);
-  }
-  .chair-row{display:flex;gap:4px}
-  /* כיסא במבט־על בסגנון תוכנית אדריכלית: מושב מעוגל + משענת קשתית (סמל SVG משותף) */
-  .chair{
-    width:22px;height:22px;flex:none;
-    filter:drop-shadow(0 1.2px 1px rgba(43,33,23,.28));
-  }
-  .chair.r-left{transform:rotate(90deg)}
-  .chair.r-right{transform:rotate(-90deg)}
-  .col-count{
-    font-size:11px;font-weight:700;color:var(--map-ink-soft);direction:rtl;
-    font-variant-numeric:tabular-nums;margin-bottom:2px;
-  }
-  .bench.split::after{
-    content:"";position:absolute;left:50%;top:6px;bottom:6px;width:0;
-    border-left:1.5px dashed rgba(0,0,0,.35);
-  }
-  .bench.vertical.split::after{
-    left:6px;right:6px;top:50%;bottom:auto;width:auto;height:0;
-    border-left:none;border-top:1.5px dashed rgba(0,0,0,.35);
-  }
-  .ztag{
-    position:absolute;top:-10px;right:-8px;z-index:2;
-    font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:99px;
-    border:1.5px solid rgba(0,0,0,.4);direction:rtl;line-height:16px;
-    color:#241A10;background:#fff;box-shadow:0 1px 2px rgba(43,33,23,.2);
-  }
-  .ztag.at-left{left:-8px;right:auto}
-  .ztag.at-bottom{top:auto;bottom:-10px}
+    border:1px solid var(--wood-dark);box-shadow:0 1.5px 2px rgba(43,33,23,.25)}
+  .bench-inner.split{position:relative}
+  .bench-inner.split::after{content:"";position:absolute;left:50%;top:4px;bottom:4px;
+    border-left:1.5px dashed rgba(0,0,0,.35)}
 
-  /* מסגרת אזור לכיתה — עוטפת רצף ספסלים של אותה כיתה */
-  .zgroup{
-    position:relative;display:flex;flex-direction:column;gap:7px;
-    padding:8px 6px 6px;border:2px solid;border-radius:12px;
-  }
-  .zgroup.h{flex-direction:row;gap:8px}
+  .table-inner{display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:4px 6px}
+  .lt-chairs{display:flex;gap:4px;justify-content:center}
+  .lt-surface{height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+    background:repeating-linear-gradient(90deg,transparent 0 26px,rgba(95,61,32,.28) 26px 27px),
+      linear-gradient(180deg,var(--wood-light),var(--wood) 55%,var(--wood-dark));
+    border:2px solid var(--wood-dark)}
+  .lt-surface span{color:#FFF7EA;font-family:'Frank Ruhl Libre',serif;font-weight:700;
+    font-size:11px;direction:rtl;white-space:nowrap}
 
-  /* vertical bench (המובלעת — פנים למרכז) */
-  .bench.vertical{flex-direction:row;align-items:center;padding:7px 6px;gap:3px}
-  .bench.vertical .bench-bar{width:11px;height:auto;align-self:stretch;
-    background:linear-gradient(90deg,var(--wood-light),var(--wood) 60%,var(--wood-dark));
-  }
-  .bench.vertical .chair-row{flex-direction:column;gap:4px}
-
-  /* bima */
-  .bima{
-    position:relative;margin:8px 0;padding:16px 12px;cursor:pointer;
-    background:
-      repeating-linear-gradient(90deg,transparent 0 9px,rgba(95,61,32,.25) 9px 10px),
-      linear-gradient(180deg,var(--wood-light),var(--wood));
-    border:3px double var(--wood-dark);border-radius:10px;
-    min-width:118px;text-align:center;color:#FFF7EA;
+  .bima-inner{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;border-radius:10px;text-align:center;color:#FFF7EA;
     font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:15px;
-    box-shadow:0 3px 0 var(--wood-dark);
-  }
-  .bima small{display:block;font-family:'Heebo';font-weight:400;font-size:10px;opacity:.85}
-  .bima:hover{outline:2px solid var(--map-ink-soft);outline-offset:2px}
+    background:repeating-linear-gradient(90deg,transparent 0 9px,rgba(95,61,32,.25) 9px 10px),
+      linear-gradient(180deg,var(--wood-light),var(--wood));
+    border:3px double var(--wood-dark);box-shadow:0 3px 0 var(--wood-dark)}
+  .bima-inner small{font-family:'Heebo';font-weight:400;font-size:10px;opacity:.85}
 
-  /* long table (lengthwise) */
-  .longtable{
-    position:relative;display:flex;align-items:stretch;gap:4px;margin-top:10px;
-    padding:6px;border-radius:10px;cursor:pointer;border:2px solid transparent;
-  }
-  .longtable:hover{border-color:var(--map-ink-soft)}
-  .lt-surface{
-    width:46px;border-radius:6px;
-    background:
-      repeating-linear-gradient(0deg,transparent 0 26px,rgba(95,61,32,.28) 26px 27px),
-      linear-gradient(90deg,var(--wood-light),var(--wood) 55%,var(--wood-dark));
-    border:2px solid var(--wood-dark);
-    display:flex;align-items:center;justify-content:center;
-  }
-  .lt-surface span{
-    color:#FFF7EA;font-family:'Frank Ruhl Libre',serif;
-    font-weight:700;font-size:11px;direction:rtl;white-space:nowrap;
-  }
-  .lt-chairs{display:flex;flex-direction:column;gap:5px;justify-content:center;padding:0 2px}
+  .aron-inner{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;position:relative;border-radius:8px 8px 3px 3px;text-align:center;
+    color:#FFF7EA;font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:15px;
+    background:linear-gradient(180deg,var(--wood-light),var(--wood));
+    border:2px solid var(--wood-dark)}
+  .aron-inner::before{content:"";position:absolute;inset:5px 10px auto 10px;height:5px;
+    border-radius:3px;background:#3E5C8A}
+  .aron-inner small{font-family:'Heebo';font-weight:400;font-size:10px;opacity:.85}
 
-  /* רצף ספסלים מאונכים — יושבים זה לצד זה, כמו במציאות */
-  .side-run{display:flex;gap:5px;align-items:flex-start;justify-content:center;align-self:center}
-  /* רווח בין קבוצות בתוך טור */
-  .gap-item{
-    align-self:stretch;min-width:70px;cursor:pointer;border-radius:8px;
-    border:1.5px dashed transparent;
-  }
-  .gap-item:hover{border-color:var(--map-ink-soft)}
-  .col-spacer{flex:none}
-  /* אשכול טורים צמודים — נשארים יחד כשהמפה נפרסת לרוחב הדף */
-  .col-group{display:flex;align-items:flex-start;gap:8px}
-  /* כניסות — פתח בקיר עם חץ פנימה, ממוקם מול הבימה */
-  .door{
-    position:absolute;z-index:4;display:flex;align-items:center;justify-content:center;
+  .seat-inner{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:2px;border:2px solid #8A5A33;border-radius:10px;
+    background:hsl(38 70% 84%)}
+  .seat-inner .lbl{font-size:11px;font-weight:700;color:#241A10;direction:rtl;white-space:nowrap;
+    border-radius:4px;padding:0 3px}
+  .seat-inner .lbl:focus{outline:2px solid var(--accent)}
+
+  .door-inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:5px;
     direction:rtl;color:var(--wood-dark);font-family:'Frank Ruhl Libre',serif;
     font-weight:700;font-size:12px;white-space:nowrap;
-  }
-  .door .opening{
-    background:var(--floor);border:3px solid var(--wood-dark);
-    display:flex;align-items:center;justify-content:center;
-  }
-  .door.right{right:-3px;flex-direction:row;gap:6px}
-  .door.right .opening{width:15px;height:76px;border-right-color:transparent;border-radius:8px 0 0 8px}
-  .door.bottom{bottom:-3px;flex-direction:column;gap:5px}
-  .door.bottom .opening{height:15px;width:92px;border-bottom-color:transparent;border-radius:0 0 8px 8px}
-  .door .arrow{font-size:15px;line-height:1;color:var(--wood-dark)}
+    background:var(--floor);border:3px solid var(--wood-dark);border-radius:8px}
 
-  /* ---------- popover ---------- */
-  .pop{
-    position:fixed;z-index:60;width:252px;
-    background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    box-shadow:var(--shadow);padding:12px 14px;direction:rtl;
-  }
+  /* מסגרת אזור כיתה */
+  .zcluster{position:absolute;border:2px solid;border-radius:12px;pointer-events:none;z-index:0}
+  .ztag{position:absolute;top:-11px;right:-6px;font-size:11.5px;font-weight:700;padding:1px 8px;
+    border-radius:99px;border:1.5px solid rgba(0,0,0,.4);direction:rtl;line-height:16px;
+    color:#241A10;background:#fff;box-shadow:0 1px 2px rgba(43,33,23,.2);white-space:nowrap}
+
+  /* ידיות שינוי גודל החדר */
+  .rz{position:absolute;background:var(--accent);border:2px solid #fff;border-radius:5px;
+    z-index:60;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+  .rz.e{width:12px;height:34px;right:-8px;top:50%;transform:translateY(-50%);cursor:ew-resize}
+  .rz.s{width:34px;height:12px;bottom:-8px;left:50%;transform:translateX(-50%);cursor:ns-resize}
+  .rz.se{width:15px;height:15px;right:-9px;bottom:-9px;cursor:nwse-resize}
+  body.printing .rz{display:none}
+
+  /* כותרת ומקרא מודפסים */
+  .map-title{display:none;align-items:baseline;gap:12px;direction:rtl;margin-bottom:9px;
+    padding-bottom:7px;border-bottom:2px solid var(--wood-dark)}
+  .map-title h2{font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:20px;margin:0;color:var(--map-ink)}
+  .map-title .mt-stats{font-size:12px;color:var(--map-ink-soft);font-variant-numeric:tabular-nums}
+  .map-legend{display:none;flex-wrap:wrap;gap:6px 10px;align-items:center;direction:rtl;
+    margin-top:10px;padding-top:8px;font-size:12px;color:var(--map-ink)}
+  .map-legend .mchip{padding:1px 10px;border-radius:99px;border:1.5px solid;font-weight:700}
+  .map-legend .mtotal{font-weight:700;margin-inline-start:auto}
+  body.printing .map-legend,body.printing .map-title{display:flex}
+
+  /* ---------- חלון עריכה ---------- */
+  .pop{position:fixed;z-index:70;width:250px;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;box-shadow:var(--shadow);padding:12px 14px;direction:rtl}
   .pop h3{margin:0 0 8px;font-size:14px;font-family:'Frank Ruhl Libre',serif}
   .pop .row{display:flex;align-items:center;gap:8px;margin:8px 0}
   .pop .row .rl{font-size:12.5px;color:var(--ink-soft);min-width:52px}
-  .stepper{display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:9px;overflow:hidden}
-  .stepper button{border:none;background:var(--panel-2);width:30px;height:28px;font-size:16px;cursor:pointer;color:var(--ink)}
+  .stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .stepper button{border:none;background:var(--panel-2);width:30px;height:28px;font-size:16px;
+    cursor:pointer;color:var(--ink)}
   .stepper button:hover{background:var(--line)}
   .stepper .val{width:36px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
   .zone-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:4px 0}
-  .zcell{
-    height:24px;border-radius:6px;border:1.5px solid rgba(0,0,0,.3);cursor:pointer;
+  .zcell{height:24px;border-radius:6px;border:1.5px solid rgba(0,0,0,.3);cursor:pointer;
     font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
-    color:#241A10;padding:0;
-  }
+    color:#241A10;padding:0}
   .zcell.sel{outline:2px solid var(--accent);outline-offset:1px}
-  .zclear{
-    grid-column:1 / -1;height:22px;border-radius:6px;border:1px dashed var(--line);
-    background:transparent;color:var(--ink-soft);font-size:11px;cursor:pointer;
-  }
+  .zclear{grid-column:1 / -1;height:22px;border-radius:6px;border:1px dashed var(--line);
+    background:transparent;color:var(--ink-soft);font-size:11px;cursor:pointer}
   .pop .btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
   .pop .btns .btn{padding:4px 9px;font-size:12px}
-  .seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
-  .seg button{border:none;background:var(--panel);padding:4px 10px;font-size:12px;cursor:pointer;color:var(--ink)}
-  .seg button.on{background:var(--accent);color:var(--accent-ink)}
 
-  /* ---------- dialogs ---------- */
-  dialog{
-    border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);
-    box-shadow:var(--shadow);padding:18px;max-width:420px;width:90vw;direction:rtl;
-  }
+  dialog{border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);
+    box-shadow:var(--shadow);padding:18px;max-width:420px;width:90vw;direction:rtl}
   dialog::backdrop{background:rgba(20,15,10,.45)}
   dialog h3{margin:0 0 10px;font-family:'Frank Ruhl Libre',serif}
-  dialog textarea{
-    width:100%;height:130px;border:1px solid var(--line);border-radius:9px;
+  dialog textarea{width:100%;height:130px;border:1px solid var(--line);border-radius:9px;
     background:var(--panel-2);color:var(--ink);padding:8px;font-size:12px;direction:ltr;
-    font-family:ui-monospace,monospace;resize:vertical;
-  }
+    font-family:ui-monospace,monospace;resize:vertical}
   dialog .btns{display:flex;gap:8px;justify-content:flex-start;margin-top:12px}
   dialog p{font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin:6px 0}
 
-  /* ---------- print ---------- */
-  /* כותרת מודפסת בתוך המפה */
-  .map-title{
-    display:none;align-items:baseline;gap:12px;direction:rtl;
-    margin-bottom:9px;padding-bottom:7px;border-bottom:2px solid var(--wood-dark);
-  }
-  .map-title h2{
-    font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:20px;margin:0;
-    color:var(--map-ink);
-  }
-  .map-title .mt-stats{font-size:12px;color:var(--map-ink-soft);font-variant-numeric:tabular-nums}
-  body.printing .map-title{display:flex}
-
-  /* מקרא קומפקטי שמודפס בתוך המפה עצמה */
-  .map-legend{
-    display:none;flex-wrap:wrap;gap:6px 10px;align-items:center;direction:rtl;
-    margin-top:10px;padding-top:8px;
-    font-size:12px;color:var(--map-ink);
-  }
-  .map-legend .mchip{
-    padding:1px 10px;border-radius:99px;border:1.5px solid;font-weight:700;
-  }
-  .map-legend .mtotal{font-weight:700;margin-inline-start:auto}
-  body.printing .map-legend{display:flex}
-  /* מצב "כמו בהדפסה" — משמש גם לצילום ל־PDF, שבו כללי @media print לא חלים */
-  body.printing .col-tools,
-  body.printing .add-col,
-  body.printing .mini{display:none !important}
+  #pageProbe{position:absolute;visibility:hidden;pointer-events:none;width:279mm;height:192mm;top:0;left:0}
 
   @page{size:A4 landscape;margin:9mm}
   @media print{
     body{background:#fff}
-    header.app,.toolbar,.col-tools,.add-col,.mini{display:none !important}
+    header.app,.toolbar{display:none !important}
     main{display:block}
     aside.legend{display:none}
     .map-legend,.map-title{display:flex}
     .map-scroll{overflow:visible;padding:0;direction:ltr}
-    .map{box-shadow:none;
-      print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .map{box-shadow:none;print-color-adjust:exact;-webkit-print-color-adjust:exact}
   }
-  /* גשוש למדידת שטח הדף בפיקסלים אמיתיים */
-  #pageProbe{position:absolute;visibility:hidden;pointer-events:none;
-    width:279mm;height:192mm;top:0;left:0}
 </style>
+
+<div id="pageProbe"></div>
 
 <div class="topbar">
 <header class="app" dir="rtl">
-  <div class="title-wrap">
-    <h1 id="mapTitle" contenteditable="true" spellcheck="false">מפת בית המדרש</h1>
-    <span class="stats" id="stats"></span>
-  </div>
+  <h1 id="mapTitle" contenteditable="true" spellcheck="false">מפת בית המדרש</h1>
+  <span class="stats" id="stats"></span>
   <div class="spacer"></div>
   <div class="actions">
     <span class="save-badge" id="saveBadge">טוען…</span>
-    <span class="zoom-wrap">זום <input type="range" id="zoom" min="55" max="140" value="100"></span>
+    <span class="zoom-wrap">זום <input type="range" id="zoom" min="40" max="140" value="100"></span>
     <button class="btn" id="undoBtn" title="Ctrl+Z">↩ ביטול</button>
-    <button class="btn" id="exportBtn">גיבוי</button>
-    <button class="btn" id="importBtn">שחזור</button>
     <button class="btn" id="siteMapBtn" title="טעינת המפה שמופיעה באתר">מפת האתר</button>
     <button class="btn primary" id="sendBtn">📤 שליחת המפה</button>
-    <button class="btn" id="shareBtn">🔗 קישור לשיתוף</button>
+    <button class="btn" id="shareBtn">🔗 קישור</button>
+    <button class="btn" id="exportBtn">גיבוי</button>
+    <button class="btn" id="importBtn">שחזור</button>
     <button class="btn" id="pdfBtn">⬇ PDF</button>
     <button class="btn primary" id="printBtn">🖨 הדפסה</button>
   </div>
 </header>
 
 <div class="toolbar" dir="rtl">
-  <span class="lbl">צביעת אזורים:</span>
+  <span class="lbl">הוספה:</span>
+  <button class="btn" data-add="bench">+ ספסל</button>
+  <button class="btn" data-add="table">+ שולחן</button>
+  <button class="btn" data-add="bima">+ בימה</button>
+  <button class="btn" data-add="seat">+ מקום שמור</button>
+  <button class="btn" data-add="door">+ כניסה</button>
+  <span class="lbl" style="margin-inline-start:10px">כיתות:</span>
   <div class="chips" id="zoneChips"></div>
-  <span class="paint-hint">לחצו על ספסלים כדי לצבוע · לחיצה חוזרת מנקה · Esc לסיום</span>
+  <span class="paint-hint">לחצו על ספסלים לצביעה · Esc לסיום</span>
 </div>
 </div>
-
-<div id="pageProbe"></div>
 
 <main dir="rtl">
   <aside class="legend">
     <h2>מקרא כיתות</h2>
     <div id="legendBody"></div>
-    <div class="legend-total"><span>סה״כ מקומות ישיבה</span><b id="legendTotal">0</b></div>
+    <div class="legend-total"><span>סה״כ מקומות</span><b id="legendTotal">0</b></div>
     <div class="help">
-      <b>איך עורכים?</b><br>
-      לחיצה על ספסל / בימה / שולחן פותחת עריכה: מספר כיסאות, שיוך כיתה, הוספה, הזזה ומחיקה.<br>
-      "החלת X כיסאות על כל הקטע" משנה את כל הספסלים ברצף בבת אחת — הבימה מפרידה בין קטעים.<br>
-      בחירת כיתה למעלה מפעילה <b>מצב צביעה</b>.<br>
-      לחיצה על הריבוע הצבעוני במקרא — החלפת צבע הכיתה.<br>
-      אפשר לפצל ספסל לשתי כיתות, ולהפוך כל ספסל ל<b>מאונך</b>, מתוך חלון העריכה.<br>
-      <b>הדפסה</b> ו־<b>PDF</b> מתאימים את המפה אוטומטית לדף A4 לרוחב, כולל כותרת ומקרא.<br>
-      <b>📤 שליחת המפה</b> — בסיום הסימון, לחיצה אחת פותחת וואטסאפ עם המפה מוכנה לשליחה.<br>
-      <b>קישור לשיתוף</b> מעתיק קישור שמכיל את המפה עצמה. גם שורת הכתובת מתעדכנת אוטומטית אחרי כל שינוי, כך שכל העתקה שלה מעבירה את המפה העדכנית — מי שיפתח יראה בדיוק את מה שאתם רואים, וימשיך לערוך משם.
+      <b>גרירה:</b> תופסים כל פריט וגוררים לאן שרוצים.<br>
+      <b>סיבוב:</b> בוחרים פריט ולוחצים <b>R</b>, או "סיבוב 90°" בחלון העריכה.<br>
+      <b>קירות:</b> הידיות הכחולות בקצה החדר מותחות אותו.<br>
+      <b>גרירה מדויקת:</b> מקשי החיצים מזיזים פיקסל־פיקסל.<br>
+      לחיצה על פריט פותחת עריכה: כיסאות, כיתה, שכפול ומחיקה.
     </div>
   </aside>
   <div class="map-scroll">
@@ -530,7 +299,7 @@
 
 <dialog id="exportDlg">
   <h3>גיבוי המפה</h3>
-  <p>הטקסט הזה מכיל את כל המפה. שמרו אותו בצד (וואטסאפ לעצמכם, פתק…) — אפשר לשחזר ממנו בכל רגע.</p>
+  <p>הטקסט הזה מכיל את כל המפה. שמרו אותו בצד — אפשר לשחזר ממנו בכל רגע.</p>
   <textarea id="exportTxt" readonly></textarea>
   <div class="btns">
     <button class="btn primary" id="copyExport">העתקה</button>
@@ -540,8 +309,8 @@
 
 <dialog id="importDlg">
   <h3>שחזור מגיבוי</h3>
-  <p>הדביקו כאן טקסט גיבוי שנשמר קודם. שימו לב: זה מחליף את המפה הנוכחית (אפשר לבטל עם ↩).</p>
-  <textarea id="importTxt" placeholder='{"columns": …}'></textarea>
+  <p>הדביקו כאן טקסט גיבוי שנשמר קודם. זה מחליף את המפה הנוכחית (אפשר לבטל עם ↩).</p>
+  <textarea id="importTxt" placeholder='{"items": …}'></textarea>
   <div class="btns">
     <button class="btn primary" id="doImport">שחזור</button>
     <button class="btn" data-close>סגירה</button>
@@ -549,12 +318,16 @@
 </dialog>
 
 <script>
+const SITE_MAP = {"rev":"site-2026-09-03","title":"מפת בית המדרש","columns":[{"id":"lm9hdteu","offset":0,"attach":false,"items":[{"id":"hjwkoylg","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"09ohed1h","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"mbybfsvb","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"cz8bev9m","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4snhmgcf","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"0jo1cisy","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"5epp85h6","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4w5rdvsz","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"who3kwc6","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"2utk11dk","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"dis4v3xx","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"vuov6nf0","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4adzos2d","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"}]},{"id":"29cp83ry","offset":0,"attach":false,"items":[{"id":"qxaatdlk","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4z2fual3","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"2jxu57fw","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"ccwj5yit","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"h6139nb8","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"y598v0j0","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"3pouij74","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"9idi7rl6","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"n2cqc7eu","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"noi09h7w","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"bw623y0t","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"fjt60q3g","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"vrlwe8je","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"1c5qwlxn","type":"bench","chairs":4,"zone":"","zoneB":"","split":false,"facing":"front"}]},{"id":"3k2ly9nk","offset":0,"attach":false,"items":[{"id":"gd3x9gwl","type":"bench","chairs":3,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4tswkbtg","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"yxsy0qeo","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"ehkqdgcr","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"6dxbmvlx","type":"bench","chairs":3,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"oqo2yndd","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"9vwj930q","type":"bench","chairs":5,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"tja90ta8","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"q0sonipp","type":"bench","chairs":5,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"ui8giknr","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"ndnu3hrz","type":"bench","chairs":5,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"n3qp7rua","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"}]},{"id":"8h08d7xu","offset":0,"attach":false,"items":[{"id":"k7lxvhlr","type":"bench","chairs":3,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"jn7ng1n7","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"ey5ymesy","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"gsxwcde6","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"wgers2ye","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"usihc08r","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"d6rr3lmx","type":"bima"},{"id":"g8olzi1l","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"em1k5w5t","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"5568sg7k","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"w4p7j7ln","type":"bench","chairs":3,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"mtctsyl4","type":"bench","chairs":6,"zone":"","zoneB":"","split":false,"facing":"front"},{"id":"srcn7kfa","type":"bench","chairs":3,"zone":"","zoneB":"","split":false,"facing":"front"}]},{"id":"y4xjeri1","offset":-118,"attach":false,"items":[{"id":"y65m87zr","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"qxuwdoo1","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"xhzv0kr6","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"qia9r0qu","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"vzl9lulg","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"dl6up5ja","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"0s15dmg0","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"g1h5rdzy","type":"gap","h":18},{"id":"ff51u9x3","type":"bench","chairs":5,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"eltgz4oj","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"q3ue5kbr","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"isp9qo5x","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4sc7pxfi","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"nw4koiuj","type":"table","chairs":20,"zone":""}]},{"id":"kd72zqhs","offset":130,"attach":true,"items":[{"id":"uzxzdvt1","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"icu8ozte","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"1hddsq8l","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"5nvcimpk","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"}]}],"zoneColors":{},"ravSeat":{"id":"j9llwiu1","label":"הרב שלום"}};
+const SITE_REV = SITE_MAP.rev;
+</script>
+<script>
 (function(){
 "use strict";
 document.documentElement.lang="he";
 document.documentElement.dir="rtl";
 
-/* ---------- helpers ---------- */
+/* ---------- עזרים ---------- */
 const $ = s => document.querySelector(s);
 const rid = () => Math.random().toString(36).slice(2,10);
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -564,244 +337,248 @@ const el = (tag, cls, txt) => {
   if (txt !== undefined) n.textContent = txt;
   return n;
 };
-
-/* ---------- zones (כיתות) ---------- */
-const GRADES = ["ז","ח"], NUMS = [1,2,3,4,5,6,7];
-const ZONES = [];
-for (const g of GRADES) for (const n of NUMS) ZONES.push(g + n);
-const zLabel = id => id[0] + "׳" + id.slice(1);
-
-/* פלטת צבעים — עמוקים וגבריים כברירת מחדל; ורוד/סגול קיימים רק כבחירה מפורשת */
-const PRESETS = [
-  { f:"hsl(210 55% 78%)", b:"hsl(210 55% 34%)" },  /* 0 כחול   */
-  { f:"hsl(198 60% 74%)", b:"hsl(198 65% 30%)" },  /* 1 תכלת   */
-  { f:"hsl(184 50% 72%)", b:"hsl(184 60% 26%)" },  /* 2 טורקיז */
-  { f:"hsl(160 45% 72%)", b:"hsl(160 55% 26%)" },  /* 3 אמרלד  */
-  { f:"hsl(135 45% 74%)", b:"hsl(135 45% 28%)" },  /* 4 ירוק   */
-  { f:"hsl(90 45% 72%)",  b:"hsl(90 45% 27%)"  },  /* 5 זית    */
-  { f:"hsl(52 65% 70%)",  b:"hsl(46 70% 30%)"  },  /* 6 צהוב   */
-  { f:"hsl(38 75% 74%)",  b:"hsl(35 75% 33%)"  },  /* 7 ענבר   */
-  { f:"hsl(24 75% 76%)",  b:"hsl(22 70% 36%)"  },  /* 8 כתום   */
-  { f:"hsl(10 60% 78%)",  b:"hsl(8 60% 36%)"   },  /* 9 אדום   */
-  { f:"hsl(20 38% 74%)",  b:"hsl(20 40% 30%)"  },  /* 10 חום   */
-  { f:"hsl(232 45% 81%)", b:"hsl(232 45% 36%)" },  /* 11 אינדיגו */
-  { f:"hsl(210 14% 79%)", b:"hsl(210 12% 34%)" },  /* 12 אפור כחלחל */
-  { f:"hsl(40 10% 78%)",  b:"hsl(40 10% 32%)"  },  /* 13 אפור חם */
-  { f:"hsl(262 38% 81%)", b:"hsl(262 40% 38%)" },  /* 14 סגול (בחירה בלבד) */
-  { f:"hsl(330 45% 82%)", b:"hsl(330 50% 38%)" },  /* 15 ורוד (בחירה בלבד) */
-];
-const DEFAULT_IDX = {
-  "ז1":0, "ז2":2, "ז3":4, "ז4":8, "ז5":9, "ז6":6, "ז7":10,
-  "ח1":1, "ח2":3, "ח3":5, "ח4":7, "ח5":11, "ח6":12, "ח7":13,
-};
-function zStyle(id){
-  const custom = state.zoneColors && state.zoneColors[id];
-  const idx = Number.isInteger(custom) && custom >= 0 && custom < PRESETS.length
-    ? custom : (DEFAULT_IDX[id] ?? 0);
-  const p = PRESETS[idx];
-  return { fill: p.f, border: p.b, idx };
-}
-
-/* ---------- המפה של בית המדרש, כפי שנספרה בשטח ---------- */
-const SITE_MAP = {"rev":"site-2026-09-03","title":"מפת בית המדרש","columns":[{"id":"lm9hdteu","offset":0,"attach":false,"items":[{"id":"hjwkoylg","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"09ohed1h","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"mbybfsvb","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"cz8bev9m","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4snhmgcf","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"0jo1cisy","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"5epp85h6","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4w5rdvsz","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"who3kwc6","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"2utk11dk","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"dis4v3xx","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"vuov6nf0","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4adzos2d","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"}]},{"id":"29cp83ry","offset":0,"attach":false,"items":[{"id":"qxaatdlk","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4z2fual3","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"2jxu57fw","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"ccwj5yit","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"h6139nb8","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"y598v0j0","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"3pouij74","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"9idi7rl6","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"n2cqc7eu","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"noi09h7w","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"bw623y0t","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"fjt60q3g","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"vrlwe8je","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"1c5qwlxn","type":"bench","chairs":4,"zone":"","zoneB":"","split":false,"facing":"front"}]},{"id":"3k2ly9nk","offset":0,"attach":false,"items":[{"id":"gd3x9gwl","type":"bench","chairs":3,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4tswkbtg","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"yxsy0qeo","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"ehkqdgcr","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"6dxbmvlx","type":"bench","chairs":3,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"oqo2yndd","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"9vwj930q","type":"bench","chairs":5,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"tja90ta8","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"q0sonipp","type":"bench","chairs":5,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"ui8giknr","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"ndnu3hrz","type":"bench","chairs":5,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"n3qp7rua","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"}]},{"id":"8h08d7xu","offset":0,"attach":false,"items":[{"id":"k7lxvhlr","type":"bench","chairs":3,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"jn7ng1n7","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"ey5ymesy","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"gsxwcde6","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"wgers2ye","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"usihc08r","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"d6rr3lmx","type":"bima"},{"id":"g8olzi1l","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"em1k5w5t","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"5568sg7k","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"w4p7j7ln","type":"bench","chairs":3,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"mtctsyl4","type":"bench","chairs":6,"zone":"","zoneB":"","split":false,"facing":"front"},{"id":"srcn7kfa","type":"bench","chairs":3,"zone":"","zoneB":"","split":false,"facing":"front"}]},{"id":"y4xjeri1","offset":-118,"attach":false,"items":[{"id":"y65m87zr","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"qxuwdoo1","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"xhzv0kr6","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"qia9r0qu","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"vzl9lulg","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"dl6up5ja","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"0s15dmg0","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"g1h5rdzy","type":"gap","h":18},{"id":"ff51u9x3","type":"bench","chairs":5,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"eltgz4oj","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"q3ue5kbr","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"side"},{"id":"isp9qo5x","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"4sc7pxfi","type":"bench","chairs":4,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"nw4koiuj","type":"table","chairs":20,"zone":""}]},{"id":"kd72zqhs","offset":130,"attach":true,"items":[{"id":"uzxzdvt1","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"icu8ozte","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"1hddsq8l","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"},{"id":"5nvcimpk","type":"bench","chairs":6,"zone":"","split":false,"zoneB":"","facing":"front"}]}],"zoneColors":{},"ravSeat":{"id":"j9llwiu1","label":"הרב שלום"}};
-const SITE_REV = SITE_MAP.rev;
-
-/* ---------- state ---------- */
-const mkGap = h => ({ id:rid(), type:"gap", h: h || 30 });
-const mkBench = (chairs, facing) =>
-  ({ id:rid(), type:"bench", chairs, zone:"", zoneB:"", split:false, facing: facing || "front" });
-const many = (n, f) => Array.from({length:n}, f);
-
-function defaultState(){
-  return normalize(clone(SITE_MAP));
-}
-function blankState(){
-  return {
-    rev: rid(),
-    title: "מפת בית המדרש",
-    columns: [
-      { id:rid(), items: many(13, () => mkBench(6)) },
-      { id:rid(), items: many(13, () => mkBench(6)) },
-      { id:rid(), items: many(13, () => mkBench(6)) },
-      { id:rid(), items: [                       /* טור הבימה */
-          ...many(6, () => mkBench(6)),
-          { id:rid(), type:"bima" },
-          ...many(5, () => mkBench(6)),
-        ] },
-      { id:rid(), offset:-118, items: [            /* האזור הימני — קירו פנימה יותר */
-          ...many(7, () => mkBench(6, "side")),  /* צמודים לקיר, מימין לבמת הארון */
-          mkGap(18),
-          ...many(3, () => mkBench(6, "side")),
-          ...many(2, () => mkBench(4)),
-          { id:rid(), type:"table", chairs:20, zone:"" },
-        ] },
-      { id:rid(), offset:130, attach:true,        /* המובלעת הימנית — צמודה לשלושת המאונכים */
-        items: many(4, () => mkBench(6)) },
-    ],
-    zoneColors: {},
-    ravSeat: { id:rid(), label:"הרב שלום" },
-  };
-}
-
-function normalize(d){
-  const base = blankState();
-  if (!d || typeof d !== "object") return base;
-  const out = {
-    rev: typeof d.rev === "string" ? d.rev : rid(),
-    title: typeof d.title === "string" && d.title.trim() ? d.title : base.title,
-    columns: [],
-    zoneColors: {},
-    ravSeat: (d.ravSeat && typeof d.ravSeat === "object")
-      ? { id: d.ravSeat.id || rid(),
-          label: String(d.ravSeat.label || d.ravSeat.effectivelabel || "מקום שמור").slice(0, 40) }
-      : (d.ravSeat === null ? null : { id: rid(), label: "הרב שלום" }),
-  };
-  if (d.zoneColors && typeof d.zoneColors === "object")
-    for (const z of ZONES){
-      const v = d.zoneColors[z];
-      if (Number.isInteger(v) && v >= 0 && v < PRESETS.length) out.zoneColors[z] = v;
-    }
-  const benchFields = it => {
-    const split = !!it.split;
-    return {
-      chairs: clampInt(it.chairs, 1, 12, 6),
-      zone: validZone(it.zone), split,
-      zoneB: split ? validZone(it.zoneB) : "",
-      /* "center" הוא האיות הישן של ספסל מאונך */
-      facing: (it.facing === "side" || it.facing === "center") ? "side" : "front",
-    };
-  };
-  if (Array.isArray(d.columns)) for (const c of d.columns){
-    if (!c || typeof c !== "object") continue;
-    const col = { id: c.id || rid(), offset: clampInt(c.offset, -400, 1200, 0),
-                  attach: !!c.attach, items: [] };
-    if (Array.isArray(c.items)) for (const it of c.items){
-      if (!it || typeof it !== "object") continue;
-      if (it.type === "bima") col.items.push({ id: it.id || rid(), type:"bima" });
-      else if (it.type === "gap") col.items.push({ id: it.id || rid(), type:"gap",
-        h: clampInt(it.h, 8, 300, 30) });
-      else if (it.type === "table") col.items.push({ id: it.id || rid(), type:"table",
-        chairs: clampInt(it.chairs, 1, 40, 20), zone: validZone(it.zone) });
-      else col.items.push({ id: it.id || rid(), type:"bench", ...benchFields(it) });
-    }
-    out.columns.push(col);
-  }
-  if (!out.columns.length) out.columns = base.columns;
-  /* מפות ישנות: "המובלעת" הופכת לטור רגיל בקצה */
-  const a = d.alcove;
-  if (a && typeof a === "object" && Array.isArray(a.benches) && a.benches.length){
-    const items = [];
-    for (const b of a.benches){
-      if (!b || typeof b !== "object") continue;
-      items.push({ id: b.id || rid(), type:"bench", ...benchFields(b) });
-    }
-    if (items.length) out.columns.push({ id: rid(), items });
-  }
-  return out;
-}
 const clampInt = (v, lo, hi, dflt) => {
   const n = Math.round(Number(v));
   return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt;
 };
+const GRID = 5;
+const snap = n => Math.round(n / GRID) * GRID;
+
+/* ---------- כיתות וצבעים ---------- */
+const GRADES = ["ז","ח"], NUMS = [1,2,3,4,5,6,7];
+const ZONES = [];
+for (const g of GRADES) for (const n of NUMS) ZONES.push(g + n);
+const zLabel = id => id[0] + "׳" + id.slice(1);
+const PRESETS = [
+  { f:"hsl(210 55% 78%)", b:"hsl(210 55% 34%)" }, { f:"hsl(198 60% 74%)", b:"hsl(198 65% 30%)" },
+  { f:"hsl(184 50% 72%)", b:"hsl(184 60% 26%)" }, { f:"hsl(160 45% 72%)", b:"hsl(160 55% 26%)" },
+  { f:"hsl(135 45% 74%)", b:"hsl(135 45% 28%)" }, { f:"hsl(90 45% 72%)",  b:"hsl(90 45% 27%)"  },
+  { f:"hsl(52 65% 70%)",  b:"hsl(46 70% 30%)"  }, { f:"hsl(38 75% 74%)",  b:"hsl(35 75% 33%)"  },
+  { f:"hsl(24 75% 76%)",  b:"hsl(22 70% 36%)"  }, { f:"hsl(10 60% 78%)",  b:"hsl(8 60% 36%)"   },
+  { f:"hsl(20 38% 74%)",  b:"hsl(20 40% 30%)"  }, { f:"hsl(232 45% 81%)", b:"hsl(232 45% 36%)" },
+  { f:"hsl(210 14% 79%)", b:"hsl(210 12% 34%)" }, { f:"hsl(40 10% 78%)",  b:"hsl(40 10% 32%)"  },
+  { f:"hsl(262 38% 81%)", b:"hsl(262 40% 38%)" }, { f:"hsl(330 45% 82%)", b:"hsl(330 50% 38%)" },
+];
+const DEFAULT_IDX = { "ז1":0,"ז2":2,"ז3":4,"ז4":8,"ז5":9,"ז6":6,"ז7":10,
+                      "ח1":1,"ח2":3,"ח3":5,"ח4":7,"ח5":11,"ח6":12,"ח7":13 };
 const validZone = z => ZONES.includes(z) ? z : "";
+function zStyle(id){
+  const c = state.zoneColors && state.zoneColors[id];
+  const i = Number.isInteger(c) && c >= 0 && c < PRESETS.length ? c : (DEFAULT_IDX[id] ?? 0);
+  return { fill: PRESETS[i].f, border: PRESETS[i].b, idx: i };
+}
+
+/* ---------- גאומטריה ---------- */
+const CHAIR_W = 22, CHAIR_GAP = 4;
+function baseSize(it){
+  switch (it.type){
+    case "bench": { const n = Math.max(1, it.chairs);
+      return { w: 14 + n * CHAIR_W + (n - 1) * CHAIR_GAP, h: 44 }; }
+    case "table": { const half = Math.ceil(Math.max(1, it.chairs) / 2);
+      return { w: 12 + half * CHAIR_W + (half - 1) * CHAIR_GAP, h: 84 }; }
+    case "bima": return { w: 124, h: 62 };
+    case "aron": return { w: 190, h: 66 };
+    case "seat": return { w: 86, h: 54 };
+    case "door": return { w: 96, h: 26 };
+    default:     return { w: 60, h: 40 };
+  }
+}
+function boxSize(it){
+  const s = baseSize(it);
+  return (it.rot === 90 || it.rot === 270) ? { w: s.h, h: s.w } : s;
+}
+const itemSeats = it => (it.type === "bench" || it.type === "table") ? it.chairs
+                      : it.type === "seat" ? 1 : 0;
+const halfSeats = b => ({ a: Math.ceil(b.chairs / 2), b: Math.floor(b.chairs / 2) });
+
+/* ---------- מודל ---------- */
+const mkItem = (type, x, y, extra) =>
+  Object.assign({ id: rid(), type, x, y, rot: 0 }, extra || {});
+const mkBench = (x, y, chairs, rot) =>
+  mkItem("bench", x, y, { chairs: chairs || 6, rot: rot || 0, zone:"", zoneB:"", split:false });
+
+/* המרה מהמודל הישן (טורים) — שומרת ספירה, כיתות וסדר */
+function migrateV1(d){
+  const items = [];
+  const ROW_GAP = 6, SIDE_GAP = 6, COL_GAP = 26;
+  let x = 70;
+  const topY = 150;
+  const groups = [];
+  for (const c of (d.columns || [])){
+    if (c.attach && groups.length) groups[groups.length - 1].push(c);
+    else groups.push([c]);
+  }
+  for (const g of groups){
+    let groupRight = x;
+    for (const col of g){
+      let y = topY + (col.offset || 0), colW = 0, i = 0;
+      const list = col.items || [];
+      const place = (nb) => { const bs = boxSize(nb);
+        nb.x = snap(x + bs.w / 2); nb.y = snap(y + bs.h / 2); items.push(nb);
+        colW = Math.max(colW, bs.w); y += bs.h + ROW_GAP; };
+      while (i < list.length){
+        const it = list[i];
+        if (it.type === "bench" && it.facing === "side"){
+          const run = [];
+          while (i < list.length && list[i].type === "bench" && list[i].facing === "side")
+            run.push(list[i++]);
+          let rx = x, runH = 0;
+          for (const b of run){
+            const nb = mkBench(0, 0, b.chairs, 90);
+            nb.id = b.id || rid(); nb.zone = validZone(b.zone);
+            nb.split = !!b.split; nb.zoneB = nb.split ? validZone(b.zoneB) : "";
+            const bs = boxSize(nb);
+            nb.x = snap(rx + bs.w / 2); nb.y = snap(y + bs.h / 2);
+            items.push(nb); rx += bs.w + SIDE_GAP; runH = Math.max(runH, bs.h);
+          }
+          colW = Math.max(colW, rx - SIDE_GAP - x);
+          y += runH + ROW_GAP;
+        } else if (it.type === "gap"){
+          y += (it.h || 30); i++;
+        } else if (it.type === "table"){
+          const nb = mkItem("table", 0, 0, { id: it.id || rid(), chairs: it.chairs || 20,
+                                             zone: validZone(it.zone), rot: 90 });
+          place(nb); i++;
+        } else if (it.type === "bima"){
+          place(mkItem("bima", 0, 0, { id: it.id || rid() })); i++;
+        } else {
+          const nb = mkBench(0, 0, it.chairs, 0);
+          nb.id = it.id || rid(); nb.zone = validZone(it.zone);
+          nb.split = !!it.split; nb.zoneB = nb.split ? validZone(it.zoneB) : "";
+          place(nb); i++;
+        }
+      }
+      x += colW + 12;
+      groupRight = x;
+    }
+    x = groupRight + COL_GAP;
+  }
+
+  const width = Math.max(1000, x + 30);
+  const aron = mkItem("aron", snap(width / 2 - 120), 62);
+  items.push(aron);
+  if (d.ravSeat !== null){
+    const label = (d.ravSeat && (d.ravSeat.label || d.ravSeat.effectivelabel)) || "הרב שלום";
+    items.push(mkItem("seat", snap(width / 2 + 30), 62, { label }));
+  }
+  let maxY = 0;
+  for (const it of items){ const b = boxSize(it); maxY = Math.max(maxY, it.y + b.h / 2); }
+  const height = Math.max(560, maxY + 70);
+  const bima = items.find(i => i.type === "bima");
+  items.push(mkItem("door", width - 40, bima ? bima.y : height / 2, { label:"כניסה", rot: 90 }));
+  items.push(mkItem("door", bima ? bima.x : width / 2, height - 20, { label:"כניסה" }));
+
+  return { v:2, rev: rid(), title: d.title || "מפת בית המדרש",
+           room: { w: snap(width), h: snap(height) }, items,
+           zoneColors: d.zoneColors || {} };
+}
+
+function blankState(){
+  const items = [];
+  let x = 80;
+  for (let c = 0; c < 3; c++){
+    let y = 150;
+    for (let i = 0; i < 10; i++){
+      const b = mkBench(0, 0, 6, 0); const s = boxSize(b);
+      b.x = snap(x + s.w / 2); b.y = snap(y + s.h / 2); items.push(b); y += s.h + 6;
+    }
+    x += 190;
+  }
+  items.push(mkItem("aron", 400, 62));
+  return { v:2, rev: rid(), title:"מפת בית המדרש", room:{ w:900, h:700 }, items, zoneColors:{} };
+}
+function defaultState(){ return normalize(clone(SITE_MAP)); }
+
+const ROT = v => [0,90,180,270].includes(v) ? v : 0;
+function normalize(d){
+  if (!d || typeof d !== "object") return blankState();
+  if (d.v !== 2 && Array.isArray(d.columns)) d = migrateV1(d);
+  if (!Array.isArray(d.items)) return blankState();
+  const out = { v:2, rev: typeof d.rev === "string" ? d.rev : rid(),
+    title: (typeof d.title === "string" && d.title.trim()) ? d.title : "מפת בית המדרש",
+    room: { w: clampInt(d.room && d.room.w, 300, 6000, 1200),
+            h: clampInt(d.room && d.room.h, 200, 6000, 800) },
+    items: [], zoneColors: {} };
+  if (d.zoneColors && typeof d.zoneColors === "object")
+    for (const z of ZONES){ const v = d.zoneColors[z];
+      if (Number.isInteger(v) && v >= 0 && v < PRESETS.length) out.zoneColors[z] = v; }
+  for (const it of (d.items || [])){
+    if (!it || typeof it !== "object") continue;
+    const b = { id: it.id || rid(), type: it.type, rot: ROT(it.rot),
+                x: clampInt(it.x, -4000, 9000, 100), y: clampInt(it.y, -4000, 9000, 100) };
+    if (it.type === "bench"){
+      const split = !!it.split;
+      out.items.push(Object.assign(b, { chairs: clampInt(it.chairs, 1, 14, 6),
+        zone: validZone(it.zone), split, zoneB: split ? validZone(it.zoneB) : "" }));
+    } else if (it.type === "table"){
+      out.items.push(Object.assign(b, { chairs: clampInt(it.chairs, 1, 40, 20),
+        zone: validZone(it.zone) }));
+    } else if (it.type === "seat"){
+      out.items.push(Object.assign(b, { label: String(it.label || "מקום שמור").slice(0,40),
+        zone: validZone(it.zone) }));
+    } else if (it.type === "door"){
+      out.items.push(Object.assign(b, { label: String(it.label || "כניסה").slice(0,40) }));
+    } else if (it.type === "bima" || it.type === "aron"){
+      out.items.push(b);
+    }
+  }
+  if (!out.items.length) return blankState();
+  return out;
+}
 
 let state = defaultState();
 let undoStack = [];
-let dirty = false;
 let paintZone = null;
-let popTarget = null;
+let selId = null;
+let popTarget = null, popMode = null;
 
-/* ---------- lookups ---------- */
-function findItem(id){
-  for (let ci = 0; ci < state.columns.length; ci++){
-    const items = state.columns[ci].items;
-    const idx = items.findIndex(it => it.id === id);
-    if (idx >= 0) return { where:"col", list:items, idx, item:items[idx], col:state.columns[ci], ci };
-  }
-  return null;
-}
-const itemSeats = it => (it.type === "bench" || it.type === "table") ? it.chairs : 0;
-const isGap = it => it.type === "gap";
+const findItem = id => state.items.find(i => i.id === id) || null;
+
 function totals(){
   let seats = 0, benches = 0;
-  for (const c of state.columns) for (const it of c.items){
-    seats += itemSeats(it);
-    if (it.type === "bench") benches++;
-  }
-  if (state.ravSeat) seats += 1;
+  for (const it of state.items){ seats += itemSeats(it); if (it.type === "bench") benches++; }
   return { seats, benches };
 }
 function zoneAgg(){
-  const agg = {}; // zone -> {benches (חצאים = 0.5), seats}
-  const add = (zone, seats, benchShare) => {
-    if (!zone) return;
-    (agg[zone] = agg[zone] || { benches:0, seats:0 });
-    agg[zone].benches += benchShare;
-    agg[zone].seats += seats;
-  };
-  const addItem = it => {
-    if (it.split){
-      const hs = halfSeats(it);
-      add(it.zone, hs.a, 0.5);
-      add(it.zoneB, hs.b, 0.5);
-    } else add(it.zone, it.chairs, 1);
-  };
-  for (const c of state.columns) for (const it of c.items)
-    if (it.type !== "bima" && it.type !== "gap") addItem(it);
+  const agg = {};
+  const add = (z, seats, share) => { if (!z) return;
+    (agg[z] = agg[z] || { benches:0, seats:0 }); agg[z].benches += share; agg[z].seats += seats; };
+  for (const it of state.items){
+    if (it.type === "bench"){
+      if (it.split){ const h = halfSeats(it); add(it.zone, h.a, .5); add(it.zoneB, h.b, .5); }
+      else add(it.zone, it.chairs, 1);
+    } else if (it.type === "table" || it.type === "seat") add(it.zone, itemSeats(it), 0);
+  }
   return agg;
 }
 const fmtHalf = n => Number.isInteger(n) ? String(n) : (Math.floor(n) ? Math.floor(n) + "½" : "½");
 
-/* ---------- mutation + undo ---------- */
+/* ---------- שינוי מצב + ביטול ---------- */
 function mutate(fn){
   const before = clone(state);
   try{ fn(state); }catch(e){ return; }
   undoStack.push(before);
-  if (undoStack.length > 60) undoStack.shift();
+  if (undoStack.length > 80) undoStack.shift();
   state.rev = rid();
-  dirty = true;
-  renderAll();
-  saveSoon();
+  renderAll(); saveSoon();
 }
 function undo(){
   if (!undoStack.length) return;
-  state = undoStack.pop();
-  state.rev = rid();
-  dirty = true;
-  renderAll();
-  saveSoon();
+  state = undoStack.pop(); state.rev = rid();
+  renderAll(); saveSoon();
 }
 
-/* ---------- rendering ---------- */
-function renderAll(){
-  const t = totals();
-  const titleEl = $("#mapTitle");
-  if (document.activeElement !== titleEl && titleEl.textContent !== state.title)
-    titleEl.textContent = state.title;
-  document.title = state.title;
-  $("#stats").innerHTML = `<b>${t.seats}</b> מקומות · <b>${t.benches}</b> ספסלים`;
-  $("#undoBtn").disabled = !undoStack.length;
-  renderMap();
-  renderLegend(t);
-  renderChips();
-  if (popTarget) openPop(popTarget, true);
-  else if (popMode === "color") closePop();
-}
-
+/* ---------- ציור ---------- */
 const SVG_NS = "http://www.w3.org/2000/svg";
 const CHAIR_SHAPES = [
-  ["rect", { x:4.2, y:2, width:15.6, height:15, rx:2.4,
-             fill:"#CBD9E2", stroke:"#54707E", "stroke-width":1.1 }],
-  ["rect", { x:6.4, y:4.2, width:11.2, height:10.6, rx:1.4,
-             fill:"none", stroke:"#54707E", "stroke-width":0.8, opacity:0.55 }],
-  ["rect", { x:3, y:18.8, width:18, height:3.8, rx:1.7,
-             fill:"#8FA8B8", stroke:"#48626F", "stroke-width":1 }],
+  ["rect", { x:4.2, y:2, width:15.6, height:15, rx:2.4, fill:"#CBD9E2", stroke:"#54707E", "stroke-width":1.1 }],
+  ["rect", { x:6.4, y:4.2, width:11.2, height:10.6, rx:1.4, fill:"none", stroke:"#54707E", "stroke-width":0.8, opacity:0.55 }],
+  ["rect", { x:3, y:18.8, width:18, height:3.8, rx:1.7, fill:"#8FA8B8", stroke:"#48626F", "stroke-width":1 }],
 ];
-/* הצורה משורטטת בכל כיסא במלואה (בלי <use>) כדי שתיוצא נכון ל־PDF ולהדפסה */
-function chairEl(rot){
+function chairEl(){
   const s = document.createElementNS(SVG_NS, "svg");
   s.setAttribute("viewBox", "0 0 24 24");
-  s.setAttribute("class", "chair" + (rot ? " " + rot : ""));
+  s.setAttribute("class", "chair");
   for (const [tag, attrs] of CHAIR_SHAPES){
     const n = document.createElementNS(SVG_NS, tag);
     for (const k in attrs) n.setAttribute(k, attrs[k]);
@@ -810,309 +587,166 @@ function chairEl(rot){
   return s;
 }
 
-function halfSeats(b){ return { a: Math.ceil(b.chairs / 2), b: Math.floor(b.chairs / 2) }; }
-
-function benchEl(b, vertical){
-  const d = el("div", "bench" + (vertical ? " vertical" : ""));
-  d.dataset.id = b.id;
-  if (b.split){
-    d.classList.add("split");
-    const zsA = b.zone ? zStyle(b.zone) : null;
-    const zsB = b.zoneB ? zStyle(b.zoneB) : null;
-    const dir = vertical ? "to bottom" : "to left"; /* חצי א׳ = ימני/קדמי */
-    d.style.background = `linear-gradient(${dir}, ${zsA ? zsA.fill : "transparent"} 0 50%, ${zsB ? zsB.fill : "transparent"} 50% 100%)`;
-    d.style.borderColor = (zsA || zsB) ? (zsA || zsB).border : "transparent";
-    const hs = halfSeats(b);
-    if (zsA){
-      const t = el("span", "ztag", `${zLabel(b.zone)}·${hs.a}`);
-      t.style.background = zsA.fill; t.style.borderColor = zsA.border;
-      d.appendChild(t);
+function innerFor(it){
+  if (it.type === "bench"){
+    const d = el("div", "bench-inner" + (it.split ? " split" : ""));
+    d.appendChild(el("div", "bench-bar"));
+    const row = el("div", "chair-row");
+    for (let i = 0; i < it.chairs; i++) row.appendChild(chairEl());
+    d.appendChild(row);
+    if (it.zone || it.zoneB){
+      const a = it.zone ? zStyle(it.zone) : null, b2 = it.zoneB ? zStyle(it.zoneB) : null;
+      if (it.split) d.style.background =
+        `linear-gradient(to left, ${a ? a.fill : "transparent"} 0 50%, ${b2 ? b2.fill : "transparent"} 50%)`;
+      else if (a) d.style.background = a.fill;
+      d.style.borderRadius = "8px";
     }
-    if (zsB){
-      const t = el("span", "ztag " + (vertical ? "at-bottom" : "at-left"), `${zLabel(b.zoneB)}·${hs.b}`);
-      t.style.background = zsB.fill; t.style.borderColor = zsB.border;
-      d.appendChild(t);
-    }
+    return d;
   }
-  d.appendChild(el("div", "bench-bar"));
-  const row = el("div", "chair-row");
-  for (let i = 0; i < b.chairs; i++) row.appendChild(chairEl(vertical ? "r-right" : ""));
-  d.appendChild(row);
-  d.title = `ספסל · ${b.chairs} כיסאות` + (b.zone && !b.split ? ` · ${zLabel(b.zone)}` : "");
-  return d;
+  if (it.type === "table"){
+    const d = el("div", "table-inner");
+    const half = Math.ceil(it.chairs / 2);
+    const top = el("div", "lt-chairs"), bot = el("div", "lt-chairs");
+    for (let i = 0; i < half; i++) top.appendChild(chairEl());
+    for (let i = 0; i < it.chairs - half; i++) bot.appendChild(chairEl());
+    const surf = el("div", "lt-surface");
+    surf.appendChild(el("span", "", "שולחן"));
+    d.append(top, surf, bot);
+    if (it.zone){ d.style.background = zStyle(it.zone).fill; d.style.borderRadius = "8px"; }
+    return d;
+  }
+  if (it.type === "bima"){
+    const d = el("div", "bima-inner", "הבימה");
+    d.appendChild(el("small", "", "קריאת התורה"));
+    return d;
+  }
+  if (it.type === "aron"){
+    const d = el("div", "aron-inner", "ארון הקודש");
+    d.appendChild(el("small", "", "חזית בית המדרש"));
+    return d;
+  }
+  if (it.type === "seat"){
+    const d = el("div", "seat-inner");
+    d.appendChild(chairEl());
+    const lbl = el("span", "lbl", it.label);
+    lbl.contentEditable = "true";
+    lbl.spellcheck = false;
+    lbl.addEventListener("pointerdown", e => e.stopPropagation());
+    lbl.addEventListener("click", e => e.stopPropagation());
+    lbl.addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); lbl.blur(); } });
+    lbl.addEventListener("blur", () => {
+      const v = lbl.textContent.trim();
+      const cur = findItem(it.id);
+      if (v && cur && v !== cur.label) mutate(() => { findItem(it.id).label = v.slice(0,40); });
+      else if (cur) lbl.textContent = cur.label;
+    });
+    d.appendChild(lbl);
+    if (it.zone) d.style.background = zStyle(it.zone).fill;
+    return d;
+  }
+  if (it.type === "door"){
+    const d = el("div", "door-inner");
+    d.appendChild(el("span", "", "↓"));
+    d.appendChild(el("span", "", it.label));
+    return d;
+  }
+  return el("div");
 }
 
-function bimaEl(it){
-  const d = el("div", "bima");
-  d.dataset.id = it.id;
-  d.textContent = "הבימה";
-  d.appendChild(el("small", "", "קריאת התורה"));
-  return d;
+function renderItems(room){
+  for (const it of state.items){
+    const s = baseSize(it);
+    const node = el("div", "it" + (it.id === selId ? " sel" : ""));
+    node.dataset.id = it.id;
+    node.style.width = s.w + "px";
+    node.style.height = s.h + "px";
+    node.style.left = (it.x - s.w / 2) + "px";
+    node.style.top = (it.y - s.h / 2) + "px";
+    if (it.rot) node.style.transform = `rotate(${it.rot}deg)`;
+    node.appendChild(innerFor(it));
+    room.appendChild(node);
+  }
 }
 
-function tableEl(it){
-  const d = el("div", "longtable");
-  d.dataset.id = it.id;
-  const left = el("div", "lt-chairs left");
-  const right = el("div", "lt-chairs right");
-  const half = Math.ceil(it.chairs / 2);
-  for (let i = 0; i < half; i++) left.appendChild(chairEl("r-left"));
-  for (let i = 0; i < it.chairs - half; i++) right.appendChild(chairEl("r-right"));
-  const surf = el("div", "lt-surface");
-  const lbl = el("span", "", "שולחן");
-  surf.appendChild(lbl);
-  d.append(left, surf, right);
-  d.title = `שולחן · ${it.chairs} מקומות` + (it.zone ? ` · ${zLabel(it.zone)}` : "");
-  return d;
-}
-
-function zgroupEl(zone, horizontal){
-  const g = el("div", "zgroup" + (horizontal ? " h" : ""));
-  const zs = zStyle(zone);
-  g.style.borderColor = zs.border;
-  g.style.background = zs.fill;
-  const tag = el("span", "ztag", zLabel(zone));
-  tag.style.background = zs.fill;
-  tag.style.borderColor = zs.border;
-  g.appendChild(tag);
-  return g;
-}
-
-/* מוסיף פריטים למכל תוך איחוד רצפים של אותה כיתה למסגרת אחת עם ספירת מקומות */
-function appendGrouped(container, entries, horizontal){
-  let run = null; // {zone, wrap, tag, seats}
-  const flush = () => {
-    if (run) run.tag.textContent = `${zLabel(run.zone)} · ${run.seats}`;
-    run = null;
-  };
-  for (const { item, node } of entries){
-    const z = (item.type !== "bima" && !item.split && item.zone) ? item.zone : null;
-    if (z){
-      if (!run || run.zone !== z){
-        flush();
-        const wrap = zgroupEl(z, horizontal);
-        container.appendChild(wrap);
-        run = { zone: z, wrap, tag: wrap.querySelector(".ztag"), seats: 0 };
+/* מסגרות כיתה — מקבצות פריטים סמוכים של אותה כיתה */
+function renderClusters(room){
+  const PAD = 9, NEAR = 34;
+  const byZone = {};
+  for (const it of state.items){
+    if (it.split || !it.zone) continue;
+    if (it.type !== "bench" && it.type !== "table" && it.type !== "seat") continue;
+    (byZone[it.zone] = byZone[it.zone] || []).push(it);
+  }
+  for (const z in byZone){
+    const list = byZone[z].map(it => {
+      const b = boxSize(it);
+      return { it, l: it.x - b.w/2, r: it.x + b.w/2, t: it.y - b.h/2, b: it.y + b.h/2 };
+    });
+    const seen = new Set(), groups = [];
+    for (let i = 0; i < list.length; i++){
+      if (seen.has(i)) continue;
+      const g = [i]; seen.add(i);
+      for (let qi = 0; qi < g.length; qi++){
+        for (let j = 0; j < list.length; j++){
+          if (seen.has(j)) continue;
+          const a = list[g[qi]], c = list[j];
+          const dx = Math.max(0, Math.max(a.l - c.r, c.l - a.r));
+          const dy = Math.max(0, Math.max(a.t - c.b, c.t - a.b));
+          if (dx <= NEAR && dy <= NEAR){ g.push(j); seen.add(j); }
+        }
       }
-      run.wrap.appendChild(node);
-      run.seats += item.chairs || 0;
-    } else {
-      flush();
-      container.appendChild(node);
+      groups.push(g.map(k => list[k]));
+    }
+    const zs = zStyle(z);
+    for (const g of groups){
+      const L = Math.min(...g.map(o => o.l)) - PAD, R = Math.max(...g.map(o => o.r)) + PAD;
+      const T = Math.min(...g.map(o => o.t)) - PAD, B = Math.max(...g.map(o => o.b)) + PAD;
+      const seats = g.reduce((a, o) => a + itemSeats(o.it), 0);
+      const box = el("div", "zcluster");
+      box.style.left = L + "px"; box.style.top = T + "px";
+      box.style.width = (R - L) + "px"; box.style.height = (B - T) + "px";
+      box.style.borderColor = zs.border;
+      box.style.background = zs.fill;
+      box.style.opacity = ".55";
+      const tag = el("span", "ztag", `${zLabel(z)} · ${seats}`);
+      tag.style.background = zs.fill; tag.style.borderColor = zs.border;
+      tag.style.opacity = "1";
+      box.appendChild(tag);
+      room.appendChild(box);
     }
   }
-  flush();
-}
-
-function miniBtn(txt, fn, danger){
-  const b = el("button", "mini", txt);
-  if (danger) b.style.color = "var(--danger)";
-  b.addEventListener("click", e => { e.stopPropagation(); fn(b); });
-  return b;
-}
-
-const isSide = it => it.type === "bench" && it.facing === "side";
-
-/* פריטי טור: ספסלים רגילים מוערמים; רצף ספסלים מאונכים מוצג זה לצד זה */
-function renderColumnItems(colEl, items){
-  const nodeFor = it => it.type === "bima" ? bimaEl(it)
-    : it.type === "table" ? tableEl(it)
-    : it.type === "gap" ? gapEl(it)
-    : benchEl(it, isSide(it));
-  let i = 0;
-  while (i < items.length){
-    if (isSide(items[i])){
-      const run = [];
-      while (i < items.length && isSide(items[i])) run.push(items[i++]);
-      const box = el("div", "side-run");
-      appendGrouped(box, run.map(it => ({ item: it, node: nodeFor(it) })), true);
-      colEl.appendChild(box);
-    } else {
-      const run = [];
-      while (i < items.length && !isSide(items[i])) run.push(items[i++]);
-      appendGrouped(colEl, run.map(it => ({ item: it, node: nodeFor(it) })), false);
-    }
-  }
-}
-
-function gapEl(it){
-  const d = el("div", "gap-item");
-  d.dataset.id = it.id;
-  d.style.height = it.h + "px";
-  d.title = "רווח — לחיצה לעריכה";
-  return d;
 }
 
 function renderMap(){
   const map = $("#map");
   map.innerHTML = "";
 
-  const room = el("div", "room");
-  const front = el("div", "front-wall");
-  const platform = el("div", "platform");
-  platform.style.position = "relative";
-  const aron = el("div", "aron", "ארון הקודש");
-  aron.appendChild(el("small", "", "חזית בית המדרש"));
-  platform.appendChild(el("span", "platform-label", "הבמה"));
-  platform.appendChild(aron);
-  front.appendChild(platform);
-  if (state.ravSeat){
-    const rs = el("div", "rav-seat");
-    rs.appendChild(chairEl(""));
-    const lbl = el("span", "rs-label", state.ravSeat.label);
-    lbl.contentEditable = "true";
-    lbl.spellcheck = false;
-    lbl.addEventListener("click", e => e.stopPropagation());
-    lbl.addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); lbl.blur(); } });
-    lbl.addEventListener("blur", () => {
-      const v = lbl.textContent.trim();
-      if (v && v !== state.ravSeat.label) mutate(s => { s.ravSeat.label = v.slice(0, 40); });
-      else lbl.textContent = state.ravSeat.label;
-    });
-    rs.appendChild(lbl);
-    rs.title = "מקום שמור — לחיצה על השם לשינוי";
-    rs.addEventListener("click", e => {
-      if (e.target === lbl) return;
-      e.stopPropagation();
-      if (rs.dataset.arm){ mutate(s => { s.ravSeat = null; }); }
-      else {
-        rs.dataset.arm = "1";
-        const old = lbl.textContent;
-        lbl.textContent = "למחיקה — לחצו שוב";
-        setTimeout(() => { delete rs.dataset.arm; lbl.textContent = old; }, 2500);
-      }
-    });
-    front.appendChild(rs);
-  } else {
-    const add = el("button", "add-rav", "+ מקום ליד הארון");
-    add.addEventListener("click", e => {
-      e.stopPropagation();
-      mutate(s => { s.ravSeat = { id: rid(), label: "הרב שלום" }; });
-    });
-    front.appendChild(add);
-  }
-  room.appendChild(front);
-
-  const hall = el("div", "hall");
-
-  const addColBtn = pos => {
-    const b = el("button", "add-col", "+ טור");
-    b.title = "הוספת טור " + (pos === 0 ? "בקצה השמאלי" : "בקצה הימני");
-    b.addEventListener("click", () => mutate(s => {
-      const col = { id:rid(), items: many(4, () => mkBench(6)) };
-      if (pos === 0) s.columns.unshift(col); else s.columns.push(col);
-    }));
-    return b;
-  };
-  hall.appendChild(addColBtn(0));
-
-  let lastGroup = null;
-  state.columns.forEach((c, ci) => {
-    const colEl = el("div", "column");
-    const colSeats = c.items.reduce((a, it) => a + itemSeats(it), 0);
-    colEl.appendChild(el("div", "col-count", colSeats + " מקומות"));
-    if (c.offset > 0){
-      const sp = el("div", "col-spacer");
-      sp.style.height = c.offset + "px";
-      colEl.appendChild(sp);
-    } else if (c.offset < 0){
-      colEl.style.marginTop = c.offset + "px";   /* עולה אל מול במת הארון */
-    }
-    renderColumnItems(colEl, c.items);
-
-    const tools = el("div", "col-tools");
-    tools.appendChild(miniBtn("+ ספסל", () => mutate(s => s.columns[ci].items.push(mkBench(6)))));
-    if (!c.items.some(it => it.type === "bima"))
-      tools.appendChild(miniBtn("+ בימה", () => mutate(s => s.columns[ci].items.push({ id:rid(), type:"bima" }))));
-    tools.appendChild(miniBtn("+ שולחן", () => mutate(s => s.columns[ci].items.push({ id:rid(), type:"table", chairs:20, zone:"" }))));
-    tools.appendChild(miniBtn("+ רווח", () => mutate(s => s.columns[ci].items.push(mkGap(30)))));
-    tools.appendChild(miniBtn("↑ הזזת הטור", () => mutate(s => {
-      s.columns[ci].offset = Math.max(-400, (s.columns[ci].offset || 0) - 20);
-    })));
-    tools.appendChild(miniBtn("↓ הזזת הטור", () => mutate(s => {
-      s.columns[ci].offset = Math.min(1200, (s.columns[ci].offset || 0) + 20);
-    })));
-    if (ci > 0) tools.appendChild(miniBtn(c.attach ? "ניתוק מהטור שלידו" : "הצמדה לטור שלידו",
-      () => mutate(s => { s.columns[ci].attach = !s.columns[ci].attach; })));
-    tools.appendChild(miniBtn("שכפול טור", () => mutate(s => {
-      const cc = clone(s.columns[ci]);
-      cc.id = rid();
-      for (const it of cc.items) it.id = rid();
-      s.columns.splice(ci + 1, 0, cc);
-    })));
-    tools.appendChild(miniBtn("מחיקת טור", b => {
-      if (b.dataset.arm){ mutate(s => s.columns.splice(ci, 1)); }
-      else { b.dataset.arm = "1"; b.textContent = "בטוח? לחצו שוב"; setTimeout(() => { delete b.dataset.arm; b.textContent = "מחיקת טור"; }, 2500); }
-    }, true));
-    colEl.appendChild(tools);
-    if (c.attach && lastGroup) lastGroup.appendChild(colEl);
-    else { lastGroup = el("div", "col-group"); lastGroup.appendChild(colEl); hall.appendChild(lastGroup); }
-  });
-
-  hall.appendChild(addColBtn(1));
-  room.appendChild(hall);
-  map.appendChild(room);
-
-  /* כותרת ומקרא מודפסים בתוך המפה */
   const mt = el("div", "map-title");
   mt.appendChild(el("h2", "", state.title));
-  const tt = totals();
-  mt.appendChild(el("span", "mt-stats", `${tt.seats} מקומות · ${tt.benches} ספסלים`));
-  map.insertBefore(mt, map.firstChild);
+  const t = totals();
+  mt.appendChild(el("span", "mt-stats", `${t.seats} מקומות · ${t.benches} ספסלים`));
+  map.appendChild(mt);
+
+  const room = el("div", "room");
+  room.id = "room";
+  room.style.width = state.room.w + "px";
+  room.style.height = state.room.h + "px";
+  renderClusters(room);
+  renderItems(room);
+  for (const c of ["e","s","se"]) room.appendChild(el("div", "rz " + c));
+  map.appendChild(room);
 
   const agg = zoneAgg();
-  const usedZ = ZONES.filter(z => agg[z]);
+  const used = ZONES.filter(z => agg[z]);
   const ml = el("div", "map-legend");
-  for (const z of usedZ){
+  for (const z of used){
     const zs = zStyle(z);
     const chip = el("span", "mchip", `כיתה ${zLabel(z)} · ${agg[z].seats}`);
-    chip.style.background = zs.fill;
-    chip.style.borderColor = zs.border;
-    chip.style.color = "#241A10";
+    chip.style.background = zs.fill; chip.style.borderColor = zs.border; chip.style.color = "#241A10";
     ml.appendChild(chip);
   }
-  const t = totals();
   ml.appendChild(el("span", "mtotal", `סה״כ ${t.seats} מקומות · ${t.benches} ספסלים`));
   map.appendChild(ml);
-
-  placeDoors(room);
-  fitPage(map);
-}
-
-/* שתי הכניסות: אחת בקיר הימני ואחת בקיר התחתון — שתיהן מול הבימה */
-function placeDoors(room){
-  const mk = (cls, label) => {
-    const d = el("div", "door " + cls);
-    const op = el("div", "opening");
-    op.appendChild(el("span", "arrow", cls === "right" ? "←" : "↑"));
-    d.append(op, el("span", "", label));
-    return d;
-  };
-  const right = mk("right", "כניסה");
-  const bottom = mk("bottom", "כניסה");
-  room.append(right, bottom);
-  positionDoors();
-}
-
-/* מיקום הכניסות מול הבימה — מחושב מחדש בכל שינוי פריסה */
-function positionDoors(){
-  const room = document.querySelector("#map .room");
-  if (!room) return;
-  const right = room.querySelector(".door.right");
-  const bottom = room.querySelector(".door.bottom");
-  if (!right || !bottom) return;
-  const bima = room.querySelector(".bima");
-  const cy = bima ? bima.offsetTop + bima.offsetHeight / 2 : room.offsetHeight / 2;
-  const cx = bima ? bima.offsetLeft + bima.offsetWidth / 2 : room.offsetWidth / 2;
-  right.style.top = Math.max(6, cy - 38) + "px";
-  bottom.style.left = Math.max(6, cx - 46) + "px";
-}
-
-/* שומר על יחס דף A3/A4 לרוחב (√2) — משלים רוחב או גובה לפי הצורך */
-function fitPage(map){
-  map.style.minWidth = "";
-  map.style.minHeight = "";
-  positionDoors();
 }
 
 function renderLegend(t){
@@ -1122,13 +756,12 @@ function renderLegend(t){
   const used = ZONES.filter(z => agg[z]);
   if (!used.length){
     body.appendChild(el("div", "legend-empty",
-      "עוד לא שויכו כיתות. בחרו כיתה בסרגל למעלה ולחצו על ספסלים כדי לצבוע אותם."));
+      "עוד לא שויכו כיתות. בחרו כיתה בסרגל למעלה ולחצו על ספסלים."));
   } else for (const z of used){
     const row = el("div", "legend-row");
     const dot = el("button", "dot");
     const zs = zStyle(z);
-    dot.style.background = zs.fill;
-    dot.style.borderColor = zs.border;
+    dot.style.background = zs.fill; dot.style.borderColor = zs.border;
     dot.title = "החלפת צבע";
     dot.addEventListener("click", e => { e.stopPropagation(); openColorPop(z, dot); });
     row.appendChild(dot);
@@ -1146,8 +779,7 @@ function renderChips(){
     const c = el("button", "chip" + (paintZone === z ? " active" : ""));
     const dot = el("span", "dot");
     const zs = zStyle(z);
-    dot.style.background = zs.fill;
-    dot.style.borderColor = zs.border;
+    dot.style.background = zs.fill; dot.style.borderColor = zs.border;
     c.append(dot, document.createTextNode(zLabel(z)));
     c.addEventListener("click", () => setPaint(paintZone === z ? null : z));
     wrap.appendChild(c);
@@ -1163,10 +795,141 @@ function setPaint(z){
   renderChips();
 }
 
-/* ---------- popover ---------- */
+function renderAll(){
+  const t = totals();
+  const titleEl = $("#mapTitle");
+  if (document.activeElement !== titleEl && titleEl.textContent !== state.title)
+    titleEl.textContent = state.title;
+  document.title = state.title;
+  $("#stats").innerHTML = `<b>${t.seats}</b> מקומות · <b>${t.benches}</b> ספסלים`;
+  $("#undoBtn").disabled = !undoStack.length;
+  renderMap();
+  renderLegend(t);
+  renderChips();
+  if (popTarget && findItem(popTarget)) openPop(popTarget);
+  else if (popMode === "item") closePop();
+}
+
+/* ---------- גרירה, סיבוב, קירות ---------- */
+const zoomScale = () => (+$("#zoom").value || 100) / 100;
+
+let drag = null;
+$("#map").addEventListener("pointerdown", e => {
+  const rz = e.target.closest(".rz");
+  const node = e.target.closest(".it");
+  if (!rz && !node) return;
+  if (e.target.isContentEditable) return;
+  e.preventDefault();
+  const sc = zoomScale();
+  if (rz){
+    const mode = rz.classList.contains("e") ? "e" : rz.classList.contains("s") ? "s" : "se";
+    drag = { kind:"room", mode, sx:e.clientX, sy:e.clientY, sc,
+             w0:state.room.w, h0:state.room.h, moved:false };
+  } else {
+    const it = findItem(node.dataset.id);
+    if (!it) return;
+    drag = { kind:"item", id:it.id, node, sx:e.clientX, sy:e.clientY, sc,
+             x0:it.x, y0:it.y, moved:false };
+    node.classList.add("dragging");
+    selId = it.id;
+  }
+  try{ e.target.setPointerCapture(e.pointerId); }catch(err){}
+});
+
+window.addEventListener("pointermove", e => {
+  if (!drag) return;
+  const dx = (e.clientX - drag.sx) / drag.sc, dy = (e.clientY - drag.sy) / drag.sc;
+  if (Math.abs(dx) > 3 || Math.abs(dy) > 3) drag.moved = true;
+  if (!drag.moved) return;
+  if (drag.kind === "room"){
+    const room = $("#room");
+    if (drag.mode !== "s") room.style.width  = Math.max(300, snap(drag.w0 + dx)) + "px";
+    if (drag.mode !== "e") room.style.height = Math.max(200, snap(drag.h0 + dy)) + "px";
+  } else {
+    const it = findItem(drag.id);
+    if (!it) return;
+    const s = baseSize(it);
+    drag.node.style.left = (snap(drag.x0 + dx) - s.w / 2) + "px";
+    drag.node.style.top  = (snap(drag.y0 + dy) - s.h / 2) + "px";
+  }
+});
+
+window.addEventListener("pointerup", e => {
+  if (!drag) return;
+  const d = drag; drag = null;
+  if (d.kind === "item") d.node.classList.remove("dragging");
+  if (!d.moved){ handleTap(d); return; }
+  const dx = (e.clientX - d.sx) / d.sc, dy = (e.clientY - d.sy) / d.sc;
+  if (d.kind === "room"){
+    mutate(s => {
+      if (d.mode !== "s") s.room.w = Math.max(300, snap(d.w0 + dx));
+      if (d.mode !== "e") s.room.h = Math.max(200, snap(d.h0 + dy));
+    });
+  } else {
+    mutate(s => {
+      const it = s.items.find(i => i.id === d.id);
+      if (!it) return;
+      it.x = snap(d.x0 + dx); it.y = snap(d.y0 + dy);
+      growRoom(s, it);
+    });
+  }
+});
+
+function growRoom(s, it){
+  const b = boxSize(it);
+  s.room.w = Math.max(s.room.w, snap(it.x + b.w / 2 + 20));
+  s.room.h = Math.max(s.room.h, snap(it.y + b.h / 2 + 20));
+  if (it.x - b.w / 2 < 0) it.x = snap(b.w / 2 + 4);
+  if (it.y - b.h / 2 < 0) it.y = snap(b.h / 2 + 4);
+}
+
+function handleTap(d){
+  if (d.kind !== "item") return;
+  const it = findItem(d.id);
+  if (!it) return;
+  if (paintZone !== null){
+    if (it.type === "bench" || it.type === "table" || it.type === "seat"){
+      const nz = (!it.split && it.zone === paintZone) ? "" : paintZone;
+      mutate(s => { const t = s.items.find(i => i.id === d.id);
+        if (t){ t.zone = nz; if (t.type === "bench"){ t.split = false; t.zoneB = ""; } } });
+    }
+    return;
+  }
+  if (popTarget === it.id){ closePop(); selId = null; renderAll(); return; }
+  openPop(it.id);
+  renderAll();
+}
+
+function rotate(id){
+  mutate(s => { const it = s.items.find(i => i.id === id);
+    if (it){ it.rot = ROT((it.rot + 90) % 360); growRoom(s, it); } });
+}
+
+document.addEventListener("keydown", e => {
+  if (e.target.isContentEditable || e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT") return;
+  if (e.key === "Escape"){ closePop(); setPaint(null); selId = null; renderAll(); return; }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z"){ e.preventDefault(); undo(); return; }
+  if (!selId) return;
+  if (e.key.toLowerCase() === "r"){ e.preventDefault(); rotate(selId); return; }
+  const step = e.shiftKey ? 10 : 1;
+  const moves = { ArrowLeft:[-step,0], ArrowRight:[step,0], ArrowUp:[0,-step], ArrowDown:[0,step] };
+  if (moves[e.key]){
+    e.preventDefault();
+    const [mx, my] = moves[e.key];
+    mutate(s => { const it = s.items.find(i => i.id === selId);
+      if (it){ it.x += mx; it.y += my; growRoom(s, it); } });
+  }
+  if (e.key === "Delete"){
+    e.preventDefault();
+    mutate(s => { s.items = s.items.filter(i => i.id !== selId); });
+    selId = null; closePop();
+  }
+});
+
+/* ---------- חלון עריכה ---------- */
 const pop = $("#pop");
+pop.addEventListener("pointerdown", e => e.stopPropagation());
 pop.addEventListener("click", e => e.stopPropagation());
-let popMode = null;
 function closePop(){ pop.hidden = true; popTarget = null; popMode = null; }
 
 function placeNear(r){
@@ -1175,22 +938,49 @@ function placeNear(r){
   left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
   let top = r.bottom + 8;
   if (top + ph > window.innerHeight - 8) top = r.top - ph - 8;
-  top = Math.max(8, top);
   pop.style.left = left + "px";
-  pop.style.top = top + "px";
+  pop.style.top = Math.max(8, top) + "px";
+}
+
+function stepper(val, lo, hi, onChange){
+  const w = el("div", "stepper");
+  const minus = el("button", "", "−"), plus = el("button", "", "+");
+  const v = el("span", "val", String(val));
+  minus.disabled = val <= lo; plus.disabled = val >= hi;
+  minus.addEventListener("click", () => onChange(val - 1));
+  plus.addEventListener("click", () => onChange(val + 1));
+  w.append(plus, v, minus);
+  return w;
+}
+function zoneGrid(current, onPick){
+  const g = el("div", "zone-grid");
+  for (const z of ZONES){
+    const zs = zStyle(z);
+    const c = el("button", "zcell" + (current === z ? " sel" : ""), zLabel(z));
+    c.style.background = zs.fill; c.style.borderColor = zs.border;
+    c.addEventListener("click", () => onPick(current === z ? "" : z));
+    g.appendChild(c);
+  }
+  const clr = el("button", "zclear", "ללא כיתה");
+  clr.addEventListener("click", () => onPick(""));
+  g.appendChild(clr);
+  return g;
+}
+function popBtn(txt, fn, danger){
+  const b = el("button", "btn" + (danger ? " danger" : ""), txt);
+  b.addEventListener("click", fn);
+  return b;
 }
 
 function openColorPop(zone, anchor){
-  closePop();
-  popMode = "color";
+  closePop(); popMode = "color";
   pop.innerHTML = "";
   pop.appendChild(el("h3", "", "צבע לכיתה " + zLabel(zone)));
   const cur = zStyle(zone).idx;
   const g = el("div", "swatches");
   PRESETS.forEach((p, i) => {
     const b = el("button", "swatch" + (i === cur ? " sel" : ""));
-    b.style.background = p.f;
-    b.style.borderColor = p.b;
+    b.style.background = p.f; b.style.borderColor = p.b;
     b.addEventListener("click", () => {
       mutate(s => { s.zoneColors = s.zoneColors || {}; s.zoneColors[zone] = i; });
       closePop();
@@ -1202,217 +992,87 @@ function openColorPop(zone, anchor){
   placeNear(anchor.getBoundingClientRect());
 }
 
-function stepper(val, lo, hi, onChange){
-  const w = el("div", "stepper");
-  const minus = el("button", "", "−");
-  const plus = el("button", "", "+");
-  const v = el("span", "val", String(val));
-  minus.disabled = val <= lo;
-  plus.disabled = val >= hi;
-  minus.addEventListener("click", () => onChange(val - 1));
-  plus.addEventListener("click", () => onChange(val + 1));
-  w.append(plus, v, minus); /* rtl: פלוס מימין */
-  return w;
-}
-
-function zoneGrid(current, onPick){
-  const g = el("div", "zone-grid");
-  for (const z of ZONES){
-    const zs = zStyle(z);
-    const c = el("button", "zcell" + (current === z ? " sel" : ""), zLabel(z));
-    c.style.background = zs.fill;
-    c.style.borderColor = zs.border;
-    c.addEventListener("click", () => onPick(current === z ? "" : z));
-    g.appendChild(c);
-  }
-  const clr = el("button", "zclear", "ללא כיתה");
-  clr.addEventListener("click", () => onPick(""));
-  g.appendChild(clr);
-  return g;
-}
-
-function popBtn(txt, fn, danger){
-  const b = el("button", "btn" + (danger ? " danger" : ""), txt);
-  b.addEventListener("click", fn);
-  return b;
-}
-
-function openPop(id, refreshOnly){
-  const f = findItem(id);
-  if (!f){ closePop(); return; }
-  popTarget = id;
-  const it = f.item;
+function openPop(id){
+  const it = findItem(id);
+  if (!it){ closePop(); return; }
+  popTarget = id; popMode = "item";
   pop.innerHTML = "";
+  const names = { bench:"ספסל", table:"שולחן", bima:"הבימה", aron:"ארון הקודש",
+                  seat:"מקום שמור", door:"כניסה" };
+  pop.appendChild(el("h3", "", names[it.type] || "פריט"));
 
-  const kind = it.type === "bima" ? "הבימה"
-             : it.type === "table" ? "שולחן"
-             : it.type === "gap" ? "רווח"
-             : isSide(it) ? "ספסל מאונך" : "ספסל";
-  pop.appendChild(el("h3", "", kind));
-
-  if (it.type === "gap"){
-    const row = el("div", "row");
-    row.appendChild(el("span", "rl", "גובה"));
-    row.appendChild(stepper(Math.round(it.h / 10), 1, 30, nv =>
-      mutate(() => { const g = findItem(id); if (g) g.item.h = nv * 10; })));
-    pop.appendChild(row);
-  }
-
-  if (it.type !== "bima" && it.type !== "gap"){
+  if (it.type === "bench" || it.type === "table"){
     const row = el("div", "row");
     row.appendChild(el("span", "rl", "כיסאות"));
-    const hi = it.type === "table" ? 40 : 12;
-    row.appendChild(stepper(it.chairs, 1, hi, nv =>
-      mutate(() => { findItem(id).item.chairs = nv; })));
+    row.appendChild(stepper(it.chairs, 1, it.type === "table" ? 40 : 14,
+      nv => mutate(s => { const t = s.items.find(i => i.id === id); if (t) t.chairs = nv; })));
     pop.appendChild(row);
-    if (it.type === "bench"){
-      const secBtn = el("button", "btn", `החלת ${it.chairs} כיסאות על כל הקטע`);
-      secBtn.style.width = "100%";
-      secBtn.title = "כל הספסלים ברצף הזה — באותו כיוון, עד הבימה / השולחן / קצה הטור";
-      secBtn.addEventListener("click", () => mutate(() => {
-        const g = findItem(id);
-        if (!g) return;
-        const n = g.item.chairs, dir = g.item.facing;
-        const same = x => x.type === "bench" && x.facing === dir;
-        let lo = g.idx, hiI = g.idx;
-        while (lo > 0 && same(g.list[lo-1])) lo--;
-        while (hiI < g.list.length - 1 && same(g.list[hiI+1])) hiI++;
-        for (let i = lo; i <= hiI; i++) g.list[i].chairs = n;
-      }));
-      pop.appendChild(secBtn);
-    }
-    if (it.type === "bench" && it.split){
-      const vert = isSide(it);
-      const hs = halfSeats(it);
-      pop.appendChild(el("div", "rl", `${vert ? "חצי קדמי" : "חצי ימני"} (${hs.a} מק׳)`));
-      pop.appendChild(zoneGrid(it.zone, z =>
-        mutate(() => { const g = findItem(id); if (g) g.item.zone = z; })));
-      pop.appendChild(el("div", "rl", `${vert ? "חצי אחורי" : "חצי שמאלי"} (${hs.b} מק׳)`));
-      pop.appendChild(zoneGrid(it.zoneB, z =>
-        mutate(() => { const g = findItem(id); if (g) g.item.zoneB = z; })));
-    } else {
-      pop.appendChild(el("div", "rl", "שיוך כיתה"));
-      pop.appendChild(zoneGrid(it.zone, z =>
-        mutate(() => { const g = findItem(id); if (g) g.item.zone = z; })));
-    }
-    if (it.type === "bench"){
-      const tgl = el("button", "btn", it.split ? "ביטול פיצול — כיתה אחת לספסל" : "פיצול הספסל לשתי כיתות");
-      tgl.style.width = "100%";
-      tgl.style.marginTop = "4px";
-      tgl.addEventListener("click", () => mutate(() => {
-        const g = findItem(id);
-        if (!g) return;
-        g.item.split = !g.item.split;
-        if (!g.item.split) g.item.zoneB = "";
-      }));
-      pop.appendChild(tgl);
-    }
   }
 
-  if (it.type === "bench"){
-    const row = el("div", "row");
-    row.appendChild(el("span", "rl", "כיוון"));
-    const seg = el("div", "seg");
-    const b1 = el("button", it.facing !== "side" ? "on" : "", "פנים קדימה");
-    const b2 = el("button", it.facing === "side" ? "on" : "", "מאונך");
-    b1.addEventListener("click", () => mutate(() => { const g = findItem(id); if (g) g.item.facing = "front"; }));
-    b2.addEventListener("click", () => mutate(() => { const g = findItem(id); if (g) g.item.facing = "side"; }));
-    seg.append(b1, b2);
-    row.appendChild(seg);
-    pop.appendChild(row);
+  if (it.type === "bench" && it.split){
+    const hs = halfSeats(it);
+    pop.appendChild(el("div", "rl", `חצי ימני (${hs.a} מק׳)`));
+    pop.appendChild(zoneGrid(it.zone, z => mutate(s => {
+      const t = s.items.find(i => i.id === id); if (t) t.zone = z; })));
+    pop.appendChild(el("div", "rl", `חצי שמאלי (${hs.b} מק׳)`));
+    pop.appendChild(zoneGrid(it.zoneB, z => mutate(s => {
+      const t = s.items.find(i => i.id === id); if (t) t.zoneB = z; })));
+  } else if (it.type === "bench" || it.type === "table" || it.type === "seat"){
+    pop.appendChild(el("div", "rl", "שיוך כיתה"));
+    pop.appendChild(zoneGrid(it.zone, z => mutate(s => {
+      const t = s.items.find(i => i.id === id); if (t) t.zone = z; })));
   }
 
   const btns = el("div", "btns");
-  const fwdLbl = isSide(it) ? "→ הזזה" : "↑ קדימה";
-  const bckLbl = isSide(it) ? "← הזזה" : "↓ אחורה";
-  btns.appendChild(popBtn(fwdLbl, () => mutate(() => {
-    const g = findItem(id);
-    if (g.idx > 0) [g.list[g.idx-1], g.list[g.idx]] = [g.list[g.idx], g.list[g.idx-1]];
+  btns.appendChild(popBtn("⟳ סיבוב 90°", () => rotate(id)));
+  if (it.type === "bench")
+    btns.appendChild(popBtn(it.split ? "ביטול פיצול" : "פיצול לשתי כיתות", () => mutate(s => {
+      const t = s.items.find(i => i.id === id);
+      if (t){ t.split = !t.split; if (!t.split) t.zoneB = ""; } })));
+  btns.appendChild(popBtn("שכפול", () => mutate(s => {
+    const t = s.items.find(i => i.id === id);
+    if (!t) return;
+    const c = clone(t); c.id = rid();
+    const b = boxSize(t);
+    c.x = snap(t.x + b.w + 10); c.y = t.y;
+    s.items.push(c); growRoom(s, c);
+    selId = c.id;
   })));
-  btns.appendChild(popBtn(bckLbl, () => mutate(() => {
-    const g = findItem(id);
-    if (g.idx < g.list.length - 1) [g.list[g.idx+1], g.list[g.idx]] = [g.list[g.idx], g.list[g.idx+1]];
-  })));
-  if (f.where === "col"){
-    btns.appendChild(popBtn("+ ספסל לפני", () => mutate(() => {
-      const g = findItem(id); g.list.splice(g.idx, 0, mkBench(g.item.chairs || 6, g.item.facing));
-    })));
-    btns.appendChild(popBtn("+ ספסל אחרי", () => mutate(() => {
-      const g = findItem(id); g.list.splice(g.idx + 1, 0, mkBench(g.item.chairs || 6, g.item.facing));
-    })));
-  }
-  if (it.type === "bench"){
-    btns.appendChild(popBtn("שכפול", () => mutate(() => {
-      const g = findItem(id);
-      g.list.splice(g.idx + 1, 0, { ...clone(g.item), id: rid() });
-    })));
-  }
-  const moveCol = (dir, label) => {
-    const g0 = findItem(id);
-    if (!g0 || g0.ci + dir < 0 || g0.ci + dir >= state.columns.length) return;
-    btns.appendChild(popBtn(label, () => mutate(() => {
-      const g = findItem(id);
-      const target = g && state.columns[g.ci + dir];
-      if (!target) return;
-      const [moved] = g.list.splice(g.idx, 1);
-      target.items.splice(Math.min(g.idx, target.items.length), 0, moved);
-    })));
-  };
-  moveCol(-1, "← לטור שמשמאל");
-  moveCol(1, "לטור שמימין →");
-
-  btns.appendChild(popBtn("מחיקה", () => { mutate(() => {
-    const g = findItem(id); g.list.splice(g.idx, 1);
-  }); closePop(); }, true));
+  btns.appendChild(popBtn("מחיקה", () => {
+    mutate(s => { s.items = s.items.filter(i => i.id !== id); });
+    selId = null; closePop();
+  }, true));
   pop.appendChild(btns);
 
   pop.hidden = false;
-  positionPop(id);
+  const node = document.querySelector(`#map .it[data-id="${id}"]`);
+  if (node) placeNear(node.getBoundingClientRect());
 }
 
-function positionPop(id){
-  const anchor = document.querySelector(`#map [data-id="${id}"]`);
-  if (!anchor){ closePop(); return; }
-  placeNear(anchor.getBoundingClientRect());
-}
-
-/* ---------- interactions ---------- */
-$("#map").addEventListener("click", e => {
-  if (e.target.isContentEditable || e.target.closest("button")) return;
-  const t = e.target.closest("[data-id]");
-  if (!t) return;
-  const f = findItem(t.dataset.id);
-  if (!f) return;
-  if (paintZone !== null){
-    if (f.item.type === "bima") return;
-    const nz = (!f.item.split && f.item.zone === paintZone) ? "" : paintZone;
-    mutate(() => {
-      const g = findItem(t.dataset.id);
-      if (!g) return;
-      g.item.zone = nz;
-      if (g.item.type === "bench"){ g.item.split = false; g.item.zoneB = ""; }
-    });
-    return;
-  }
-  if (popTarget === t.dataset.id){ closePop(); return; }
-  openPop(t.dataset.id);
-});
-
-document.addEventListener("click", e => {
+document.addEventListener("pointerdown", e => {
   if (pop.hidden) return;
-  if (e.target.closest("#pop") || e.target.closest("[data-id]")) return;
-  closePop();
+  if (e.target.closest("#pop") || e.target.closest(".it") || e.target.closest(".legend")) return;
+  closePop(); selId = null; renderAll();
 });
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape"){ closePop(); setPaint(null); }
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z"){
-    if (!e.target.isContentEditable && e.target.tagName !== "TEXTAREA"){
-      e.preventDefault(); undo();
-    }
-  }
-});
-window.addEventListener("resize", () => { if (popTarget) positionPop(popTarget); });
 
+/* ---------- הוספת פריטים ---------- */
+document.querySelectorAll("[data-add]").forEach(b => {
+  b.addEventListener("click", () => {
+    const type = b.dataset.add;
+    mutate(s => {
+      const x = snap(s.room.w / 2), y = snap(s.room.h / 2);
+      const extra = type === "bench" ? { chairs:6, zone:"", zoneB:"", split:false }
+                  : type === "table" ? { chairs:20, zone:"" }
+                  : type === "seat"  ? { label:"מקום שמור", zone:"" }
+                  : type === "door"  ? { label:"כניסה" } : {};
+      const it = mkItem(type, x, y, extra);
+      s.items.push(it);
+      selId = it.id;
+    });
+  });
+});
+
+/* ---------- כותרת ---------- */
 $("#mapTitle").addEventListener("blur", e => {
   const v = e.target.textContent.trim();
   if (v && v !== state.title) mutate(s => { s.title = v; });
@@ -1421,27 +1081,27 @@ $("#mapTitle").addEventListener("blur", e => {
 $("#mapTitle").addEventListener("keydown", e => {
   if (e.key === "Enter"){ e.preventDefault(); e.target.blur(); }
 });
-
 $("#undoBtn").addEventListener("click", undo);
+$("#zoom").addEventListener("input", e => {
+  closePop();
+  $("#mapFrame").style.transform = `scale(${e.target.value / 100})`;
+});
 
-/* הדפסה: התאמה אוטומטית של המפה לעמוד A4 לרוחב, כמו שקף */
+/* ---------- הדפסה ---------- */
 function pageArea(){
-  const probe = $("#pageProbe");            /* 279mm × 192mm — שטח A4 לרוחב בניכוי שוליים */
-  const r = probe.getBoundingClientRect();
+  const r = $("#pageProbe").getBoundingClientRect();
   return { w: r.width || 1040, h: r.height || 715 };
 }
 function fitForPrint(){
   document.body.classList.add("printing");
   const frame = $("#mapFrame"), map = $("#map"), box = $(".map-scroll");
-  frame.style.transform = "none";           /* מדידה במידות אמת */
-  fitPage(map);                             /* יחס הדף מחדש — עם הכותרת והמקרא */
+  frame.style.transform = "none";
   const mw = map.offsetWidth, mh = map.offsetHeight;
   if (!mw || !mh) return;
   const pa = pageArea();
   const s = Math.min(pa.w / mw, pa.h / mh);
   frame.style.transformOrigin = "top left";
   frame.style.transform = `scale(${s})`;
-  /* המסגרת נשארת בגודלה הטבעי; המכל מקבל את המידות אחרי ההקטנה */
   box.style.width = Math.floor(mw * s) + "px";
   box.style.height = Math.ceil(mh * s) + "px";
   box.style.overflow = "hidden";
@@ -1449,10 +1109,7 @@ function fitForPrint(){
 function unfitPrint(){
   document.body.classList.remove("printing");
   const frame = $("#mapFrame"), box = $(".map-scroll");
-  fitPage($("#map"));
-  box.style.width = "";
-  box.style.height = "";
-  box.style.overflow = "";
+  box.style.width = ""; box.style.height = ""; box.style.overflow = "";
   frame.style.transformOrigin = "";
   frame.style.transform = `scale(${$("#zoom").value / 100})`;
 }
@@ -1461,70 +1118,105 @@ window.addEventListener("afterprint", unfitPrint);
 $("#printBtn").addEventListener("click", () => {
   closePop();
   try{ window.print(); } finally { unfitPrint(); }
-  setTimeout(unfitPrint, 1200);   /* רשת ביטחון לדפדפנים שלא מפעילים afterprint */
+  setTimeout(unfitPrint, 1200);
 });
-/* אם משום מה נשארנו במצב הדפסה — כל נגיעה במפה מחזירה אותה למצב רגיל */
 document.addEventListener("pointerdown", () => {
   if (document.body.classList.contains("printing")) unfitPrint();
 }, true);
-$("#zoom").addEventListener("input", e => {
-  closePop();
-  $("#mapFrame").style.transform = `scale(${e.target.value / 100})`;
-});
 
-/* backup / restore */
-const exportDlg = $("#exportDlg"), importDlg = $("#importDlg");
-document.querySelectorAll("dialog [data-close]").forEach(b =>
-  b.addEventListener("click", () => b.closest("dialog").close()));
-$("#exportBtn").addEventListener("click", () => {
-  $("#exportTxt").value = JSON.stringify(state);
-  exportDlg.showModal();
-});
-$("#copyExport").addEventListener("click", () => {
-  const ta = $("#exportTxt");
-  ta.select();
-  const done = () => { $("#copyExport").textContent = "הועתק ✓"; setTimeout(() => { $("#copyExport").textContent = "העתקה"; }, 1600); };
-  if (navigator.clipboard && navigator.clipboard.writeText)
-    navigator.clipboard.writeText(ta.value).then(done, () => { document.execCommand("copy"); done(); });
-  else { document.execCommand("copy"); done(); }
-});
-$("#importBtn").addEventListener("click", () => { $("#importTxt").value = ""; importDlg.showModal(); });
-$("#doImport").addEventListener("click", () => {
+/* ---------- PDF ---------- */
+function loadScript(src){
+  return new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = src; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+async function loadLib(ready, local, cdn){
+  if (ready()) return;
+  try{ await loadScript(local); }catch(e){}
+  if (ready()) return;
+  await loadScript(cdn);
+}
+async function exportPdf(){
+  const btn = $("#pdfBtn"), label = btn.textContent;
+  btn.disabled = true; btn.textContent = "מכין PDF…";
   try{
-    const parsed = JSON.parse($("#importTxt").value);
-    if (!parsed || !Array.isArray(parsed.columns)) throw new Error("bad");
-    mutate(() => { state = normalize(parsed); });
-    importDlg.close();
-  }catch(err){
-    $("#importTxt").style.borderColor = "var(--danger)";
-    setTimeout(() => { $("#importTxt").style.borderColor = ""; }, 1500);
+    await loadLib(() => !!window.html2canvas, "vendor/html2canvas.min.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
+    await loadLib(() => !!(window.jspdf && window.jspdf.jsPDF), "vendor/jspdf.umd.min.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+    closePop();
+    const savedSel = selId; selId = null; renderAll();
+    const frame = $("#mapFrame"), map = $("#map");
+    const prev = frame.style.transform;
+    document.body.classList.add("printing");
+    frame.style.transform = "none";
+    await new Promise(r => setTimeout(r, 80));
+    const canvas = await window.html2canvas(map, { scale:2, backgroundColor:"#FFFFFF", logging:false });
+    document.body.classList.remove("printing");
+    frame.style.transform = prev;
+    selId = savedSel; renderAll();
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:"landscape", unit:"mm", format:"a4" });
+    const PW = 297, PH = 210, M = 9, aw = PW - M*2, ah = PH - M*2;
+    const s = Math.min(aw / canvas.width, ah / canvas.height);
+    const w = canvas.width * s, h = canvas.height * s;
+    pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", (PW-w)/2, (PH-h)/2, w, h);
+    const name = (state.title || "מפת בית המדרש").replace(/[\\/:*?"<>|]/g, "") + ".pdf";
+    const blob = pdf.output("blob");
+    let saved = false;
+    if (window.claude && window.claude.use){
+      const dl = await window.claude.use("downloads");
+      if (dl){ await dl.save({ filename: name, data: blob }); saved = true; }
+    }
+    if (!saved){
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+    }
+    btn.textContent = "PDF מוכן ✓";
+  }catch(e){
+    document.body.classList.remove("printing");
+    unfitPrint();
+    btn.textContent = "פותח הדפסה…";
+    setTimeout(() => window.print(), 300);
   }
-});
+  setTimeout(() => { btn.disabled = false; btn.textContent = label; }, 2400);
+}
+$("#pdfBtn").addEventListener("click", exportPdf);
 
-/* ---------- persistence: מקומי + קישור לשיתוף ---------- */
+/* ---------- שמירה, קישור ושליחה ---------- */
 const badge = $("#saveBadge");
 function setBadge(cls, txt){ badge.className = "save-badge " + cls; badge.textContent = txt; }
-const LS_KEY = "beit-midrash-map";
+const LS_KEY = "beit-midrash-map-v2";
 
-let badgeTimer = null, urlTimer = null, urlSeq = 0;
-
-/* מה ששמור בדפדפן: המפה, מאיזו גרסת אתר היא יצאה, והאם נערכה מאז */
+const LS_KEY_V1 = "beit-midrash-map";
 function readStore(){
   try{
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return null;
+    let raw = localStorage.getItem(LS_KEY);
+    if (!raw){
+      /* מפה שנשמרה בגרסה הקודמת — נקלטת ומומרת, כדי שלא תיעלם */
+      const old = localStorage.getItem(LS_KEY_V1);
+      if (old){
+        const p = JSON.parse(old);
+        const st = (p && p.state) ? p.state : p;
+        if (st) return { siteRev: null, edited: true, state: st };
+      }
+      return null;
+    }
     const p = JSON.parse(raw);
     if (p && p.state) return { siteRev: p.siteRev || null, edited: !!p.edited, state: p.state };
-    return { siteRev: null, edited: true, state: p };      /* פורמט ישן */
+    return { siteRev: null, edited: true, state: p };
   }catch(e){ return null; }
 }
 function writeStore(edited){
-  try{
-    localStorage.setItem(LS_KEY, JSON.stringify({ siteRev: SITE_REV, edited, state }));
-    return true;
-  }catch(e){ return false; }
+  try{ localStorage.setItem(LS_KEY, JSON.stringify({ siteRev: SITE_REV, edited, state })); return true; }
+  catch(e){ return false; }
 }
 
+let badgeTimer = null, urlTimer = null, urlSeq = 0;
 function saveSoon(){
   if (writeStore(true)) setBadge("saved", "נשמר ✓");
   else setBadge("local", "לא ניתן לשמור בדפדפן");
@@ -1532,43 +1224,32 @@ function saveSoon(){
   badgeTimer = setTimeout(() => setBadge("", "השינויים נשמרים אוטומטית"), 2200);
   syncUrlSoon();
 }
-
-/* הכתובת עצמה נושאת תמיד את המפה העדכנית, כדי שהעתקה שלה בכל רגע
-   תעביר בדיוק את מה שרואים — בלי להסתמך על לחיצה בכפתור */
 function syncUrlSoon(){
   clearTimeout(urlTimer);
   const seq = ++urlSeq;
   urlTimer = setTimeout(async () => {
     try{
       const code = await encodeState();
-      if (seq !== urlSeq) return;           /* עריכה חדשה עקפה אותנו */
+      if (seq !== urlSeq) return;
       history.replaceState(null, "", location.pathname + location.search + "#m=" + code);
     }catch(e){}
   }, 700);
 }
 
-/* קידוד/פענוח מצב לתוך כתובת הקישור (deflate + base64url) */
 const b64url = {
-  enc: bytes => {
-    let s = "";
-    for (const b of bytes) s += String.fromCharCode(b);
-    return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-  },
-  dec: str => {
-    const s = atob(str.replace(/-/g, "+").replace(/_/g, "/"));
+  enc: bytes => { let s = ""; for (const b of bytes) s += String.fromCharCode(b);
+    return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); },
+  dec: str => { const s = atob(str.replace(/-/g,"+").replace(/_/g,"/"));
     const out = new Uint8Array(s.length);
     for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
-    return out;
-  },
+    return out; },
 };
 async function encodeState(){
-  const json = JSON.stringify(state);
-  const raw = new TextEncoder().encode(json);
+  const raw = new TextEncoder().encode(JSON.stringify(state));
   if (typeof CompressionStream === "function"){
     try{
-      const cs = new CompressionStream("deflate-raw");
-      const buf = await new Response(
-        new Blob([raw]).stream().pipeThrough(cs)).arrayBuffer();
+      const buf = await new Response(new Blob([raw]).stream()
+        .pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer();
       return "z" + b64url.enc(new Uint8Array(buf));
     }catch(e){}
   }
@@ -1577,9 +1258,8 @@ async function encodeState(){
 async function decodeState(code){
   const bytes = b64url.dec(code.slice(1));
   if (code[0] === "z"){
-    const ds = new DecompressionStream("deflate-raw");
-    const buf = await new Response(
-      new Blob([bytes]).stream().pipeThrough(ds)).arrayBuffer();
+    const buf = await new Response(new Blob([bytes]).stream()
+      .pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer();
     return JSON.parse(new TextDecoder().decode(buf));
   }
   return JSON.parse(new TextDecoder().decode(bytes));
@@ -1590,7 +1270,7 @@ $("#siteMapBtn").addEventListener("click", () => {
   if (!b.dataset.arm){
     b.dataset.arm = "1";
     const old = b.textContent;
-    b.textContent = "להחליף את המפה? לחצו שוב";
+    b.textContent = "להחליף? לחצו שוב";
     setTimeout(() => { delete b.dataset.arm; b.textContent = old; }, 3000);
     return;
   }
@@ -1602,12 +1282,9 @@ $("#siteMapBtn").addEventListener("click", () => {
   setBadge("saved", "נטענה המפה של האתר");
 });
 
-/* שליחה בלחיצה אחת — הקישור נבנה מהמפה הנוכחית ונפתח בוואטסאפ / באפליקציית השיתוף */
 $("#sendBtn").addEventListener("click", async () => {
-  const btn = $("#sendBtn");
-  const label = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = "מכין…";
+  const btn = $("#sendBtn"), label = btn.textContent;
+  btn.disabled = true; btn.textContent = "מכין…";
   try{
     const code = await encodeState();
     const url = location.origin + location.pathname + location.search + "#m=" + code;
@@ -1615,14 +1292,12 @@ $("#sendBtn").addEventListener("click", async () => {
     const text = `מפת בית המדרש – ${t.seats} מקומות, ${t.benches} ספסלים.\nלצפייה ולעריכה:\n${url}`;
     if (navigator.share){
       try{ await navigator.share({ text }); btn.textContent = "נשלח ✓"; }
-      catch(e){ btn.textContent = label; }   /* המשתמש ביטל */
+      catch(e){ btn.textContent = label; }
     } else {
       window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
       btn.textContent = "נפתח וואטסאפ ✓";
     }
-  }catch(e){
-    btn.textContent = "שגיאה";
-  }
+  }catch(e){ btn.textContent = "שגיאה"; }
   setTimeout(() => { btn.disabled = false; btn.textContent = label; }, 2600);
 });
 
@@ -1631,122 +1306,56 @@ $("#shareBtn").addEventListener("click", async () => {
   try{
     const code = await encodeState();
     const url = location.origin + location.pathname + location.search + "#m=" + code;
-    const done = () => {
-      btn.textContent = "הקישור הועתק ✓";
-      setTimeout(() => { btn.textContent = "🔗 קישור לשיתוף"; }, 2200);
-    };
+    const done = () => { btn.textContent = "הועתק ✓";
+      setTimeout(() => { btn.textContent = "🔗 קישור"; }, 2200); };
     if (navigator.clipboard && navigator.clipboard.writeText){
-      await navigator.clipboard.writeText(url);
-      done();
-    } else {
-      $("#exportTxt").value = url;
-      $("#exportDlg").showModal();
-    }
+      await navigator.clipboard.writeText(url); done();
+    } else { $("#exportTxt").value = url; $("#exportDlg").showModal(); }
   }catch(e){
     btn.textContent = "שגיאה";
-    setTimeout(() => { btn.textContent = "🔗 קישור לשיתוף"; }, 2000);
+    setTimeout(() => { btn.textContent = "🔗 קישור"; }, 2000);
   }
 });
 
-/* ---------- ייצוא PDF ---------- */
-function loadScript(src){
-  return new Promise((res, rej) => {
-    const s = document.createElement("script");
-    s.src = src; s.onload = res; s.onerror = rej;
-    document.head.appendChild(s);
-  });
-}
-/* קודם מהעותק שבאתר, ואם אין — מ־CDN */
-async function loadLib(ready, local, cdn){
-  if (ready()) return;
-  try{ await loadScript(local); }catch(e){}
-  if (ready()) return;
-  await loadScript(cdn);
-}
-async function exportPdf(){
-  const btn = $("#pdfBtn");
-  const label = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = "מכין PDF…";
+const exportDlg = $("#exportDlg"), importDlg = $("#importDlg");
+document.querySelectorAll("dialog [data-close]").forEach(b =>
+  b.addEventListener("click", () => b.closest("dialog").close()));
+$("#exportBtn").addEventListener("click", () => {
+  $("#exportTxt").value = JSON.stringify(state);
+  exportDlg.showModal();
+});
+$("#copyExport").addEventListener("click", () => {
+  const ta = $("#exportTxt");
+  ta.select();
+  const done = () => { $("#copyExport").textContent = "הועתק ✓";
+    setTimeout(() => { $("#copyExport").textContent = "העתקה"; }, 1600); };
+  if (navigator.clipboard && navigator.clipboard.writeText)
+    navigator.clipboard.writeText(ta.value).then(done, () => { document.execCommand("copy"); done(); });
+  else { document.execCommand("copy"); done(); }
+});
+$("#importBtn").addEventListener("click", () => { $("#importTxt").value = ""; importDlg.showModal(); });
+$("#doImport").addEventListener("click", () => {
   try{
-    await loadLib(() => !!window.html2canvas,
-      "vendor/html2canvas.min.js",
-      "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
-    await loadLib(() => !!(window.jspdf && window.jspdf.jsPDF),
-      "vendor/jspdf.umd.min.js",
-      "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
-
-    closePop();
-    const frame = $("#mapFrame"), map = $("#map");
-    const prevTransform = frame.style.transform;
-    document.body.classList.add("printing");
-    frame.style.transform = "none";
-    fitPage(map);            /* יחס דף ומיקום הכניסות אחרי הסתרת כלי העריכה */
-    await new Promise(r => setTimeout(r, 80));
-
-    const canvas = await window.html2canvas(map, {
-      scale: 2, backgroundColor: "#FFFFFF", logging: false, useCORS: true,
-    });
-
-    document.body.classList.remove("printing");
-    frame.style.transform = prevTransform;
-
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-    const PW = 297, PH = 210, M = 9;
-    const aw = PW - M * 2, ah = PH - M * 2;
-    const s = Math.min(aw / canvas.width, ah / canvas.height);
-    const w = canvas.width * s, h = canvas.height * s;
-    /* JPEG — שומר על קובץ קטן מספיק לשליחה בוואטסאפ/מייל */
-    pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG",
-      (PW - w) / 2, (PH - h) / 2, w, h);
-
-    const name = (state.title || "מפת בית המדרש").replace(/[\\/:*?"<>|]/g, "") + ".pdf";
-    const blob = pdf.output("blob");
-    let saved = false;
-    if (window.claude && window.claude.use){
-      const dl = await window.claude.use("downloads");
-      if (dl){
-        await dl.save({ filename: name, data: blob });
-        saved = true;
-      }
-    }
-    if (!saved){
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = name;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
-    }
-    btn.textContent = "PDF מוכן ✓";
-  }catch(e){
-    /* אם יצירת ה־PDF נכשלה — נופלים לחלון ההדפסה, שממנו אפשר "שמירה כ־PDF" */
-    document.body.classList.remove("printing");
-    unfitPrint();
-    btn.textContent = "פותח הדפסה…";
-    setTimeout(() => window.print(), 300);
+    const parsed = JSON.parse($("#importTxt").value);
+    mutate(() => { state = normalize(parsed); });
+    importDlg.close();
+  }catch(err){
+    $("#importTxt").style.borderColor = "var(--danger)";
+    setTimeout(() => { $("#importTxt").style.borderColor = ""; }, 1500);
   }
-  setTimeout(() => { btn.disabled = false; btn.textContent = label; }, 2200);
-}
-$("#pdfBtn").addEventListener("click", exportPdf);
+});
 
-/* ---------- טעינה ראשונית ---------- */
+/* ---------- טעינה ---------- */
 (async function boot(){
-  const hash = location.hash || "";
-  const m = hash.match(/[#&]m=([A-Za-z0-9\-_]+)/);
+  const m = (location.hash || "").match(/[#&]m=([A-Za-z0-9\-_]+)/);
   let source = "site";
-  if (m){
-    try{ state = normalize(await decodeState(m[1])); source = "link"; }catch(e){}
-  }
+  if (m){ try{ state = normalize(await decodeState(m[1])); source = "link"; }catch(e){} }
   if (source !== "link"){
     const store = readStore();
     if (store && store.edited){
       state = normalize(store.state);
       source = store.siteRev === SITE_REV ? "mine" : "mine-old";
-    } else {
-      state = defaultState();                 /* המפה של האתר */
-    }
+    } else state = defaultState();
   }
   writeStore(source === "link" || source.startsWith("mine"));
   renderAll();
@@ -1756,9 +1365,10 @@ $("#pdfBtn").addEventListener("click", exportPdf);
   : source === "mine"     ? "השינויים נשמרים אוטומטית"
   :                         "המפה של האתר · השינויים נשמרים אוטומטית");
   if (source === "mine-old") $("#siteMapBtn").classList.add("primary");
-  syncUrlSoon();   /* גם בלי עריכה — הכתובת כבר נושאת את המפה */
+  syncUrlSoon();
 })();
 })();
+
 </script>
 
 </body>
