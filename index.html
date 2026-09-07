@@ -486,6 +486,7 @@
     <button class="btn" id="exportBtn">גיבוי</button>
     <button class="btn" id="importBtn">שחזור</button>
     <button class="btn" id="siteMapBtn" title="טעינת המפה שמופיעה באתר">מפת האתר</button>
+    <button class="btn primary" id="sendBtn">📤 שליחת המפה</button>
     <button class="btn" id="shareBtn">🔗 קישור לשיתוף</button>
     <button class="btn" id="pdfBtn">⬇ PDF</button>
     <button class="btn primary" id="printBtn">🖨 הדפסה</button>
@@ -514,6 +515,7 @@
       לחיצה על הריבוע הצבעוני במקרא — החלפת צבע הכיתה.<br>
       אפשר לפצל ספסל לשתי כיתות, ולהפוך כל ספסל ל<b>מאונך</b>, מתוך חלון העריכה.<br>
       <b>הדפסה</b> ו־<b>PDF</b> מתאימים את המפה אוטומטית לדף A4 לרוחב, כולל כותרת ומקרא.<br>
+      <b>📤 שליחת המפה</b> — בסיום הסימון, לחיצה אחת פותחת וואטסאפ עם המפה מוכנה לשליחה.<br>
       <b>קישור לשיתוף</b> מעתיק קישור שמכיל את המפה עצמה. גם שורת הכתובת מתעדכנת אוטומטית אחרי כל שינוי, כך שכל העתקה שלה מעבירה את המפה העדכנית — מי שיפתח יראה בדיוק את מה שאתם רואים, וימשיך לערוך משם.
     </div>
   </aside>
@@ -1598,6 +1600,30 @@ $("#siteMapBtn").addEventListener("click", () => {
   mutate(() => { state = defaultState(); });
   history.replaceState(null, "", location.pathname + location.search);
   setBadge("saved", "נטענה המפה של האתר");
+});
+
+/* שליחה בלחיצה אחת — הקישור נבנה מהמפה הנוכחית ונפתח בוואטסאפ / באפליקציית השיתוף */
+$("#sendBtn").addEventListener("click", async () => {
+  const btn = $("#sendBtn");
+  const label = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "מכין…";
+  try{
+    const code = await encodeState();
+    const url = location.origin + location.pathname + location.search + "#m=" + code;
+    const t = totals();
+    const text = `מפת בית המדרש – ${t.seats} מקומות, ${t.benches} ספסלים.\nלצפייה ולעריכה:\n${url}`;
+    if (navigator.share){
+      try{ await navigator.share({ text }); btn.textContent = "נשלח ✓"; }
+      catch(e){ btn.textContent = label; }   /* המשתמש ביטל */
+    } else {
+      window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
+      btn.textContent = "נפתח וואטסאפ ✓";
+    }
+  }catch(e){
+    btn.textContent = "שגיאה";
+  }
+  setTimeout(() => { btn.disabled = false; btn.textContent = label; }, 2600);
 });
 
 $("#shareBtn").addEventListener("click", async () => {
