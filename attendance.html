@@ -1,0 +1,1287 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>נוכחות בשיעורי תורה</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --bg:#F7F4EC; --panel:#FFFFFF; --panel-2:#F1EDE3;
+    --ink:#2B2117; --ink-soft:#75685A; --line:#E2DACB;
+    --accent:#1F4E5F; --accent-soft:#DDE9EC; --accent-ink:#FFFFFF;
+    --danger:#A6402E; --ok:#3E7A4E; --ok-soft:#E2F0E5; --ok-ink:#FFFFFF; --warn:#9A7B16;
+    --shadow:0 8px 28px rgba(43,33,23,.14);
+    --shadow-sm:0 2px 8px rgba(43,33,23,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#211C15; --panel:#2C261E; --panel-2:#352E24;
+      --ink:#EFE8DC; --ink-soft:#BFB2A2; --line:#463D30;
+      --accent:#7FB6C6; --accent-soft:#2E4249; --accent-ink:#14262B;
+      --danger:#E08A78; --ok:#8FC49C; --ok-soft:#2B3D30; --ok-ink:#16261B; --warn:#D6B455;
+      --shadow:0 8px 28px rgba(0,0,0,.45); --shadow-sm:0 2px 8px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#211C15; --panel:#2C261E; --panel-2:#352E24;
+    --ink:#EFE8DC; --ink-soft:#BFB2A2; --line:#463D30;
+    --accent:#7FB6C6; --accent-soft:#2E4249; --accent-ink:#14262B;
+    --danger:#E08A78; --ok:#8FC49C; --ok-soft:#2B3D30; --ok-ink:#16261B; --warn:#D6B455;
+    --shadow:0 8px 28px rgba(0,0,0,.45); --shadow-sm:0 2px 8px rgba(0,0,0,.3);
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:'Heebo',system-ui,sans-serif;font-size:15px;
+       padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+  button,input,select{font-family:inherit;color:inherit}
+  h1,h2,h3{font-family:'Frank Ruhl Libre',serif;margin:0}
+
+  /* ---------- סרגל עליון ---------- */
+  .topbar{position:sticky;top:0;z-index:40;background:var(--panel);
+    box-shadow:0 1px 0 var(--line), 0 10px 22px -18px rgba(43,33,23,.55)}
+  .topbar .row{display:flex;align-items:center;gap:10px;padding:9px 14px 8px}
+  h1{font-weight:900;font-size:18px;line-height:1.15}
+  .sub{color:var(--ink-soft);font-size:12px;margin-top:2px}
+  .spacer{flex:1}
+  .tabs{display:flex;gap:3px;padding:3px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:13px;margin:0 14px 9px}
+  .tabs button{flex:1;border:0;background:transparent;border-radius:10px;padding:9px 6px;
+    font-size:14px;font-weight:700;cursor:pointer;color:var(--ink-soft)}
+  .tabs button[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:var(--shadow-sm)}
+
+  main{padding:12px 14px 20px;max-width:900px;margin:0 auto}
+  .view[hidden]{display:none}
+
+  /* ---------- שורת השיעור ---------- */
+  .session{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:10px 12px;box-shadow:var(--shadow-sm);margin-bottom:12px}
+  .session-head{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .session-head .when{font-size:12.5px;color:var(--ink-soft)}
+  .session-head .when b{color:var(--ink)}
+  .counter{display:flex;align-items:baseline;gap:5px;background:var(--ok-soft);color:var(--ok);
+    border-radius:11px;padding:5px 11px;font-weight:700;font-size:13px;border:0;cursor:pointer}
+  .counter b{font-size:19px;font-family:'Frank Ruhl Libre',serif}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chips.scroll{flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}
+  .chips.scroll::-webkit-scrollbar{display:none}
+  .chip{border:1px solid var(--line);background:var(--panel-2);color:var(--ink);
+    border-radius:11px;padding:8px 13px;font-size:13.5px;font-weight:500;cursor:pointer;white-space:nowrap}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+  .chip small{display:inline-block;margin-inline-start:7px;padding:1px 6px;border-radius:7px;
+    background:rgba(0,0,0,.07);font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums}
+  .chip[aria-pressed="true"] small{background:rgba(255,255,255,.25)}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip small{background:rgba(255,255,255,.12)}}
+  :root[data-theme="dark"] .chip small{background:rgba(255,255,255,.12)}
+
+  /* ---------- בורר שכבה וכיתה ---------- */
+  .picker{position:sticky;top:calc(var(--topbar-h,104px));z-index:30;background:var(--bg);
+    padding:8px 0 9px;margin-bottom:4px}
+  .pick-row{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+  .pick-row::-webkit-scrollbar{display:none}
+  .pick-row + .pick-row{margin-top:7px}
+  .gbtn{flex:none;border:2px solid var(--g);background:var(--panel);color:var(--g);
+    border-radius:14px;min-width:62px;padding:9px 12px;font-size:20px;font-weight:900;
+    font-family:'Frank Ruhl Libre',serif;cursor:pointer;line-height:1.1;position:relative}
+  .gbtn[aria-pressed="true"]{background:var(--g);color:#fff}
+  .gbtn .n{display:block;font-family:'Heebo';font-size:11px;font-weight:700;opacity:.85;margin-top:1px}
+  .cbtn{flex:none;border:1px solid var(--g);background:var(--panel);color:var(--g);
+    border-radius:12px;padding:8px 15px;font-size:15px;font-weight:700;cursor:pointer}
+  .cbtn[aria-pressed="true"]{background:var(--g);color:#fff;box-shadow:var(--shadow-sm)}
+  .cbtn .n{display:inline-block;margin-inline-start:7px;padding:1px 7px;border-radius:8px;
+    background:var(--g);color:#fff;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+  .cbtn[aria-pressed="true"] .n{background:rgba(255,255,255,.28)}
+
+  /* ---------- רשימת תלמידים ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px;margin-top:6px}
+  .stud{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:13px;
+    padding:12px 11px;font-size:15px;font-weight:500;text-align:start;cursor:pointer;
+    min-height:56px;display:flex;align-items:center;gap:7px;line-height:1.25;box-shadow:var(--shadow-sm)}
+  .stud .mark{flex:none;width:19px;height:19px;border-radius:50%;border:2px solid var(--line)}
+  .stud[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:var(--ok-ink);font-weight:700}
+  .stud[aria-pressed="true"] .mark{border-color:var(--ok-ink);background:var(--ok-ink);position:relative}
+  .stud[aria-pressed="true"] .mark::after{content:"✓";position:absolute;inset:0;color:var(--ok);
+    font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center}
+  .stud .fam{color:var(--ink-soft);font-weight:400;font-size:13.5px}
+  .stud[aria-pressed="true"] .fam{color:var(--ok-ink);opacity:.75}
+
+  .empty{color:var(--ink-soft);text-align:center;padding:34px 10px;font-size:14px;line-height:1.6}
+  .hint{color:var(--ink-soft);font-size:12.5px;margin:4px 2px 0}
+
+  /* ---------- רשומים לאחרונה ---------- */
+  .recent{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+  .recent .tag{display:inline-flex;align-items:center;gap:6px;background:var(--ok-soft);color:var(--ok);
+    border:1px solid transparent;border-radius:10px;padding:5px 9px;font-size:12.5px;font-weight:700;cursor:pointer}
+  .recent .tag span{opacity:.7;font-weight:400}
+
+  /* ---------- חיפוש תחתון ---------- */
+  .searchbar{position:fixed;bottom:0;right:0;left:0;z-index:50;background:var(--panel);
+    border-top:1px solid var(--line);padding:9px 14px calc(9px + env(safe-area-inset-bottom));
+    box-shadow:0 -8px 24px -18px rgba(43,33,23,.6)}
+  .searchbar .in{display:flex;align-items:center;gap:9px;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:14px;padding:4px 12px}
+  .searchbar input{flex:1;border:0;background:transparent;font-size:16px;padding:11px 0;outline:none}
+  .searchbar input::-webkit-search-cancel-button,
+  .searchbar input::-webkit-search-decoration{display:none;-webkit-appearance:none}
+  .searchbar .x{border:0;background:transparent;font-size:19px;color:var(--ink-soft);cursor:pointer;padding:4px}
+  .sugg{position:absolute;bottom:calc(100% + 8px);right:14px;left:14px;background:var(--panel);
+    border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;max-height:52vh;overflow-y:auto}
+  .sugg button{display:flex;align-items:center;gap:9px;width:100%;border:0;background:transparent;
+    padding:13px 14px;font-size:15.5px;text-align:start;cursor:pointer;border-bottom:1px solid var(--line)}
+  .sugg button:last-child{border-bottom:0}
+  .sugg button:hover,.sugg button.sel{background:var(--panel-2)}
+  .sugg .badge{flex:none;background:var(--g,var(--accent));color:#fff;border-radius:8px;
+    padding:3px 8px;font-size:12px;font-weight:700;font-family:'Frank Ruhl Libre',serif}
+  .sugg .done{margin-inline-start:auto;color:var(--ok);font-weight:700;font-size:13px}
+  .sugg .fam{color:var(--ink-soft);font-size:13.5px}
+
+  /* ---------- מערכת עכשיו ---------- */
+  .now-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px}
+  .now-head h2{font-size:17px;font-weight:900}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:9px;margin-top:10px}
+  .card{border:1px solid var(--line);background:var(--panel);border-radius:15px;padding:11px 12px;
+    box-shadow:var(--shadow-sm);text-align:start;cursor:pointer;border-inline-start:5px solid var(--st)}
+  .card .top{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+  .card .cls{font-family:'Frank Ruhl Libre',serif;font-size:19px;font-weight:900;color:var(--g)}
+  .card .teach{color:var(--ink-soft);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .card .subj{font-size:16px;font-weight:700;line-height:1.3}
+  .card .st{display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-size:12px;
+    font-weight:700;color:var(--st)}
+  .card .st::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--st)}
+  .card .next{margin-top:6px;padding-top:6px;border-top:1px dashed var(--line);
+    color:var(--ink-soft);font-size:12.5px}
+  .card .next b{color:var(--ink);font-weight:700}
+  .banner{background:var(--accent-soft);border:1px solid transparent;border-radius:15px;
+    padding:11px 13px;margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .banner .txt{font-weight:700;font-size:14.5px}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;color:var(--ink-soft);font-size:12px;margin-top:12px}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-inline-end:5px}
+
+  /* ---------- דוחות ---------- */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:13px;
+    box-shadow:var(--shadow-sm);margin-bottom:12px}
+  .panel h3{font-size:16px;font-weight:900;margin-bottom:9px}
+  .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:9px;margin-bottom:10px}
+  .stat{background:var(--panel-2);border-radius:12px;padding:9px 11px}
+  .stat b{display:block;font-family:'Frank Ruhl Libre',serif;font-size:23px;font-weight:900;line-height:1.1}
+  .stat span{color:var(--ink-soft);font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:start;padding:7px 6px;border-bottom:1px solid var(--line)}
+  th{color:var(--ink-soft);font-weight:700;font-size:12px}
+  td.num,th.num{text-align:end;font-variant-numeric:tabular-nums}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);
+    background:var(--panel);color:var(--ink);border-radius:11px;padding:9px 13px;font-size:13.5px;
+    font-weight:500;cursor:pointer;white-space:nowrap}
+  .btn:hover{background:var(--panel-2)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+  .btn.danger{color:var(--danger);border-color:var(--danger)}
+  .btn-row{display:flex;gap:7px;flex-wrap:wrap}
+  input[type=date],select,textarea{background:var(--panel-2);border:1px solid var(--line);
+    border-radius:11px;padding:8px 11px;font-size:14px;outline:none}
+  textarea{width:100%;min-height:110px;font-family:ui-monospace,monospace;font-size:12px;resize:vertical}
+
+  /* ---------- חלון ---------- */
+  .modal{position:fixed;inset:0;z-index:80;background:rgba(20,15,8,.45);display:flex;
+    align-items:flex-end;justify-content:center;padding:0}
+  .modal .box{background:var(--panel);width:100%;max-width:520px;max-height:86vh;overflow-y:auto;
+    border-radius:20px 20px 0 0;padding:15px 15px calc(18px + env(safe-area-inset-bottom));box-shadow:var(--shadow)}
+  .modal .box h3{font-size:18px;font-weight:900;margin-bottom:3px}
+  .modal .head{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+  .modal .x{margin-inline-start:auto;border:0;background:var(--panel-2);border-radius:10px;
+    width:34px;height:34px;font-size:19px;cursor:pointer;flex:none}
+  @media(min-width:560px){.modal{align-items:center}.modal .box{border-radius:20px}}
+  .day-row{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--line)}
+  .day-row .t{font-size:12px;color:var(--ink-soft);width:88px;flex:none;font-variant-numeric:tabular-nums}
+  .day-row .s{font-weight:500}
+  .day-row.on{background:var(--accent-soft);border-radius:10px;font-weight:700}
+
+  /* ---------- הודעה צפה ---------- */
+  .toast{position:fixed;bottom:calc(86px + env(safe-area-inset-bottom));right:50%;transform:translateX(50%);
+    background:var(--ok);color:var(--ok-ink);border-radius:13px;padding:10px 17px;font-weight:700;font-size:14.5px;
+    box-shadow:var(--shadow);z-index:70;pointer-events:none;opacity:0;transition:opacity .18s, transform .18s}
+  .toast.show{opacity:1;transform:translateX(50%) translateY(-4px)}
+  .toast.off{background:var(--ink-soft);color:var(--panel)}
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar">
+  <div class="row">
+    <div>
+      <h1>נוכחות בשיעורי תורה</h1>
+      <div class="sub" id="today-label"></div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn" id="btn-theme" title="מצב תצוגה">◐</button>
+  </div>
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tab-attend" aria-selected="true">✓ סימון נוכחות</button>
+    <button role="tab" id="tab-now">🕘 מה עכשיו</button>
+    <button role="tab" id="tab-reports">📊 דוחות</button>
+  </div>
+</div>
+
+<main>
+  <!-- ============ סימון נוכחות ============ -->
+  <section class="view" id="view-attend">
+    <div class="session">
+      <div class="session-head">
+        <div class="when" id="session-when"></div>
+        <div class="spacer"></div>
+        <button class="counter" id="counter" title="הצגת הרשומים"><b>0</b> נרשמו</button>
+      </div>
+      <div class="chips scroll" id="session-chips"></div>
+    </div>
+
+    <div class="picker" id="picker">
+      <div class="pick-row" id="grade-row"></div>
+      <div class="pick-row" id="class-row" hidden></div>
+    </div>
+
+    <div id="student-area"></div>
+    <div class="recent" id="recent"></div>
+  </section>
+
+  <!-- ============ מה עכשיו ============ -->
+  <section class="view" id="view-now" hidden>
+    <div class="session">
+      <div class="session-head">
+        <div class="when" id="now-when"></div>
+        <div class="spacer"></div>
+        <button class="btn" id="btn-now-reset">חזרה לעכשיו</button>
+      </div>
+      <div class="chips scroll" id="day-chips"></div>
+      <div class="chips scroll" id="period-chips" style="margin-top:7px"></div>
+    </div>
+    <div class="pick-row" id="now-grade-row"></div>
+    <div class="chips" style="margin-top:10px;align-items:center">
+      <button class="chip" id="btn-only-open" aria-pressed="false">רק שיעורי קודש ושעות פנויות</button>
+      <span class="hint" id="now-summary" style="margin:0"></span>
+    </div>
+    <div id="now-banner"></div>
+    <div class="cards" id="now-cards"></div>
+    <div class="legend">
+      <span><i style="background:var(--accent)"></i>שעה פנויה</span>
+      <span><i style="background:var(--ok)"></i>שיעור קודש</span>
+      <span><i style="background:var(--warn)"></i>מעורב / מגמות</span>
+      <span><i style="background:#8C8375"></i>שיעור חול</span>
+      <span><i style="background:#6E7F93"></i>תפילה והפסקה</span>
+    </div>
+  </section>
+
+  <!-- ============ דוחות ============ -->
+  <section class="view" id="view-reports" hidden>
+    <div class="panel">
+      <h3>יום אחד</h3>
+      <div class="btn-row" style="margin-bottom:10px">
+        <input type="date" id="rep-date">
+        <button class="btn" id="rep-copy">📤 העתקת סיכום</button>
+        <button class="btn" id="rep-wa">שליחה בוואטסאפ</button>
+      </div>
+      <div id="rep-day"></div>
+    </div>
+
+    <div class="panel">
+      <h3>סיכום מצטבר</h3>
+      <div class="chips" id="range-chips" style="margin-bottom:10px"></div>
+      <div class="stat-row" id="rep-stats"></div>
+      <div id="rep-top"></div>
+      <div class="btn-row" style="margin-top:11px">
+        <button class="btn" id="rep-csv">⬇ ייצוא CSV</button>
+      </div>
+    </div>
+
+    <div id="rep-roster"></div>
+
+    <div class="panel">
+      <h3>גיבוי והעברה בין מכשירים</h3>
+      <p class="hint" style="margin:0 0 9px">הנתונים נשמרים בדפדפן הזה בלבד. גיבוי מעתיק את כל הרישומים כטקסט; שחזור יכול <b>למזג</b> רישומים ממכשיר אחר בלי למחוק את הקיימים.</p>
+      <div class="btn-row">
+        <button class="btn" id="bk-export">גיבוי</button>
+        <button class="btn" id="bk-import">שחזור / מיזוג</button>
+        <button class="btn danger" id="bk-clear">מחיקת הכול</button>
+      </div>
+      <textarea id="bk-text" hidden placeholder="הדביקו כאן טקסט גיבוי ולחצו שוב על שחזור / מיזוג"></textarea>
+    </div>
+  </section>
+</main>
+
+<div class="searchbar">
+  <div class="sugg" id="sugg" hidden></div>
+  <div class="in">
+    <span style="font-size:17px">🔎</span>
+    <input id="search" type="search" inputmode="search" autocomplete="off" placeholder="הקלד שם — כל השכבות">
+    <button class="x" id="search-x" hidden>✕</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- נתוני בית הספר (רשימת תלמידים ומערכת שעות) אינם נשמרים באתר עצמו.
+     אם הקובץ קיים לצד האפליקציה הוא נטען מאליו; אחרת טוענים אותו פעם אחת מהמכשיר. -->
+<script src="data/school-data.js" onerror="window.__noDataFile=1"></script>
+<script>
+(function(){
+'use strict';
+const GRADES = ['ז','ח','ט','י','יא','יב'];
+const GRADE_COLOR = {'ז':'#B4553A','ח':'#1F4E5F','ט':'#5F7A33','י':'#7A4E8C','יא':'#2F6B57','יב':'#8A6A2F'};
+const DAYS = ['א','ב','ג','ד','ה','ו'];
+const STORE = 'lapid-attendance-v1';
+
+/* ---------- השיעורים הקבועים של הרב ---------- */
+const SESSIONS = [
+  {id:'tfila', name:'אחרי התפילה', at:'8:30',  win:[500,535], grades:['ט','י','יא','יב']},
+  {id:'b1015', name:'הפסקת 10:15', at:'10:15', win:[608,637], grades:['ז','ח']},
+  {id:'b1200', name:'הפסקת 12:00', at:'12:00', win:[713,762], grades:GRADES.slice()},
+  {id:'b1400', name:'הפסקת 14:00', at:'14:00', win:[833,877], grades:['ז','ח']}
+];
+
+let PERIODS = [];
+function buildPeriods(){
+  const by = {};
+  Object.keys(DATA.timetable).forEach(c => {
+    (DATA.timetable[c].r || []).forEach(r => {
+      const e = by[r[0]] || (by[r[0]] = {start:r[0], ends:{}, labels:{}});
+      e.ends[r[1]] = (e.ends[r[1]] || 0) + 1;
+      e.labels[r[2]] = (e.labels[r[2]] || 0) + 1;
+    });
+  });
+  const top = o => Object.keys(o).sort((a,b) => o[b] - o[a])[0];
+  PERIODS = Object.keys(by).map(k => by[k]).sort((a,b) => a.start - b.start)
+    .map(e => ({start:e.start, end:+top(e.ends), label:top(e.labels)}));
+}
+
+/* ---------- נתוני בית הספר ----------
+   רשימת התלמידים ומערכת השעות נשמרות במכשיר בלבד (localStorage) ולא באתר עצמו,
+   כדי ששמות התלמידים לא יתפרסמו. אם קיים קובץ data/school-data.js לצד האפליקציה
+   (למשל בהרצה פרטית) — הוא נטען מאליו. */
+const DSTORE = 'lapid-school-data-v1';
+let DATA = null;                       /* {subjects, timetable, students} */
+const CLASSES = [], ALL = [], BY_ID = {}, BY_GRADE = {};
+const TT_CLASSES = [], TT_BY_GRADE = {};
+GRADES.forEach(g => { BY_GRADE[g] = []; TT_BY_GRADE[g] = []; });
+
+function hasRoster(){ return !!(DATA && DATA.students && CLASSES.length); }
+function hasTimetable(){ return !!(DATA && DATA.timetable && TT_CLASSES.length); }
+
+function setData(obj, persist){
+  if (!obj || typeof obj !== 'object') return false;
+  /* מקבלים גם קובץ שמכיל רק רשימת תלמידים ({"ז1":[...]}) */
+  const looksLikeRoster = Object.keys(obj).some(k => /^[א-ת]+\d+$/.test(k) && Array.isArray(obj[k]));
+  const d = looksLikeRoster ? {students:obj} : obj;
+  const students = d.students && typeof d.students === 'object' ? d.students : null;
+  const timetable = d.timetable && typeof d.timetable === 'object' ? d.timetable : null;
+  if (!students && !timetable) return false;
+
+  /* מיזוג עם מה שכבר יש, כדי שאפשר יהיה לטעון קובץ חלקי */
+  DATA = {
+    students: students || (DATA && DATA.students) || null,
+    timetable: timetable || (DATA && DATA.timetable) || null,
+    subjects: (timetable ? d.subjects : null) || (DATA && DATA.subjects) || []
+  };
+
+  CLASSES.length = 0; ALL.length = 0; TT_CLASSES.length = 0;
+  Object.keys(BY_ID).forEach(k => delete BY_ID[k]);
+  GRADES.forEach(g => { BY_GRADE[g] = []; TT_BY_GRADE[g] = []; });
+
+  if (DATA.students){
+    Object.keys(DATA.students)
+      .filter(c => /^[א-ת]+\d+$/.test(c) && Array.isArray(DATA.students[c]))
+      .sort(clsSort).forEach(c => {
+        const g = c.replace(/\d+/, '');
+        if (!BY_GRADE[g]) return;
+        CLASSES.push(c);
+        BY_GRADE[g].push(c);
+        DATA.students[c].forEach((s, i) => {
+          const part = String(s).split('|');
+          const first = (part[0] || '').trim(), last = (part[1] || '').trim();
+          const st = {id:c + '#' + i, cls:c, grade:g, first:first, last:last,
+                      full:(first + ' ' + last).trim(),
+                      key:norm(first + ' ' + last), key2:norm(last + ' ' + first)};
+          ALL.push(st);
+          BY_ID[st.id] = st;
+        });
+      });
+  }
+  if (DATA.timetable){
+    Object.keys(DATA.timetable).sort(clsSort).forEach(c => {
+      const g = c.replace(/\d+/, '');
+      if (!TT_BY_GRADE[g]) return;
+      TT_CLASSES.push(c);
+      TT_BY_GRADE[g].push(c);
+    });
+    buildPeriods();
+  }
+  if (persist){
+    try{ localStorage.setItem(DSTORE, JSON.stringify(DATA)); }
+    catch(e){ toast('אין מקום לשמור את הנתונים במכשיר', true); }
+  }
+  return true;
+}
+function loadData(){
+  if (window.SCHOOL_DATA && setData(window.SCHOOL_DATA, false)) return;
+  let raw = null;
+  try{ raw = localStorage.getItem(DSTORE); }catch(e){}
+  if (raw){
+    try{ setData(JSON.parse(raw), false); }
+    catch(e){ console.error('טעינת הנתונים מהמכשיר נכשלה', e); }
+  }
+}
+/* קבלת נתונים מקובץ או מהדבקה: JSON, או קובץ js של window.SCHOOL_DATA */
+function parseRoster(text){
+  let t = String(text).trim();
+  try{ return JSON.parse(t); }catch(e){}
+  const a = t.indexOf('{'), b = t.lastIndexOf('}');
+  if (a >= 0 && b > a){
+    try{ return JSON.parse(t.slice(a, b + 1)); }catch(e){}
+  }
+  return null;
+}
+
+function norm(s){
+  return s.replace(/[֑-ׇ]/g,'').replace(/["'`׳״.\-־]/g,'')
+          .replace(/ך/g,'כ').replace(/ם/g,'מ').replace(/ן/g,'נ').replace(/ף/g,'פ').replace(/ץ/g,'צ')
+          .replace(/\s+/g,' ').trim();
+}
+
+/* ---------- שמירה ---------- */
+let state = {log:{}};
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE);
+    if (raw){ const p = JSON.parse(raw); if (p && p.log) state = p; }
+  }catch(e){}
+}
+function save(){
+  try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){}
+}
+load();
+loadData();
+
+/* ---------- זמן ותאריך ---------- */
+function pad(n){ return n < 10 ? '0' + n : '' + n; }
+function iso(d){ return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+function minutesNow(){ const d = new Date(); return d.getHours()*60 + d.getMinutes(); }
+function hhmm(m){ return Math.floor(m/60) + ':' + pad(m%60); }
+function heDate(isoStr){
+  const d = new Date(isoStr + 'T12:00:00');
+  const wd = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'][d.getDay()];
+  let heb = '';
+  try{
+    heb = new Intl.DateTimeFormat('he-u-ca-hebrew',{day:'numeric',month:'long'}).format(d);
+  }catch(e){ heb = d.toLocaleDateString('he-IL'); }
+  return 'יום ' + wd + ' · ' + heb;
+}
+function autoSession(){
+  const t = minutesNow();
+  for (const s of SESSIONS) if (t >= s.win[0] && t <= s.win[1]) return s.id;
+  let best = SESSIONS[0], bestD = 1e9;
+  for (const s of SESSIONS){
+    const d = t >= s.win[0] ? (t - s.win[1]) * 0.6 : (s.win[0] - t);
+    if (d < bestD){ bestD = d; best = s; }
+  }
+  return best.id;
+}
+
+/* ---------- מצב הממשק ---------- */
+const ui = {
+  tab:'attend',
+  date: iso(new Date()),
+  session: autoSession(),
+  grade:null, cls:null,
+  day: Math.min(new Date().getDay(), 5),
+  period:null, nowGrade:null, onlyOpen:false,
+  range:'week', sel:0
+};
+
+/* ---------- גישה לרישומים ---------- */
+function bucket(date, sid, create){
+  const day = state.log[date] || (create ? (state.log[date] = {}) : null);
+  if (!day) return null;
+  return day[sid] || (create ? (day[sid] = []) : null);
+}
+function marked(id){
+  const b = bucket(ui.date, ui.session, false);
+  return !!b && b.indexOf(id) >= 0;
+}
+const markTime = {};   /* מתי סומן בפעם האחרונה — כדי למנוע ביטול בטעות של רישום ישן */
+function toggle(id){
+  const b = bucket(ui.date, ui.session, true);
+  const i = b.indexOf(id);
+  let on;
+  if (i >= 0){
+    const fresh = markTime[ui.session + '|' + id] && (Date.now() - markTime[ui.session + '|' + id] < 120000);
+    if (!fresh && !confirm('לבטל את הרישום של ' + BY_ID[id].full + '?')) return false;
+    b.splice(i,1); on = false;
+    delete markTime[ui.session + '|' + id];
+  }
+  else { b.push(id); on = true; markTime[ui.session + '|' + id] = Date.now(); }
+  if (!b.length){ delete state.log[ui.date][ui.session];
+    if (!Object.keys(state.log[ui.date]).length) delete state.log[ui.date]; }
+  save();
+  if (on && navigator.vibrate) { try{ navigator.vibrate(15); }catch(e){} }
+  toast((on ? '✓ נרשם · ' : 'בוטל · ') + BY_ID[id].full, !on);
+  renderAttend();
+  return on;
+}
+function sessionList(){
+  const b = bucket(ui.date, ui.session, false);
+  return b ? b.slice() : [];
+}
+function countIn(prefixCls){
+  const b = bucket(ui.date, ui.session, false);
+  if (!b) return 0;
+  let n = 0;
+  for (const id of b) if (id.split('#')[0] === prefixCls) n++;
+  return n;
+}
+function countGrade(g){
+  const b = bucket(ui.date, ui.session, false);
+  if (!b) return 0;
+  let n = 0;
+  for (const id of b) if (BY_ID[id] && BY_ID[id].grade === g) n++;
+  return n;
+}
+
+/* ---------- הודעה צפה ---------- */
+let toastT = null;
+const $toast = document.getElementById('toast');
+function toast(msg, off){
+  $toast.textContent = msg;
+  $toast.classList.toggle('off', !!off);
+  $toast.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => $toast.classList.remove('show'), 1600);
+}
+
+/* ================= סימון נוכחות ================= */
+const $sessionChips = document.getElementById('session-chips');
+const $sessionWhen = document.getElementById('session-when');
+const $gradeRow = document.getElementById('grade-row');
+const $classRow = document.getElementById('class-row');
+const $studentArea = document.getElementById('student-area');
+const $recent = document.getElementById('recent');
+const $counter = document.getElementById('counter');
+
+function renderAttend(){
+  const cur = SESSIONS.find(s => s.id === ui.session) || SESSIONS[0];
+  $sessionWhen.innerHTML = '<b>' + heDate(ui.date) + '</b>';
+  document.getElementById('picker').hidden = !hasRoster();
+  document.querySelector('.searchbar').style.display = hasRoster() ? '' : 'none';
+  if (!hasRoster()){ $studentArea.innerHTML = dataCardHtml(); wireDataCard($studentArea); $recent.innerHTML = ''; }
+
+  $sessionChips.innerHTML = '';
+  SESSIONS.forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.setAttribute('aria-pressed', s.id === ui.session);
+    const n = (state.log[ui.date] && state.log[ui.date][s.id] || []).length;
+    b.innerHTML = s.name + (n ? '<small>' + n + '</small>' : '');
+    b.onclick = () => { ui.session = s.id; if (!ui.grade) ui.grade = null; renderAttend(); };
+    $sessionChips.appendChild(b);
+  });
+
+  $counter.innerHTML = '<b>' + sessionList().length + '</b> נרשמו';
+
+  if (!hasRoster()){ centerChip($sessionChips); return; }
+
+  // שכבות — ברירת המחדל של השיעור מודגשת ראשונה, אבל הכול זמין
+  const order = cur.grades.concat(GRADES.filter(g => cur.grades.indexOf(g) < 0));
+  $gradeRow.innerHTML = '';
+  order.forEach(g => {
+    const b = document.createElement('button');
+    b.className = 'gbtn';
+    b.style.setProperty('--g', GRADE_COLOR[g]);
+    b.setAttribute('aria-pressed', g === ui.grade);
+    const n = countGrade(g);
+    b.innerHTML = g + '<span class="n">' + (n ? n + ' נרשמו' : BY_GRADE[g].length + ' כיתות') + '</span>';
+    b.onclick = () => {
+      ui.grade = (ui.grade === g ? null : g);
+      ui.cls = null;
+      renderAttend();
+    };
+    $gradeRow.appendChild(b);
+  });
+
+  // כיתות
+  if (!ui.grade){
+    $classRow.hidden = true;
+    $studentArea.innerHTML = '<div class="empty">בחרו שכבה למעלה — או הקלידו שם בשורת החיפוש שלמטה.</div>';
+  } else {
+    $classRow.hidden = false;
+    $classRow.innerHTML = '';
+    BY_GRADE[ui.grade].forEach(c => {
+      const b = document.createElement('button');
+      b.className = 'cbtn';
+      b.style.setProperty('--g', GRADE_COLOR[ui.grade]);
+      b.setAttribute('aria-pressed', c === ui.cls);
+      const n = countIn(c);
+      b.innerHTML = c.replace(/^(\D+)/, "$1'") + (n ? '<span class="n">' + n + '</span>' : '');
+      b.onclick = () => {
+        const opening = ui.cls !== c;
+        ui.cls = opening ? c : null;
+        renderAttend();
+        if (opening) scrollToList();
+      };
+      $classRow.appendChild(b);
+    });
+    renderStudents();
+  }
+  renderRecent();
+  centerChip($sessionChips); centerChip($gradeRow); centerChip($classRow);
+}
+
+function renderStudents(){
+  if (!ui.cls){
+    $studentArea.innerHTML = '<div class="empty">בחרו כיתה בשכבה ' + ui.grade + '׳.</div>';
+    return;
+  }
+  const wrap = document.createElement('div');
+  wrap.className = 'grid';
+  DATA.students[ui.cls].forEach((s, i) => {
+    const p = s.split('|');
+    const id = ui.cls + '#' + i;
+    const b = document.createElement('button');
+    b.className = 'stud';
+    b.setAttribute('aria-pressed', marked(id));
+    b.innerHTML = '<span class="mark"></span><span>' + esc(p[0]) + ' <span class="fam">' + esc(p[1]) + '</span></span>';
+    b.onclick = () => toggle(id);
+    wrap.appendChild(b);
+  });
+  $studentArea.innerHTML = '';
+  const head = document.createElement('div');
+  head.className = 'hint';
+  head.textContent = 'כיתה ' + ui.cls.replace(/^(\D+)/, "$1'") + ' · ' + DATA.students[ui.cls].length + ' תלמידים · ' +
+                     countIn(ui.cls) + ' נרשמו כעת';
+  $studentArea.appendChild(head);
+  $studentArea.appendChild(wrap);
+}
+
+function renderRecent(){
+  const list = sessionList().slice(-8).reverse();
+  $recent.innerHTML = '';
+  if (!list.length) return;
+  const t = document.createElement('div');
+  t.className = 'hint';
+  t.style.width = '100%';
+  t.textContent = 'נרשמו עכשיו (לחיצה מבטלת):';
+  $recent.appendChild(t);
+  list.forEach(id => {
+    const s = BY_ID[id];
+    if (!s) return;
+    const b = document.createElement('button');
+    b.className = 'tag';
+    b.innerHTML = esc(s.full) + ' <span>' + s.cls.replace(/^(\D+)/, "$1'") + '</span> ✕';
+    b.onclick = () => toggle(id);
+    $recent.appendChild(b);
+  });
+}
+
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* הבאת הכפתור הנבחר למרכז השורה הנגללת */
+function centerChip(el){
+  if (!el) return;
+  const sel = el.querySelector('[aria-pressed="true"]');
+  if (!sel || el.scrollWidth <= el.clientWidth + 4) return;
+  const cr = el.getBoundingClientRect(), er = sel.getBoundingClientRect();
+  el.scrollLeft += (er.left + er.width / 2) - (cr.left + cr.width / 2);
+}
+
+/* גלילה כך שרשימת הכיתה תתחיל מיד מתחת לבורר הדביק */
+function scrollToList(){
+  const picker = document.getElementById('picker');
+  const area = document.getElementById('student-area');
+  const off = document.getElementById('topbar').offsetHeight + picker.offsetHeight + 6;
+  const y = area.getBoundingClientRect().top + window.scrollY - off;
+  window.scrollTo({top: Math.max(0, y), behavior:'smooth'});
+}
+
+/* ---------- טעינת נתוני בית הספר אל המכשיר ---------- */
+function dataCardHtml(){
+  const ready = hasRoster() || hasTimetable();
+  let body;
+  if (ready){
+    const bits = [];
+    if (hasRoster()) bits.push(ALL.length + ' תלמידים ב־' + CLASSES.length + ' כיתות');
+    else bits.push('רשימת התלמידים חסרה');
+    if (hasTimetable()) bits.push('מערכת שעות ל־' + TT_CLASSES.length + ' כיתות');
+    else bits.push('מערכת השעות חסרה');
+    body = '<p class="hint" style="margin:0 0 10px">' + bits.join(' · ') +
+           '. הנתונים שמורים במכשיר הזה בלבד ואינם עולים לאתר.</p>';
+  } else {
+    body = '<p class="hint" style="margin:0 0 10px">נתוני בית הספר — שמות התלמידים ומערכת השעות — ' +
+           'אינם נשמרים באתר עצמו, כדי שלא יתפרסמו. טענו פעם אחת את הקובץ ' +
+           '<b>school-data.js</b> וזהו: הוא נשאר שמור במכשיר גם אחרי סגירת הדפדפן.</p>';
+  }
+  return '<div class="panel" style="margin-top:6px">' +
+    '<h3>' + (ready ? 'נתוני בית הספר' : 'טעינת נתוני בית הספר') + '</h3>' + body +
+    '<div class="btn-row"><label class="btn primary" style="cursor:pointer">' +
+    (ready ? 'טעינת קובץ נתונים' : 'בחירת קובץ הנתונים') +
+    '<input type="file" accept=".js,.json,.txt,application/json,text/javascript" hidden class="roster-file"></label>' +
+    '<button class="btn roster-paste">הדבקת נתונים</button>' +
+    (ready ? '<button class="btn danger roster-clear">מחיקת הנתונים מהמכשיר</button>' : '') +
+    '</div>' +
+    '<textarea class="roster-text" hidden placeholder="הדביקו כאן את תוכן הקובץ ולחצו שוב על הדבקת נתונים"></textarea>' +
+    '</div>';
+}
+function wireDataCard(root){
+  const f = root.querySelector('.roster-file'), t = root.querySelector('.roster-text'),
+        pb = root.querySelector('.roster-paste'), cb = root.querySelector('.roster-clear');
+  if (f) f.onchange = () => {
+    const file = f.files && f.files[0];
+    if (!file) return;
+    const r = new FileReader();
+    r.onload = () => acceptData(r.result);
+    r.onerror = () => toast('לא הצלחתי לקרוא את הקובץ', true);
+    r.readAsText(file, 'utf-8');
+  };
+  if (pb) pb.onclick = () => {
+    if (t.hidden || !t.value.trim()){ t.hidden = false; t.focus(); toast('הדביקו את תוכן הקובץ', true); return; }
+    acceptData(t.value);
+  };
+  if (cb) cb.onclick = () => {
+    if (!confirm('למחוק את נתוני בית הספר מהמכשיר? רישומי הנוכחות יישמרו.')) return;
+    try{ localStorage.removeItem(DSTORE); }catch(e){}
+    DATA = null;
+    CLASSES.length = 0; ALL.length = 0; TT_CLASSES.length = 0;
+    Object.keys(BY_ID).forEach(k => delete BY_ID[k]);
+    GRADES.forEach(g => { BY_GRADE[g] = []; TT_BY_GRADE[g] = []; });
+    PERIODS = [];
+    toast('הנתונים נמחקו מהמכשיר', true);
+    renderAll();
+  };
+}
+function acceptData(text){
+  const obj = parseRoster(text);
+  if (!obj || !setData(obj, true)){ toast('הקובץ אינו קובץ נתונים תקין', true); return; }
+  const bits = [];
+  if (hasRoster()) bits.push(ALL.length + ' תלמידים');
+  if (hasTimetable()) bits.push('מערכת שעות');
+  toast('נטענו ' + bits.join(' ו'));
+  renderAll();
+}
+
+$counter.onclick = () => {
+  const list = sessionList();
+  const cur = SESSIONS.find(s => s.id === ui.session);
+  if (!list.length){ toast('עוד לא נרשם אף אחד', true); return; }
+  const byCls = {};
+  list.forEach(id => { const s = BY_ID[id]; if (s) (byCls[s.cls] = byCls[s.cls] || []).push(s.full); });
+  let html = '';
+  Object.keys(byCls).sort(clsSort).forEach(c => {
+    html += '<div style="margin-bottom:9px"><b style="color:' + GRADE_COLOR[c.replace(/\d+/,'')] + '">' +
+            c.replace(/^(\D+)/, "$1'") + '</b> · ' + byCls[c].length + '<br><span style="font-size:14px">' +
+            byCls[c].map(esc).join(' · ') + '</span></div>';
+  });
+  openModal(cur.name + ' — ' + list.length + ' תלמידים', heDate(ui.date), html);
+};
+
+/* ================= חיפוש חופשי ================= */
+const $search = document.getElementById('search');
+const $sugg = document.getElementById('sugg');
+const $searchX = document.getElementById('search-x');
+
+function searchHits(q){
+  const n = norm(q);
+  if (!n) return [];
+  const parts = n.split(' ').filter(Boolean);
+  const starts = [], inner = [];
+  for (const s of ALL){
+    let ok = true, head = false;
+    for (const p of parts){
+      const i = s.key.indexOf(p), j = s.key2.indexOf(p);
+      if (i < 0 && j < 0){ ok = false; break; }
+      if (i === 0 || j === 0 || s.key.indexOf(' ' + p) >= 0) head = true;
+    }
+    if (!ok) continue;
+    (head ? starts : inner).push(s);
+    if (starts.length > 40) break;
+  }
+  return starts.concat(inner).slice(0, 12);
+}
+
+function renderSugg(){
+  const q = $search.value;
+  $searchX.hidden = !q;
+  const hits = searchHits(q);
+  if (!hits.length){ $sugg.hidden = true; $sugg.innerHTML = ''; return; }
+  if (ui.sel >= hits.length) ui.sel = 0;
+  $sugg.hidden = false;
+  $sugg.innerHTML = '';
+  hits.forEach((s, i) => {
+    const b = document.createElement('button');
+    if (i === ui.sel) b.className = 'sel';
+    b.style.setProperty('--g', GRADE_COLOR[s.grade]);
+    b.innerHTML = '<span class="badge">' + s.cls.replace(/^(\D+)/, "$1'") + '</span>' +
+                  '<span>' + esc(s.first) + ' <span class="fam">' + esc(s.last) + '</span></span>' +
+                  (marked(s.id) ? '<span class="done">✓ נרשם</span>' : '');
+    b.onclick = () => pick(s);
+    $sugg.appendChild(b);
+  });
+}
+function pick(s){
+  toggle(s.id);
+  $search.value = '';
+  ui.sel = 0;
+  renderSugg();
+  $search.focus();
+}
+$search.addEventListener('input', () => { ui.sel = 0; renderSugg(); });
+$search.addEventListener('keydown', e => {
+  const hits = searchHits($search.value);
+  if (e.key === 'Enter' && hits.length){ e.preventDefault(); pick(hits[ui.sel] || hits[0]); }
+  else if (e.key === 'ArrowDown'){ e.preventDefault(); ui.sel = Math.min(ui.sel + 1, hits.length - 1); renderSugg(); }
+  else if (e.key === 'ArrowUp'){ e.preventDefault(); ui.sel = Math.max(ui.sel - 1, 0); renderSugg(); }
+  else if (e.key === 'Escape'){ $search.value = ''; renderSugg(); }
+});
+$searchX.onclick = () => { $search.value = ''; renderSugg(); $search.focus(); };
+
+/* ================= מה עכשיו ================= */
+/* בניית רשת השעות המשותפת מכל המערכות */
+const KODESH = ['גמרא','תנ"ך','תנך','תורה','נביא','הלכה','מחשבת','פרשת','צורבא','משנה','חברותא','בית מדרש','אמונה','פרטני תנ'];
+const CHOL = ['מתמטיקה','אנגלית','לשון','היסטוריה','הסטוריה','מדעים','חנ"ג','חינוך גופני','אזרחות','ספרות',
+              'ערבית','פיזיקה','מחשב','מודלים','מגמות','הנדסת','משפטים','מוזיקה','תקשורת','האצה','תעבורתי',
+              'פיננסי','הרכבים','בינה','אקסליום','השכלה','הכנה לחיים','עמ"ט','מדעי המ'];
+const BREAKY = ['הפסקה','מנחה','תפילה','שחרית','שבת שלום','תרנגולי','ארוחה','סדר בביהמ'];
+
+function classify(txt, ctx){
+  const t = (txt || '').trim();
+  if (!t){
+    if (ctx === 'off') return {type:'off', label:'אין לימודים ביום זה', color:'#8C8375', enter:false};
+    if (ctx === 'break') return {type:'break', label:'הפסקה', color:'#6E7F93', enter:false};
+    return {type:'free', label:'אין שיעור — הכיתה פנויה', color:'var(--accent)', enter:true};
+  }
+  if (BREAKY.some(k => t.indexOf(k) >= 0)) return {type:'break', label:'תפילה / הפסקה', color:'#6E7F93', enter:false};
+  const k = KODESH.some(x => t.indexOf(x) >= 0);
+  const c = CHOL.some(x => t.indexOf(x) >= 0);
+  if (k && !c) return {type:'kodesh', label:'שיעור קודש', color:'var(--ok)', enter:true};
+  if (k && c) return {type:'mix', label:'מעורב', color:'var(--warn)', enter:true};
+  if (c) return {type:'chol', label:'שיעור חול', color:'#8C8375', enter:false};
+  return {type:'mix', label:'אחר', color:'var(--warn)', enter:true};
+}
+
+const $dayChips = document.getElementById('day-chips');
+const $periodChips = document.getElementById('period-chips');
+const $nowGradeRow = document.getElementById('now-grade-row');
+const $nowCards = document.getElementById('now-cards');
+const $nowWhen = document.getElementById('now-when');
+
+function currentPeriodIdx(){
+  const t = minutesNow();
+  for (let i = 0; i < PERIODS.length; i++) if (t >= PERIODS[i].start && t < PERIODS[i].end) return i;
+  for (let i = 0; i < PERIODS.length; i++) if (t < PERIODS[i].start) return i;
+  return PERIODS.length - 1;
+}
+function resetNow(){
+  const d = new Date().getDay();
+  ui.day = d === 6 ? 0 : d;      // בשבת מוצגת מערכת יום ראשון
+  ui.period = PERIODS.length ? currentPeriodIdx() : null;
+}
+function renderNow(){
+  const $ban0 = document.getElementById('now-banner');
+  if (!hasTimetable()){
+    $nowWhen.textContent = 'מערכת השעות עדיין לא נטענה למכשיר';
+    $dayChips.innerHTML = ''; $periodChips.innerHTML = ''; $nowGradeRow.innerHTML = '';
+    document.getElementById('now-summary').textContent = '';
+    document.getElementById('btn-only-open').hidden = true;
+    document.getElementById('btn-now-reset').hidden = true;
+    document.querySelector('#view-now .legend').hidden = true;
+    $ban0.innerHTML = dataCardHtml();
+    wireDataCard($ban0);
+    $nowCards.innerHTML = '';
+    return;
+  }
+  document.getElementById('btn-only-open').hidden = false;
+  document.getElementById('btn-now-reset').hidden = false;
+  document.querySelector('#view-now .legend').hidden = false;
+  if (ui.period === null || ui.period >= PERIODS.length) resetNow();
+  const p = PERIODS[ui.period];
+  const live = (new Date().getDay() === ui.day) && ui.period === currentPeriodIdx();
+  $nowWhen.innerHTML = (live ? '<b>עכשיו · </b>' : '') + 'יום ' + DAYS[ui.day] + '׳ · <b>' + p.label + '</b> · ' +
+                       hhmm(p.start) + '–' + hhmm(p.end) +
+                       (new Date().getDay() === 6 ? ' <span style="color:var(--ink-soft)">(שבת — מוצג יום א׳)</span>' : '');
+
+  $dayChips.innerHTML = '';
+  DAYS.forEach((d, i) => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.setAttribute('aria-pressed', i === ui.day);
+    b.textContent = 'יום ' + d + '׳';
+    b.onclick = () => { ui.day = i; renderNow(); };
+    $dayChips.appendChild(b);
+  });
+
+  $periodChips.innerHTML = '';
+  PERIODS.forEach((pp, i) => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.setAttribute('aria-pressed', i === ui.period);
+    b.innerHTML = pp.label + '<small>' + hhmm(pp.start) + '</small>';
+    b.onclick = () => { ui.period = i; renderNow(); };
+    $periodChips.appendChild(b);
+  });
+
+  $nowGradeRow.innerHTML = '';
+  const all = document.createElement('button');
+  all.className = 'gbtn';
+  all.style.setProperty('--g', 'var(--ink-soft)');
+  all.setAttribute('aria-pressed', ui.nowGrade === null);
+  all.innerHTML = 'הכול<span class="n">כל השכבות</span>';
+  all.onclick = () => { ui.nowGrade = null; renderNow(); };
+  $nowGradeRow.appendChild(all);
+  GRADES.forEach(g => {
+    const b = document.createElement('button');
+    b.className = 'gbtn';
+    b.style.setProperty('--g', GRADE_COLOR[g]);
+    b.setAttribute('aria-pressed', g === ui.nowGrade);
+    b.innerHTML = g + '<span class="n">' + TT_BY_GRADE[g].length + ' כיתות</span>';
+    b.onclick = () => { ui.nowGrade = (ui.nowGrade === g ? null : g); renderNow(); };
+    $nowGradeRow.appendChild(b);
+  });
+
+  const list = (ui.nowGrade ? TT_BY_GRADE[ui.nowGrade] : TT_CLASSES).slice().sort(clsSort);
+  $nowCards.innerHTML = '';
+  let shown = 0, nFree = 0, nKodesh = 0;
+  const isBreak = BREAKY.some(k => p.label.indexOf(k) >= 0) || p.label === 'בחירה';
+  list.forEach(c => {
+    const tt = DATA.timetable[c];
+    if (!tt) return;
+    const row = tt.r.find(r => r[0] < p.end && r[1] > p.start);
+    const subj = row ? DATA.subjects[row[3][ui.day]] : '';
+    const teaches = tt.r.some(r => (DATA.subjects[r[3][ui.day]] || '').trim() &&
+                                   !BREAKY.some(k => DATA.subjects[r[3][ui.day]].indexOf(k) >= 0));
+    let k = classify(subj, !teaches ? 'off' : (isBreak ? 'break' : ''));
+    let title = subj, foot = '', when = '';
+    /* בהפסקה אין מה להציג כ"עכשיו" — מוצג השיעור שמיד אחריה, עם שעת ההתחלה */
+    const nx = teaches && (k.type === 'break' || k.type === 'free') ? nextLesson(c, p.start) : null;
+    if (isBreak && k.type === 'break' && nx){
+      k = classify(nx.subj);
+      title = nx.subj;
+      when = 'מ־' + hhmm(nx.start);
+    } else if (nx){
+      foot = 'אחר כך ' + hhmm(nx.start) + ' · <b>' + esc(nx.subj) + '</b>';
+    }
+    if (k.type === 'free') nFree++;
+    if (k.type === 'kodesh') nKodesh++;
+    if (ui.onlyOpen && !k.enter) return;
+    shown++;
+    const card = document.createElement('button');
+    card.className = 'card';
+    card.style.setProperty('--g', GRADE_COLOR[c.replace(/\d+/,'')]);
+    card.style.setProperty('--st', k.color);
+    card.innerHTML = '<div class="top"><span class="cls">' + c.replace(/^(\D+)/, "$1'") + '</span>' +
+               '<span class="teach">' + esc(tt.t || '') + '</span></div>' +
+               '<div class="subj">' + esc(title || (k.type === 'off' ? 'אין לימודים' : 'אין שיעור')) + '</div>' +
+               '<div class="st">' + k.label + (when ? ' · ' + when : '') + '</div>' +
+               (foot ? '<div class="next">' + foot + '</div>' : '');
+    card.onclick = () => showDay(c);
+    $nowCards.appendChild(card);
+  });
+  if (!shown) $nowCards.innerHTML = '<div class="empty">אין כיתה מתאימה בשעה הזאת.</div>';
+  const parts = [];
+  if (nFree) parts.push(nFree + ' פנויות');
+  if (nKodesh) parts.push(nKodesh + ' בשיעור קודש');
+  document.getElementById('now-summary').textContent =
+    (ui.nowGrade ? 'שכבה ' + ui.nowGrade + '׳' : 'כל השכבות') + ' · ' +
+    (isBreak ? 'אחרי ההפסקה: ' : '') + (parts.length ? parts.join(' · ') : 'אין כיתה פנויה');
+
+  const $ban = document.getElementById('now-banner');
+  if (isBreak){
+    const sess = SESSIONS.find(s => Math.abs(mins(s.at) - p.start) <= 20);
+    $ban.innerHTML = '<div class="banner"><span class="txt">' + p.label + ' ' + hhmm(p.start) + '–' + hhmm(p.end) +
+      ' — כל בית הספר בהפסקה' + (sess ? ', זו שעת השיעור שלך' : '') + '.</span>' +
+      (sess ? '<button class="btn primary" id="ban-jump">סימון נוכחות ל' + sess.name + '</button>' : '') + '</div>';
+    const j = document.getElementById('ban-jump');
+    if (j) j.onclick = () => { ui.session = sess.id; setTab('attend'); };
+  } else $ban.innerHTML = '';
+  centerChip($dayChips); centerChip($periodChips); centerChip($nowGradeRow);
+}
+function mins(hm){ const p = String(hm).split(':'); return (+p[0]) * 60 + (+p[1] || 0); }
+function nextLesson(c, afterStart){
+  const tt = DATA.timetable[c];
+  for (const r of tt.r){
+    if (r[0] <= afterStart) continue;
+    const s = (DATA.subjects[r[3][ui.day]] || '').trim();
+    if (s && !BREAKY.some(k => s.indexOf(k) >= 0)) return {start:r[0], subj:s};
+  }
+  return null;
+}
+function clsSort(a, b){
+  const ga = GRADES.indexOf(a.replace(/\d+/,'')), gb = GRADES.indexOf(b.replace(/\d+/,''));
+  return ga - gb || (+a.replace(/\D+/,'')) - (+b.replace(/\D+/,''));
+}
+function showDay(c){
+  const tt = DATA.timetable[c];
+  let html = '';
+  tt.r.forEach(r => {
+    const subj = DATA.subjects[r[3][ui.day]] || '—';
+    const on = r[0] <= PERIODS[ui.period].start && r[1] > PERIODS[ui.period].start;
+    html += '<div class="day-row' + (on ? ' on' : '') + '"><span class="t">' + hhmm(r[0]) + '–' + hhmm(r[1]) +
+            '</span><span class="s">' + esc(subj) + '</span></div>';
+  });
+  html += '<div class="btn-row" style="margin-top:13px"><button class="btn primary" id="jump-attend">סימון נוכחות לכיתה ' +
+          c.replace(/^(\D+)/, "$1'") + '</button></div>';
+  openModal('כיתה ' + c.replace(/^(\D+)/, "$1'") + ' · יום ' + DAYS[ui.day] + '׳', tt.t || '', html);
+  const j = document.getElementById('jump-attend');
+  if (j) j.onclick = () => {
+    closeModal();
+    if (hasRoster() && DATA.students[c]){ ui.grade = c.replace(/\d+/,''); ui.cls = c; setTab('attend'); }
+    else toast('אין רשימת תלמידים לכיתה זו', true);
+  };
+}
+document.getElementById('btn-now-reset').onclick = () => { resetNow(); renderNow(); };
+document.getElementById('btn-only-open').onclick = function(){
+  ui.onlyOpen = !ui.onlyOpen;
+  this.setAttribute('aria-pressed', ui.onlyOpen);
+  renderNow();
+};
+
+/* ================= דוחות ================= */
+const $repDate = document.getElementById('rep-date');
+const $repDay = document.getElementById('rep-day');
+const $repStats = document.getElementById('rep-stats');
+const $repTop = document.getElementById('rep-top');
+const $rangeChips = document.getElementById('range-chips');
+const RANGES = [{id:'day',name:'היום'},{id:'week',name:'7 ימים'},{id:'month',name:'30 יום'},{id:'all',name:'הכול'}];
+
+function daySummary(date){
+  const day = state.log[date] || {};
+  let html = '', total = 0;
+  SESSIONS.forEach(s => {
+    const list = day[s.id] || [];
+    if (!list.length) return;
+    total += list.length;
+    const byCls = {};
+    list.forEach(id => { const st = BY_ID[id]; if (st) (byCls[st.cls] = byCls[st.cls] || []).push(st.full); });
+    html += '<div style="margin-bottom:13px"><div style="font-weight:700;margin-bottom:4px">' + s.name +
+            ' · ' + list.length + ' תלמידים</div>';
+    Object.keys(byCls).sort(clsSort).forEach(c => {
+      html += '<div style="font-size:13.5px;margin-bottom:3px"><b style="color:' +
+              GRADE_COLOR[c.replace(/\d+/,'')] + '">' + c.replace(/^(\D+)/, "$1'") + '</b> · ' +
+              byCls[c].map(esc).join(', ') + '</div>';
+    });
+    html += '</div>';
+  });
+  return {html: html || '<div class="empty">אין רישומים ביום הזה.</div>', total};
+}
+function rangeDates(){
+  const keys = Object.keys(state.log).sort();
+  if (ui.range === 'all') return keys;
+  const now = new Date(); now.setHours(12,0,0,0);
+  const days = ui.range === 'day' ? 1 : (ui.range === 'week' ? 7 : 30);
+  const from = new Date(now.getTime() - (days - 1) * 864e5);
+  return keys.filter(k => new Date(k + 'T12:00:00') >= from);
+}
+function renderReports(){
+  const $rr = document.getElementById('rep-roster');
+  $rr.innerHTML = dataCardHtml();
+  wireDataCard($rr);
+  if (!$repDate.value) $repDate.value = ui.date;
+  const ds = daySummary($repDate.value);
+  $repDay.innerHTML = ds.html;
+
+  $rangeChips.innerHTML = '';
+  RANGES.forEach(r => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.setAttribute('aria-pressed', r.id === ui.range);
+    b.textContent = r.name;
+    b.onclick = () => { ui.range = r.id; renderReports(); };
+    $rangeChips.appendChild(b);
+  });
+
+  const dates = rangeDates();
+  const perStudent = {}, perGrade = {};
+  let events = 0, sessions = 0;
+  dates.forEach(d => {
+    Object.keys(state.log[d]).forEach(sid => {
+      sessions++;
+      state.log[d][sid].forEach(id => {
+        events++;
+        perStudent[id] = (perStudent[id] || 0) + 1;
+        const st = BY_ID[id];
+        if (st) perGrade[st.grade] = (perGrade[st.grade] || 0) + 1;
+      });
+    });
+  });
+  $repStats.innerHTML =
+    stat(events, 'סימוני נוכחות') +
+    stat(Object.keys(perStudent).length, 'תלמידים שונים') +
+    stat(sessions, 'שיעורים') +
+    stat(dates.length, 'ימים');
+
+  const top = Object.keys(perStudent).sort((a,b) => perStudent[b] - perStudent[a]).slice(0, 25);
+  let html = '';
+  if (top.length){
+    html += '<h3 style="font-size:14px;margin:6px 0 6px">מתמידים</h3><table><tr><th>תלמיד</th><th>כיתה</th><th class="num">שיעורים</th></tr>';
+    top.forEach(id => {
+      const s = BY_ID[id];
+      if (!s) return;
+      html += '<tr><td>' + esc(s.full) + '</td><td>' + s.cls.replace(/^(\D+)/, "$1'") +
+              '</td><td class="num">' + perStudent[id] + '</td></tr>';
+    });
+    html += '</table>';
+    const gs = GRADES.filter(g => perGrade[g]);
+    if (gs.length){
+      html += '<h3 style="font-size:14px;margin:14px 0 6px">לפי שכבה</h3><table>';
+      gs.forEach(g => html += '<tr><td><b style="color:' + GRADE_COLOR[g] + '">שכבה ' + g + '׳</b></td><td class="num">' + perGrade[g] + '</td></tr>');
+      html += '</table>';
+    }
+  } else html = '<div class="empty">אין נתונים בטווח הזה.</div>';
+  $repTop.innerHTML = html;
+}
+function stat(v, label){ return '<div class="stat"><b>' + v + '</b><span>' + label + '</span></div>'; }
+$repDate.onchange = renderReports;
+
+function dayText(date){
+  const day = state.log[date] || {};
+  let out = 'נוכחות בשיעורי תורה · ' + heDate(date) + '\n';
+  let any = false;
+  SESSIONS.forEach(s => {
+    const list = day[s.id] || [];
+    if (!list.length) return;
+    any = true;
+    out += '\n▪ ' + s.name + ' (' + list.length + ')\n';
+    const byCls = {};
+    list.forEach(id => { const st = BY_ID[id]; if (st) (byCls[st.cls] = byCls[st.cls] || []).push(st.full); });
+    Object.keys(byCls).sort(clsSort).forEach(c => {
+      out += '  ' + c.replace(/^(\D+)/, "$1'") + ': ' + byCls[c].join(', ') + '\n';
+    });
+  });
+  return any ? out : 'אין רישומים ב' + heDate(date);
+}
+function copyText(t, ok){
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(() => toast(ok), () => prompt('העתיקו:', t));
+  } else prompt('העתיקו:', t);
+}
+document.getElementById('rep-copy').onclick = () => copyText(dayText($repDate.value), 'הסיכום הועתק');
+document.getElementById('rep-wa').onclick = () => {
+  window.open('https://wa.me/?text=' + encodeURIComponent(dayText($repDate.value)), '_blank');
+};
+document.getElementById('rep-csv').onclick = () => {
+  const rows = [['תאריך','שיעור','שכבה','כיתה','שם פרטי','שם משפחה']];
+  rangeDates().forEach(d => Object.keys(state.log[d]).forEach(sid => {
+    const s = SESSIONS.find(x => x.id === sid);
+    state.log[d][sid].forEach(id => {
+      const st = BY_ID[id];
+      if (st) rows.push([d, s ? s.name : sid, st.grade, st.cls, st.first, st.last]);
+    });
+  }));
+  const csv = '﻿' + rows.map(r => r.map(x => '"' + String(x).replace(/"/g,'""') + '"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = 'nochachut-' + iso(new Date()) + '.csv';
+  a.click();
+  toast('הקובץ ירד');
+};
+
+/* ---------- גיבוי ---------- */
+const $bk = document.getElementById('bk-text');
+document.getElementById('bk-export').onclick = () => {
+  $bk.hidden = false;
+  $bk.value = JSON.stringify(state);
+  $bk.select();
+  copyText($bk.value, 'הגיבוי הועתק');
+};
+document.getElementById('bk-import').onclick = () => {
+  if ($bk.hidden || !$bk.value.trim()){ $bk.hidden = false; $bk.value = ''; $bk.focus(); toast('הדביקו טקסט גיבוי', true); return; }
+  let p;
+  try{ p = JSON.parse($bk.value); }catch(e){ toast('הטקסט אינו גיבוי תקין', true); return; }
+  if (!p || !p.log){ toast('הטקסט אינו גיבוי תקין', true); return; }
+  let added = 0;
+  Object.keys(p.log).forEach(d => Object.keys(p.log[d]).forEach(sid => {
+    const b = bucket(d, sid, true);
+    p.log[d][sid].forEach(id => { if (b.indexOf(id) < 0){ b.push(id); added++; } });
+  }));
+  save();
+  $bk.hidden = true; $bk.value = '';
+  toast('מוזגו ' + added + ' רישומים');
+  renderAll();
+};
+document.getElementById('bk-clear').onclick = () => {
+  if (!confirm('למחוק את כל רישומי הנוכחות מהמכשיר הזה?')) return;
+  state = {log:{}};
+  save();
+  renderAll();
+  toast('נמחק', true);
+};
+
+/* ================= חלון ================= */
+let $modal = null;
+function openModal(title, sub, html){
+  closeModal();
+  $modal = document.createElement('div');
+  $modal.className = 'modal';
+  $modal.innerHTML = '<div class="box"><div class="head"><div><h3>' + esc(title) + '</h3>' +
+    '<div class="sub">' + esc(sub || '') + '</div></div><button class="x">✕</button></div><div class="body"></div></div>';
+  $modal.querySelector('.body').innerHTML = html;
+  $modal.querySelector('.x').onclick = closeModal;
+  $modal.onclick = e => { if (e.target === $modal) closeModal(); };
+  document.body.appendChild($modal);
+}
+function closeModal(){ if ($modal){ $modal.remove(); $modal = null; } }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ================= לשוניות ותצוגה ================= */
+function setTab(t){
+  ui.tab = t;
+  ['attend','now','reports'].forEach(k => {
+    document.getElementById('view-' + k).hidden = (k !== t);
+    document.getElementById('tab-' + k).setAttribute('aria-selected', k === t);
+  });
+  document.querySelector('.searchbar').style.display = (t === 'attend' ? '' : 'none');
+  renderAll();
+  window.scrollTo({top:0});
+}
+document.getElementById('tab-attend').onclick = () => setTab('attend');
+document.getElementById('tab-now').onclick = () => setTab('now');
+document.getElementById('tab-reports').onclick = () => setTab('reports');
+
+document.getElementById('btn-theme').onclick = () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : (cur === 'light' ? '' : 'dark');
+  if (next) document.documentElement.setAttribute('data-theme', next);
+  else document.documentElement.removeAttribute('data-theme');
+  try{ localStorage.setItem('lapid-theme', next); }catch(e){}
+};
+try{
+  const th = localStorage.getItem('lapid-theme');
+  if (th) document.documentElement.setAttribute('data-theme', th);
+}catch(e){}
+
+function renderAll(){
+  document.getElementById('today-label').textContent = heDate(ui.date);
+  if (ui.tab === 'attend') renderAttend();
+  else if (ui.tab === 'now') renderNow();
+  else renderReports();
+  renderSugg();
+}
+
+/* עדכון השעה והשיעור המוצע כשחוזרים למכשיר */
+let lastAuto = ui.session;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) return;
+  const d = iso(new Date());
+  if (d !== ui.date){ ui.date = d; }
+  const a = autoSession();
+  if (a !== lastAuto){ lastAuto = a; ui.session = a; }
+  if (ui.tab === 'now' && PERIODS.length) resetNow();
+  renderAll();
+});
+setInterval(() => { if (ui.tab === 'now' && !document.hidden) renderNow(); }, 60000);
+
+/* גובה הסרגל העליון לצורך ההצמדה */
+function topbarH(){
+  document.documentElement.style.setProperty('--topbar-h', document.getElementById('topbar').offsetHeight + 'px');
+}
+window.addEventListener('resize', topbarH);
+topbarH();
+resetNow();
+setTab('attend');
+})();
+</script>
+</body>
+</html>
