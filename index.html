@@ -1723,34 +1723,149 @@ function readStore(){
       return null;
     }
     const p = JSON.parse(raw);
-    if (p && p.state) return { siteRev: p.siteRev || null, edited: !!p.edited, state: p.state };
+    if (p && p.state) return { siteRev: p.siteRev || null, edited: !!p.edited, state: p.state, srvRev: p.srvRev || "" };
     return { siteRev: null, edited: true, state: p };
   }catch(e){ return null; }
 }
 function writeStore(edited){
-  try{ localStorage.setItem(LS_KEY, JSON.stringify({ siteRev: SITE_REV, edited, state })); return true; }
+  try{ localStorage.setItem(LS_KEY, JSON.stringify({ siteRev: SITE_REV, edited, state, srvRev: srv.rev })); return true; }
   catch(e){ return false; }
 }
 
-let badgeTimer = null, urlTimer = null, urlSeq = 0;
+let badgeTimer = null;
 function saveSoon(){
-  if (writeStore(true)) setBadge("saved", "נשמר ✓");
-  else setBadge("local", "לא ניתן לשמור בדפדפן");
+  writeStore(true);
   clearTimeout(badgeTimer);
-  badgeTimer = setTimeout(() => setBadge("", "השינויים נשמרים אוטומטית"), 2200);
-  syncUrlSoon();
+  setBadge("", "שומר…");
+  pushSoon(1200);
 }
+/* הכתובת נשארת נקייה: המפה יושבת בשרת, ולא בתוך הקישור. */
 function syncUrlSoon(){
-  clearTimeout(urlTimer);
-  const seq = ++urlSeq;
-  urlTimer = setTimeout(async () => {
-    try{
-      const code = await encodeState();
-      if (seq !== urlSeq) return;
-      history.replaceState(null, "", location.pathname + location.search + "#m=" + code);
-    }catch(e){}
-  }, 700);
+  if (location.hash) history.replaceState(null, "", location.pathname + location.search);
 }
+function idleBadge(cls, txt){
+  setBadge(cls, txt);
+  clearTimeout(badgeTimer);
+  badgeTimer = setTimeout(() => setBadge("", "השינויים נשמרים אוטומטית"), 2600);
+}
+
+/* ---------- שמירה בשרת (התשתית של הדף השבועי) ----------
+   המפה נשמרת בגיליון הפרטי, גרסה לכל שמירה; גרסאות קודמות אינן נמחקות.
+   כל מי שפותח את הכתובת רואה את הגרסה האחרונה, והמסך מתעדכן מעצמו
+   כשמישהו אחר שומר. שני עורכים באותו רגע — השרת דוחה את השמירה שנבנתה
+   על גרסה ישנה, והמסך טוען את הגרסה שנשמרה. */
+const SRV = "https://script.google.com/macros/s/AKfycbyaLr78iFMbHYVvNOVKbAjiQsy3Hk2FeL5vUaKo5euf_m4MinMqVIScFCvkjFBnpyNt/exec";
+/* כשהפנייה הישירה לגוגל נחסמת (סינון/VPN) — דרך האתר של הדף השבועי. */
+const SRV_VIA = "https://hadaf-hashvui.vercel.app/api/gs";
+const srv = { rev: "", up: false, busy: false, again: false, fails: 0, via: false, t: null, booted: false };
+const DEV = (() => { try{
+  let d = localStorage.getItem("beit-midrash-dev");
+  if (!d){ d = "m" + rid() + rid(); localStorage.setItem("beit-midrash-dev", d); }
+  return d; }catch(e){ return "m" + rid(); } })();
+
+function jsonp(base, params, ms){
+  return new Promise((ok, no) => {
+    const cb = "lpd" + rid().replace(/[^a-z0-9]/g, "") + Date.now().toString(36);
+    const sc = document.createElement("script");
+    let done = false;
+    const end = () => { done = true; clearTimeout(t); try{ delete window[cb]; }catch(e){ window[cb] = undefined; } sc.remove(); };
+    const t = setTimeout(() => { if (!done){ end(); no(new Error("timeout")); } }, ms || 20000);
+    window[cb] = d => { if (!done){ end(); ok(d); } };
+    sc.onerror = () => { if (!done){ end(); no(new Error("net")); } };
+    sc.src = base + "?" + new URLSearchParams(Object.assign({}, params, { callback: cb, _: Date.now() })).toString();
+    document.head.appendChild(sc);
+  });
+}
+/* הגרסה האחרונה מהשרת; נכשל בדרך אחת — מנסים בשנייה. */
+async function srvGet(){
+  const order = srv.via ? [SRV_VIA, SRV] : [SRV, SRV_VIA];
+  let err;
+  for (const b of order){
+    try{
+      const d = await jsonp(b, { lapid: "get" });
+      /* שרת שעוד לא מכיר את המפה עונה בלי rev — לא נוגעים בו */
+      if (!d || d.status !== "ok" || typeof d.rev !== "string") throw new Error((d && d.message) || "bad");
+      srv.via = b === SRV_VIA;
+      return d;
+    }catch(e){ err = e; }
+  }
+  throw err;
+}
+async function srvPost(body){
+  const txt = JSON.stringify(body);
+  if (!srv.via){
+    try{
+      const r = await fetch(SRV, { method: "POST", body: txt, headers: { "Content-Type": "text/plain;charset=utf-8" } });
+      return await r.json();
+    }catch(e){}
+  }
+  /* התשובה בדרך הזו אטומה — מה שקובע הוא הקריאה החוזרת (pushNow). */
+  try{ await fetch(SRV_VIA, { method: "POST", mode: "no-cors", body: txt, headers: { "Content-Type": "text/plain;charset=utf-8" } }); }catch(e){}
+  return null;
+}
+/* מפה מהשרת נכנסת למסך. ההיסטוריה של "ביטול" — רק למה שנעשה אחריה. */
+function applyRemote(d, why){
+  let m;
+  try{ m = JSON.parse(d.map); }catch(e){ return false; }
+  state = normalize(m); state.rev = d.rev;
+  srv.rev = d.rev;
+  undoStack = [];
+  writeStore(true);
+  renderAll();
+  if (why) idleBadge("saved", why);
+  return true;
+}
+function pushSoon(ms){
+  clearTimeout(srv.t);
+  srv.t = setTimeout(pushNow, ms);
+}
+async function pushNow(){
+  if (!srv.booted) return;
+  if (srv.busy){ srv.again = true; return; }
+  if (state.rev === srv.rev) return;
+  srv.busy = true; srv.again = false;
+  const mine = state.rev;
+  let res = null, ok = false;
+  try{
+    res = await srvPost({ action: "lapidput", map: JSON.stringify(state), rev: mine, base: srv.rev, dev: DEV });
+    if (res && res.status === "ok"){ ok = true; srv.rev = mine; }
+    else if (res && res.status === "conflict"){
+      /* מישהו אחר שמר בינתיים — הגרסה שלו היא האחרונה. */
+      srv.busy = false;
+      applyRemote(res, "מישהו אחר שמר שינוי באותו רגע — נטענה המפה העדכנית");
+      return;
+    } else if (!res){
+      /* תשובה שלא נקראה: בודקים בשרת מה באמת נשמר. */
+      const g = await srvGet();
+      if (g.rev === mine){ ok = true; srv.rev = mine; }
+    }
+  }catch(e){}
+  srv.busy = false;
+  if (ok){
+    srv.fails = 0;
+    writeStore(true);
+    if (state.rev === mine) idleBadge("saved", "נשמר ✓");
+  } else {
+    srv.fails++;
+    setBadge("local", "לא נשמר עדיין — מנסה שוב");
+    pushSoon(Math.min(30000, 3000 * srv.fails));
+    return;
+  }
+  if (srv.again || state.rev !== srv.rev) pushSoon(300);
+}
+/* עדכון מעצמו: כשמישהו אחר שמר, והמסך הזה לא באמצע שמירה. */
+async function pullNow(){
+  if (!srv.booted || srv.busy || state.rev !== srv.rev || document.hidden) return;
+  /* לא באמצע גרירה, עריכה או חלון פתוח */
+  if (drag || !$("#pop").hidden || document.querySelector("dialog[open]") || document.activeElement === $("#mapTitle")) return;
+  try{
+    const g = await srvGet();
+    if (srv.busy || state.rev !== srv.rev || drag) return;
+    if (g.rev && g.rev !== srv.rev) applyRemote(g, "המפה עודכנה — מישהו אחר שמר שינוי");
+  }catch(e){}
+}
+setInterval(pullNow, 20000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) pullNow(); });
 
 const b64url = {
   enc: bytes => { let s = ""; for (const b of bytes) s += String.fromCharCode(b);
@@ -1804,8 +1919,7 @@ $("#sendBtn").addEventListener("click", async () => {
   const btn = $("#sendBtn"), label = btnTextOf(btn);
   btn.disabled = true; btnText(btn, "מכין…");
   try{
-    const code = await encodeState();
-    const url = location.origin + location.pathname + location.search + "#m=" + code;
+    const url = location.origin + location.pathname;
     const t = totals();
     const text = `מפת בית המדרש – ${t.seats} מקומות, ${t.benches} ספסלים.\nלצפייה ולעריכה:\n${url}`;
     if (navigator.share){
@@ -1822,8 +1936,7 @@ $("#sendBtn").addEventListener("click", async () => {
 $("#shareBtn").addEventListener("click", async () => {
   const btn = $("#shareBtn");
   try{
-    const code = await encodeState();
-    const url = location.origin + location.pathname + location.search + "#m=" + code;
+    const url = location.origin + location.pathname;
     const done = () => { btnText(btn, "הועתק ✓");
       setTimeout(() => { btnText(btn, "קישור"); }, 2200); };
     if (navigator.clipboard && navigator.clipboard.writeText){
@@ -1875,21 +1988,39 @@ $("#doImport").addEventListener("click", () => {
       source = store.siteRev === SITE_REV ? "mine" : "mine-old";
     } else state = defaultState();
   }
+  const store0 = readStore();
+  srv.rev = (store0 && store0.srvRev) || "";
   writeStore(source === "link" || source.startsWith("mine"));
   renderAll();
-  setBadge("",
-    source === "link"     ? "נטען מהקישור · השינויים נשמרים אוטומטית"
-  : source === "mine-old" ? "המפה שלכם · יש מפה חדשה יותר באתר"
-  : source === "mine"     ? "השינויים נשמרים אוטומטית"
-  :                         "המפה של האתר · השינויים נשמרים אוטומטית");
-  if (source === "mine-old"){
-    $("#siteMapBtn").classList.add("primary");
-    $("#moreBtn").classList.add("dot");
-    $("#moreBtn").title = "יש מפה חדשה יותר באתר";
-  }
+  setBadge("", "טוען את המפה העדכנית…");
   fitToScreen();
   syncUrlSoon();
+  connect(source);
 })();
+
+/* החיבור לשרת בפתיחה. השרת קובע — חוץ משני מקרים:
+   · אין עדיין מפה בשרת: מה שעל המסך (קישור · שמור · מפת האתר) הופך לגרסה הראשונה.
+   · שינויים במכשיר הזה שעוד לא הגיעו לשרת, על בסיס הגרסה שבשרת — נשלחים. */
+async function connect(source){
+  let g;
+  try{ g = await srvGet(); }
+  catch(e){
+    setBadge("local", "אין חיבור לשרת — השינויים נשמרים במכשיר ויישלחו כשיחזור");
+    setTimeout(() => connect(source), 15000);
+    return;
+  }
+  srv.booted = true;
+  if (!g.rev){
+    srv.rev = "";
+    pushSoon(0);
+    return;
+  }
+  const local = (source === "mine" || source === "mine-old") && srv.rev === g.rev && state.rev !== g.rev;
+  if (local){ pushSoon(0); return; }
+  if (state.rev !== g.rev) applyRemote(g, "");
+  else { srv.rev = g.rev; writeStore(true); }
+  setBadge("", "השינויים נשמרים אוטומטית");
+}
 
 /* גובה הסרגל העליון — כדי שהמקרא הדביק יישב בדיוק מתחתיו */
 function syncTopbarHeight(){
@@ -1911,6 +2042,8 @@ function fitToScreen(){
   syncTopbarHeight();
 }
 window.addEventListener("orientationchange", () => setTimeout(fitToScreen, 300));
+/* לבדיקות מקצה לקצה */
+window.__lapid = { get state(){ return state; }, mutate, srv, pullNow };
 })();
 
 </script>
